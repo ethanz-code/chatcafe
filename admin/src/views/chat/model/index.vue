@@ -1,0 +1,228 @@
+<script setup lang="ts">
+import { computed, h, onMounted, ref } from 'vue';
+import { NButton, NSpace, useMessage } from 'naive-ui';
+import type { DataTableColumns, FormInst, FormItemRule } from 'naive-ui';
+import dayjs from 'dayjs';
+import { type PostModelParams, fetchGetAllModel, fetchPostModel } from '@/service/api/core/chat/language/model';
+
+const message = useMessage();
+const data = ref<Api.Core.Chat.Language.Model[]>([]);
+const createColumns = ({
+  editRow
+}: {
+  editRow: (row: Api.Core.Chat.Language.Model) => void;
+}): DataTableColumns<Api.Core.Chat.Language.Model> => {
+  return [
+    {
+      title: 'ID',
+      key: 'id'
+    },
+    {
+      title: '模型名称',
+      key: 'name'
+    },
+    {
+      title: '花费对话次数',
+      key: 'cost',
+      defaultSortOrder: false,
+      sorter: {
+        compare: (a, b) => a.cost - b.cost,
+        multiple: 1
+      },
+      render(row) {
+        return h('span', { class: 'text-primary font-medium' }, { default: () => row.cost });
+      }
+    },
+    {
+      title: '模型型号',
+      key: 'model'
+    },
+    {
+      title: '更新时间',
+      key: 'updatedAt',
+      defaultSortOrder: false,
+      sorter: {
+        compare: (row1, row2) => {
+          return dayjs(row1.updatedAt).unix() - dayjs(row2.updatedAt).unix();
+        },
+        multiple: 2
+      },
+      render(row) {
+        return h('span', null, { default: () => dayjs(row.updatedAt).format('YYYY-MM-DD HH:mm') });
+      }
+    },
+    {
+      title: '外部详情链接',
+      key: 'relatedUrl',
+      ellipsis: {
+        tooltip: true
+      },
+      render(row) {
+        if (row.relatedUrl) return h('a', { href: row.relatedUrl, target: '_blank' }, row.relatedUrl);
+        return '-';
+      }
+    },
+    {
+      title: '',
+      key: 'actions',
+      render(row) {
+        return h(NSpace, null, {
+          default: () => [
+            h(
+              NButton,
+              {
+                strong: true,
+                type: 'info',
+                secondary: true,
+                size: 'small',
+                onClick: () => editRow(row)
+              },
+              { default: () => '编辑' }
+            )
+          ]
+        });
+      }
+    }
+  ];
+};
+
+const page = ref(1);
+const pageSize = ref(10);
+const pageCount = computed(() => Math.ceil(data.value.length / pageSize.value));
+const filtersDataByPage = computed(() =>
+  data.value.slice((page.value - 1) * pageSize.value, page.value * pageSize.value)
+);
+
+const active = ref(false);
+const formRef = ref<FormInst | null>(null);
+const formValue = ref({
+  data: {
+    id: 0,
+    name: '',
+    cost: 0,
+    model: '',
+    relatedUrl: ''
+  }
+});
+const rules = ref({
+  data: {
+    name: {
+      required: true,
+      message: '模型名称不能为空',
+      trigger: ['input', 'blur']
+    },
+    model: {
+      required: true,
+      message: '模型型号不能为空',
+      trigger: ['input', 'blur']
+    },
+    cost: {
+      required: true,
+      trigger: ['input', 'blur'],
+      // eslint-disable-next-line
+      validator(rule: FormItemRule, value: number) {
+        if (!value && value !== 0) {
+          return new Error('模型价格不能为空');
+        } else if (!/^[0-9]+$/.test(value.toString())) {
+          return new Error('格式有误：请输入正整数');
+        }
+        return true;
+      }
+    },
+    relatedUrl: {
+      required: false
+    }
+  }
+});
+const setDrawerDefaultData = (row: Api.Core.Chat.Language.Model) => {
+  formValue.value.data = {
+    id: row.id,
+    name: row.name,
+    cost: row.cost,
+    model: row.model,
+    relatedUrl: row.relatedUrl
+  };
+};
+const setAPieceOfDataById = (row: Partial<Api.Core.Chat.Language.Model>) => {
+  const index = data.value.findIndex(item => item.id === row.id);
+  if (index !== -1) {
+    data.value[index] = {
+      ...data.value[index],
+      name: row.name || '',
+      cost: row.cost || 0,
+      relatedUrl: row.relatedUrl || '',
+      updatedAt: dayjs().format('YYYY-MM-DD HH:mm:ss')
+    };
+  }
+};
+const drawerValidate = async () => {
+  try {
+    await formRef.value?.validate();
+    const p: PostModelParams = {
+      id: formValue.value.data.id,
+      name: formValue.value.data.name,
+      cost: formValue.value.data.cost,
+      relatedUrl: formValue.value.data.relatedUrl || ''
+    };
+    setAPieceOfDataById(p);
+    fetchPostModel(p);
+    active.value = false;
+    message.success('处理成功');
+  } catch (error) {
+    message.error('处理失败');
+  }
+};
+
+const columns = createColumns({
+  editRow(row) {
+    active.value = true;
+    setDrawerDefaultData(row);
+  }
+});
+
+onMounted(async () => {
+  const result = await fetchGetAllModel();
+  if (!result.error) {
+    data.value = result.data;
+  }
+});
+</script>
+
+<template>
+  <NSpace vertical :size="12">
+    <NCard title="模型列表" size="small">
+      <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" />
+      <div class="w-full flex justify-end p-3 pb-0 pr-0">
+        <NPagination
+          v-model:page="page"
+          v-model:page-size="pageSize"
+          :page-count="pageCount"
+          show-size-picker
+          :page-sizes="[5, 10, 20, 30, 999]"
+        />
+      </div>
+    </NCard>
+
+    <NDrawer v-model:show="active" :width="502" placement="right">
+      <NDrawerContent title="修改数据">
+        <template #footer>
+          <NButton type="primary" @click="drawerValidate">确认</NButton>
+        </template>
+        <NForm ref="formRef" :label-width="80" :model="formValue" :rules="rules" size="medium">
+          <NFormItem label="模型名称" path="data.name">
+            <NInput v-model:value="formValue.data.name" placeholder="输入自定义模型名称" />
+          </NFormItem>
+          <NFormItem label="花费" path="data.cost">
+            <NInputNumber v-model:value="formValue.data.cost" :min="0" clearable />
+          </NFormItem>
+          <NFormItem label="型号" path="data.model">
+            <NInput v-model:value="formValue.data.model" disabled />
+          </NFormItem>
+          <NFormItem label="相关链接" path="data.relatedUrl">
+            <NInput v-model:value="formValue.data.relatedUrl" placeholder="输入当前模型的相关链接" />
+          </NFormItem>
+        </NForm>
+      </NDrawerContent>
+    </NDrawer>
+  </NSpace>
+</template>

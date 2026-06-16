@@ -1,0 +1,64 @@
+{
+  "name": "chatcafe-api",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "format": "prettier --write .",
+    "prepare-fallback": "prisma generate && husky install",
+    "buildx": "docker buildx build --push --platform linux/amd64 -t 61.183.42.177:9000/chatcafe-api .",
+    "prisma format": "prisma format",
+    "prisma migrate dev": "prisma migrate dev",
+    "prisma migrate deploy": "prisma migrate deploy",
+    "divider": "---------------------------------------------------------------",
+    "dev": "dotenvx run -f .env .env .env.development -- bun --watch index.ts",
+    "prod": "dotenvx run -f .env .env.production --overload -- bun --watch index.ts",
+    "encrypt-dev": "dotenvx encrypt -f .env.development",
+    "encrypt-prod": "dotenvx encrypt -f .env.production",
+    "decrypt-dev": "dotenvx decrypt -f .env.development",
+    "decrypt-prod": "dotenvx decrypt -f .env.production",
+    "divider2": "---------------------------------------------------------------",
+    "devPublish-fix": "dotenvx run -f .env.development -- bun ./plugin/publish.ts --level fix",
+    "devPublish-feat": "dotenvx run -f .env.development -- bun ./plugin/publish.ts --level feat",
+    "devPublish-release": "dotenvx run -f .env.development -- bun ./plugin/publish.ts --level release",
+    "publish-fix": "dotenvx run -f .env.production -- bun ./plugin/publish.ts --level fix && bun buildx",
+    "publish-feat": "dotenvx run -f .env.production -- bun ./plugin/publish.ts --level feat && bun buildx",
+    "publish-release": "dotenvx run -f .env.production -- bun ./plugin/publish.ts --level release && bun buildx"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/crypto-js": "^4.2.2",
+    "@types/uuid": "^9.0.8",
+    "husky": "^8.0.0",
+    "lint-staged": "^15.2.2",
+    "prettier": "3.2.5",
+    "prisma": "^5.13.0",
+    "tsx": "^4.22.4"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@alicloud/dysmsapi20170525": "2.0.24",
+    "@dotenvx/dotenvx": "^1.31.0",
+    "@elysiajs/cors": "^1.0.2",
+    "@elysiajs/cron": "^1.0.3",
+    "@elysiajs/jwt": "^1.0.2",
+    "@elysiajs/stream": "^1.0.2",
+    "@prisma/client": "^5.13.0",
+    "axios": "^1.6.8",
+    "crypto-js": "^4.2.0",
+    "elysia": "^1.0.15",
+    "moment": "^2.30.1",
+    "safe-eval": "^0.4.1",
+    "sharp": "^0.33.2",
+    "uuid": "^9.0.1"
+  },
+  "prisma": {
+    "seed": "pnpm exec tsx prisma/seed.ts"
+  },
+  "lint-staged": {
+    "*.{js,cjs,mjs,md,ts,vue,json,css}": [
+      "prettier --write"
+    ]
+  }
+}

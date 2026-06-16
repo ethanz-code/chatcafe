@@ -1,0 +1,35 @@
+:root:root {
+  --van-search-input-height: 34px !important;
+  /*--van-sidebar-width: 110px !important;*/
+  --van-sidebar-padding: 20px 15px;
+
+  --van-floating-bubble-background: linear-gradient(to right, #ff6034, #ee0a24);
+
+  /* --van-nav-bar-icon-color: #ff6e65;
+  --van-nav-bar-text-color: #ff6e65; */
+  /* --van-sidebar-selected-border-color: #ff6e65; */
+  --van-primary-color: #ff6e65;
+
+  --van-uploader-size: 100px;
+
+  --van-step-line-color: #ff9f99;
+}
+
+.van-search__content {
+  border-radius: 0.5rem !important;
+  background-color: #f3f4f6;
+  padding-left: 8px !important;
+}
+
+.van-search {
+  padding: 8px 0px !important;
+}
+
+.van-sidebar {
+  width: 26% !important;
+  max-width: 150px;
+}
+
+.van-floating-bubble {
+  box-shadow: 2rem;
+}

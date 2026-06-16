@@ -1,0 +1,55 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: chatcafe
+      POSTGRES_USER: chatcafe
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-chatcafe123}
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  chatcafe-api:
+    build:
+      context: ./api
+      dockerfile: dockerfile
+    environment:
+      DATABASE_URL: postgresql://chatcafe:${POSTGRES_PASSWORD:-chatcafe123}@postgres:5432/chatcafe?schema=public
+      ROOT_PREFIX: /
+      CORS_ORIGIN: ${CORS_ORIGIN:-.*}
+      SUPER_USERNAME: ${SUPER_USERNAME:-admin}
+      SUPER_PASSWORD: ${SUPER_PASSWORD:-admin123}
+    volumes:
+      - media-data:/usr/src/app/media
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  chatcafe-admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+    restart: unless-stopped
+
+  chatcafe-mobile:
+    build:
+      context: ./mobile
+      dockerfile: Dockerfile
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:stable-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - media-data:/usr/src/app/media:ro
+    depends_on:
+      - chatcafe-api
+      - chatcafe-admin
+      - chatcafe-mobile
+    restart: unless-stopped
+
+volumes:
+  pg-data:
+  media-data:

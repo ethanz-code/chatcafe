@@ -1,0 +1,39 @@
+@font-face {
+  font-family: "iconfont-ydai"; /* Project id 4467274 */
+  src: url('iconfont.woff2?t=1714473146306') format('woff2'),
+       url('iconfont.woff?t=1714473146306') format('woff'),
+       url('iconfont.ttf?t=1714473146306') format('truetype');
+}
+
+.iconfont-ydai {
+  font-family: "iconfont-ydai" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.iconfont-ydai-community:before {
+  content: "\e600";
+}
+
+.iconfont-ydai-assistant:before {
+  content: "\e6a9";
+}
+
+.iconfont-ydai-user:before {
+  content: "\e611";
+}
+
+.iconfont-ydai-app-center:before {
+  content: "\e60f";
+}
+
+.iconfont-ydai-creation:before {
+  content: "\e8ca";
+}
+
+.iconfont-ydai-chat:before {
+  content: "\e645";
+}
+

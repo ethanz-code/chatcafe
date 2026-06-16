@@ -1,0 +1,251 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Configuration {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  value       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  description String?
+}
+
+model LanguageHotIssues {
+  id          Int      @id @default(autoincrement())
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model LanguageModel {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  cost        Int
+  model       String
+  imgUrl      String?
+  description String?
+  relatedUrl  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model User {
+  id               Int                @id @default(autoincrement())
+  phoneNumber      String             @unique
+  password         String
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  name             String?
+  avatar           String?            @default("/media/avatar/default.png")
+  dialogueBalance  Int?               @default(50)
+  paintingBalance  Int?               @default(2)
+  vip              Boolean?           @default(false)
+  allDialog        AllDialog[]
+  genImageList     GenImageList[]
+  feedback         Feedback[]
+  order            Order[]
+  imageCommunity   ImageCommunity[]
+  inviteCode       String             @default("CDFQTZ")
+  promotion        Promotion[]
+  starDialogDetail StarDialogDetail[]
+  punchInDaily     PunchInDaily[]
+}
+
+model AllDialog {
+  id        Int            @id @default(autoincrement())
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  title     String
+  uuid      String         @unique
+  imgUrl    String
+  user      User           @relation(fields: [userId], references: [id])
+  userId    Int
+  delta     DialogDetail[]
+}
+
+model DialogDetail {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  role      String
+  content   String
+  imgUrl    String
+  time      String
+  dialog    AllDialog @relation(fields: [dialogId], references: [id])
+  dialogId  Int
+}
+
+model AssistantCategory {
+  id         Int         @id @default(autoincrement())
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  name       String
+  assistants Assistant[]
+}
+
+model Assistant {
+  id            Int               @id @default(autoincrement())
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  name          String
+  imgUrl        String
+  description   String
+  content_zh_CN String
+  content_en_US String
+  category      AssistantCategory @relation(fields: [categoryId], references: [id])
+  categoryId    Int
+}
+
+model GenImageList {
+  id              Int              @id @default(autoincrement())
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  imgUrl          String
+  model           String
+  time            String
+  status          String
+  prompt          String
+  referenceBase64 String?
+  user            User             @relation(fields: [userId], references: [id])
+  userId          Int
+  imageCommunity  ImageCommunity[]
+}
+
+model ApplicationCenter {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  name        String
+  imgUrl      String
+  description String?
+  model       String
+  cost        Int
+  type        String
+  path        String
+  queryType   String
+}
+
+model Feedback {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  type      String
+  content   String
+  contact   String
+  status    String   @default("待处理")
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+}
+
+model Goods {
+  id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  title         String
+  description   String
+  dialogueCount Int
+  paintingCount Int
+  imgUrl        String
+  price         Float
+  order         Order[]
+}
+
+model Order {
+  id        Int      @id @default(autoincrement()) // 订单ID
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  orderNo   String // 订单号
+  status    String?  @default("未付款") // 订单状态， 未付款，已付款
+  goodsId   Int // 商品ID
+  goods     Goods    @relation(fields: [goodsId], references: [id])
+  userId    Int // 用户ID
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+// 图像社区
+model ImageCommunity {
+  id        Int          @id @default(autoincrement())
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  img       GenImageList @relation(fields: [imgId], references: [id])
+  imgId     Int
+  user      User         @relation(fields: [userId], references: [id])
+  userId    Int
+  pageView  Int          @default(0) // 浏览量
+  likes     Int[]        @default([]) // 点赞用户列表，存入用户的id，当用户id发送改变时将会丢失用户点赞状态
+}
+
+// 卡密
+model ActivationCode {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  code        String
+  description String?
+}
+
+// 分销推广，邀请注册（被邀请用户的列表，如果用户id被修改，这里也需要修改，不然就找不到这条记录对应用户了）
+model Promotion {
+  id            Int      @id @default(autoincrement()) // 数据记录id
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  inviteUser    User     @relation(fields: [inviteUserId], references: [id])
+  inviteUserId  Int // 邀请人id，
+  inviteeUserId Int // 被邀请人id
+}
+
+// 收藏表，用户收藏的所有对话都会在这里，当用户删除了相关表不互相牵连
+model StarDialogDetail {
+  id               Int      @id @default(autoincrement())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  dialogUUID       String
+  user             User     @relation(fields: [userId], references: [id])
+  userId           Int
+  userMsg          String
+  userMsgTime      String
+  assistantMsg     String
+  assistantMsgTime String
+}
+
+// 每日签到奖励数据表
+model PunchInDaily {
+  id             Int      @id @default(autoincrement())
+  createdAt      DateTime @default(now()) // 签到时间
+  updatedAt      DateTime @updatedAt
+  rewardDialogue Int // 签到随机获得的对话次数，范围10~30
+  user           User     @relation(fields: [userId], references: [id])
+  userId         Int
+}
+
+// 任务奖励用户接收表
+model TaskRewardReceived {
+  id           Int        @id @default(autoincrement())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  userId       Int
+  value        Int // -1表示已完成该任务，>=0为正常状态值
+  taskReward   TaskReward @relation(fields: [taskRewardId], references: [id])
+  taskRewardId Int
+}
+
+// 任务奖励数据表
+model TaskReward {
+  id                 Int                  @id @default(autoincrement())
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  name               String // 奖励名称，案例：total_recharge
+  description        String // 奖励描述，案例：首次上传头像，奖励对话余额50次，绘画余额3次
+  rewardDialogue     Int
+  rewardPainting     Int
+  fluentIconName     String // xicon中fluent范围内的图标名称，可以替换到任务图标上
+  condition          String               @default("0") // 奖励领取条件，0代表可以直接领取，案例：total_recharge > 30,字符串表达式使用jsep-eval进行解析
+  taskRewardReceived TaskRewardReceived[] // 该任务奖励被领取的用户ID, 内部createdAt需要配合refreshTime进行刷新
+}
