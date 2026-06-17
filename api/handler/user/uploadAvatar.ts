@@ -25,7 +25,7 @@ export default async function ({ jwt, set, headers, body: { blob } }: any) {
   });
   const avatarSplit = avatarUrl?.avatar!.split("/") || [];
   // 检测是否真正需要被删除，如果是默认头像不再删除
-  if (avatarSplit[avatarSplit.length - 1] !== "default.png") {
+  if (avatarSplit[avatarSplit.length - 1] !== "default.webp") {
     const path = resolve("./", ...avatarSplit);
     const file = Bun.file(path);
     if (await file.exists()) await unlink(path);
@@ -35,7 +35,7 @@ export default async function ({ jwt, set, headers, body: { blob } }: any) {
   // 六位随机数字
   const code = Math.floor(Math.random() * 900000) + 100000;
   // 生成图片文件名
-  const filename = `${moment().unix()}_${code}.png`;
+  const filename = `${moment().unix()}_${code}.webp`;
   const fileUrl = resolve("./", "media", "avatar", filename);
   await Bun.write(fileUrl, blob);
 

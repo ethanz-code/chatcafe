@@ -35,7 +35,7 @@ export default async function ({}: any) {
       if (img.imgUrl.startsWith("/media/genImg/")) {
         const splitPath = img.imgUrl.split("/");
         const imgName =
-          splitPath[splitPath.length - 1].split(".")[0] + "gz.png";
+          splitPath[splitPath.length - 1].split(".")[0] + "gz.webp";
         splitPath.pop();
         splitPath.push(imgName);
         imgUrl = splitPath.join("/");

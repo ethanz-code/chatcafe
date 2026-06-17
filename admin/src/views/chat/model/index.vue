@@ -3,7 +3,13 @@ import { computed, h, onMounted, ref } from 'vue';
 import { NButton, NSpace, useMessage } from 'naive-ui';
 import type { DataTableColumns, FormInst, FormItemRule } from 'naive-ui';
 import dayjs from 'dayjs';
-import { type PostModelParams, fetchGetAllModel, fetchPostModel } from '@/service/api/core/chat/language/model';
+import {
+  type PostModelParams,
+  type CreateModelParams,
+  fetchGetAllModel,
+  fetchPostModel,
+  fetchCreateModel
+} from '@/service/api/core/chat/language/model';
 
 const message = useMessage();
 const data = ref<Api.Core.Chat.Language.Model[]>([]);
@@ -94,13 +100,14 @@ const filtersDataByPage = computed(() =>
 );
 
 const active = ref(false);
+const isCreate = ref(false);
 const formRef = ref<FormInst | null>(null);
 const formValue = ref({
   data: {
     id: 0,
     name: '',
-    cost: 0,
     model: '',
+    cost: 0,
     relatedUrl: ''
   }
 });
@@ -134,12 +141,26 @@ const rules = ref({
     }
   }
 });
+
+const openCreateDrawer = () => {
+  isCreate.value = true;
+  formValue.value.data = {
+    id: 0,
+    name: '',
+    model: '',
+    cost: 1,
+    relatedUrl: ''
+  };
+  active.value = true;
+};
+
 const setDrawerDefaultData = (row: Api.Core.Chat.Language.Model) => {
+  isCreate.value = false;
   formValue.value.data = {
     id: row.id,
     name: row.name,
-    cost: row.cost,
     model: row.model,
+    cost: row.cost,
     relatedUrl: row.relatedUrl
   };
 };
@@ -158,16 +179,34 @@ const setAPieceOfDataById = (row: Partial<Api.Core.Chat.Language.Model>) => {
 const drawerValidate = async () => {
   try {
     await formRef.value?.validate();
-    const p: PostModelParams = {
-      id: formValue.value.data.id,
-      name: formValue.value.data.name,
-      cost: formValue.value.data.cost,
-      relatedUrl: formValue.value.data.relatedUrl || ''
-    };
-    setAPieceOfDataById(p);
-    fetchPostModel(p);
+
+    if (isCreate.value) {
+      const p: CreateModelParams = {
+        name: formValue.value.data.name,
+        model: formValue.value.data.model,
+        cost: formValue.value.data.cost,
+        relatedUrl: formValue.value.data.relatedUrl || ''
+      };
+      const result = await fetchCreateModel(p);
+      if (!result.error) {
+        data.value.push(result.data);
+        message.success('新增成功');
+      } else {
+        message.error('新增失败');
+      }
+    } else {
+      const p: PostModelParams = {
+        id: formValue.value.data.id,
+        name: formValue.value.data.name,
+        cost: formValue.value.data.cost,
+        relatedUrl: formValue.value.data.relatedUrl || ''
+      };
+      setAPieceOfDataById(p);
+      fetchPostModel(p);
+      message.success('修改成功');
+    }
+
     active.value = false;
-    message.success('处理成功');
   } catch (error) {
     message.error('处理失败');
   }
@@ -191,6 +230,9 @@ onMounted(async () => {
 <template>
   <NSpace vertical :size="12">
     <NCard title="模型列表" size="small">
+      <template #header-extra>
+        <NButton type="primary" @click="openCreateDrawer">新增模型</NButton>
+      </template>
       <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" />
       <div class="w-full flex justify-end p-3 pb-0 pr-0">
         <NPagination
@@ -204,19 +246,19 @@ onMounted(async () => {
     </NCard>
 
     <NDrawer v-model:show="active" :width="502" placement="right">
-      <NDrawerContent title="修改数据">
+      <NDrawerContent :title="isCreate ? '新增模型' : '编辑模型'">
         <template #footer>
           <NButton type="primary" @click="drawerValidate">确认</NButton>
         </template>
         <NForm ref="formRef" :label-width="80" :model="formValue" :rules="rules" size="medium">
           <NFormItem label="模型名称" path="data.name">
-            <NInput v-model:value="formValue.data.name" placeholder="输入自定义模型名称" />
+            <NInput v-model:value="formValue.data.name" placeholder="如：DeepSeek Flash" />
+          </NFormItem>
+          <NFormItem label="模型型号" path="data.model">
+            <NInput v-model:value="formValue.data.model" :disabled="!isCreate" placeholder="如：deepseek-v4-flash" />
           </NFormItem>
           <NFormItem label="花费" path="data.cost">
             <NInputNumber v-model:value="formValue.data.cost" :min="0" clearable />
-          </NFormItem>
-          <NFormItem label="型号" path="data.model">
-            <NInput v-model:value="formValue.data.model" disabled />
           </NFormItem>
           <NFormItem label="相关链接" path="data.relatedUrl">
             <NInput v-model:value="formValue.data.relatedUrl" placeholder="输入当前模型的相关链接" />

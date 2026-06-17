@@ -5,6 +5,31 @@
     <link rel="icon" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>%VITE_APP_TITLE%</title>
+    <script>
+      (function () {
+        try {
+          var s = JSON.parse(localStorage.getItem('themeSettings'));
+          var c = (s && s.themeColor) || '#646cff';
+          var dark =
+            s &&
+            (s.themeScheme === 'dark' ||
+              (s.themeScheme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches));
+          var el = document.documentElement;
+          if (dark) el.classList.add('dark');
+          el.style.setProperty('--primary-color', c);
+          if (dark) {
+            el.style.setProperty('--container-bg-color', '28 28 28');
+            el.style.setProperty('--layout-bg-color', '18 18 18');
+            el.style.setProperty('--base-text-color', '224 224 224');
+            el.style.backgroundColor = '#121212';
+          } else {
+            el.style.setProperty('--container-bg-color', '255 255 255');
+            el.style.setProperty('--layout-bg-color', '247 250 252');
+            el.style.setProperty('--base-text-color', '31 31 31');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="app"></div>

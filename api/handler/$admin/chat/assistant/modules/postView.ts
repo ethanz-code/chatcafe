@@ -26,7 +26,7 @@ export default async function ({
       // 六位随机数字
       const code = Math.floor(Math.random() * 900000) + 100000;
       // 生成图片文件名
-      const filename = `${moment().unix()}_${code}.png`;
+      const filename = `${moment().unix()}_${code}.webp`;
       const fileUrl = resolve("./", "media", "assistant", filename);
       await Bun.write(fileUrl, imgBlob);
 
@@ -48,7 +48,7 @@ export default async function ({
     // 六位随机数字
     const code = Math.floor(Math.random() * 900000) + 100000;
     // 生成图片文件名
-    const filename = `${moment().unix()}_${code}.png`;
+    const filename = `${moment().unix()}_${code}.webp`;
     const fileUrl = resolve("./", "media", "assistant", filename);
     await Bun.write(fileUrl, imgBlob);
 

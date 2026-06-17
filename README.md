@@ -16,159 +16,107 @@ AIGC 智能对话应用，支持多模型聊天。
 
 ---
 
-## 快速启动
+## 技术栈
+
+- **后端**：Bun + Elysia + Prisma
+- **管理后台**：Vue3 + NaiveUI + Vite
+- **移动端**：Vue3 + Vant + Vite
+- **数据库**：PostgreSQL 16
+- **AI 代理**：One-API（支持多提供商）
+- **部署**：Docker Compose + Nginx
+
+## 本地开发
 
 ### 环境要求
 
 - Node.js >= 18
 - pnpm
-- bun（用于运行 API）
+- bun（运行 API）
 - PostgreSQL 16
 
-### 1. 安装依赖
+### 启动步骤
 
 ```bash
-# API 后端
-cd api && pnpm install
+# 1. 安装依赖
+pnpm install
+cd api && pnpm install && cd ..
+cd admin && pnpm install && cd ..
+cd client && pnpm install && cd ..
 
-# 管理后台
-cd admin && pnpm install
-
-# 移动端
-cd mobile && pnpm install
-```
-
-### 2. 启动数据库
-
-使用已有的本地 PostgreSQL 容器，或通过 Docker 启动：
-
-```bash
+# 2. 启动数据库
 docker compose up -d postgres
-```
 
-### 3. 创建数据库
+# 3. 修改数据库连接
+# 编辑 api/.env.development，改 DATABASE_URL
 
-```bash
-# 连接到 PostgreSQL，创建数据库
-docker exec local-postgres psql -U yassine -d postgres -c "CREATE DATABASE chatcafe;"
-```
-
-### 4. 修改环境变量
-
-编辑 `api/.env.development`，将 `DATABASE_URL` 改为你的数据库连接信息：
-
-```
-DATABASE_URL="postgresql://用户名:密码@localhost:5432/chatcafe?schema=public"
-```
-
-然后重新加密（可选）：
-
-```bash
-cd api && pnpm encrypt-dev
-```
-
-### 5. 初始化数据库
-
-```bash
+# 4. 初始化数据库
 cd api
-
-# 执行迁移（建表）
+pnpm exec prisma generate
 pnpm exec dotenvx run -f .env .env.development -- pnpm exec prisma migrate deploy
+pnpm seed
 
-# 导入种子数据
-pnpm exec dotenvx run -f .env .env.development -- pnpm exec prisma db seed
+# 5. 启动项目（根目录）
+pnpm dev
 ```
 
-### 6. 配置 DeepSeek API Key
+启动后访问：
 
-种子数据中的 API Key 为占位符，需要手动更新为真实的 Key：
+| 服务     | 地址                  |
+| -------- | --------------------- |
+| 移动端   | http://localhost:5173 |
+| 管理后台 | http://localhost:8000 |
+| API 后端 | http://localhost:9091 |
 
-```bash
-docker exec local-postgres psql -U yassine -d chatcafe -c "UPDATE \"Configuration\" SET value = 'sk-你的真实Key' WHERE name = 'chat-secret-key';"
-```
+### 配置 AI
 
-### 7. 启动项目
+种子数据中的 API Key 是占位符，需要：
 
-```bash
-# API 后端（端口 9091）
-cd api && pnpm dev
+1. 启动 One-API：`docker compose up -d one-api`
+2. 访问 http://localhost:3000 配置 AI 渠道和令牌
+3. 在 ChatCafe 后台面板更新 `one-api-key`
 
-# 管理后台（另开终端）
-cd admin && pnpm dev
+## Docker 部署
 
-# 移动端（另开终端）
-cd mobile && pnpm dev
-```
+所有服务通过 Nginx 统一入口，域名 `cafe.htlabs.com.cn`：
 
-## Docker Compose 部署
-
-所有服务部署在同一域名下，通过 nginx 反向代理统一入口：
-
-| 路径 | 服务 |
-|------|------|
-| `/` | 移动端 |
+| 路径      | 服务     |
+| --------- | -------- |
+| `/`       | 移动端   |
 | `/admin/` | 管理后台 |
-| `/api/*` | API 后端 |
-| `/media/*` | 媒体文件 |
+| `/api/*`  | API 后端 |
+| `/media/*`| 媒体文件 |
 
-### 1. 修改配置
-
-编辑根目录 `.env`，按需修改：
-
-```env
-POSTGRES_PASSWORD=chatcafe123
-SUPER_USERNAME=admin
-SUPER_PASSWORD=admin123
-CORS_ORIGIN=.*
-```
-
-### 2. 构建并启动
+### 部署命令
 
 ```bash
+# 修改 .env（数据库密码、CORS 等）
 docker compose build
-docker compose up -d postgres
-
-# 等待 PostgreSQL 启动完成（约 5 秒）
-sleep 5
-
-# 执行数据库迁移
+docker compose up -d postgres && sleep 5
 docker compose run --rm chatcafe-api bun run node_modules/.bin/prisma migrate deploy
-
-# 导入种子数据
-docker compose run --rm chatcafe-api bun run node_modules/.bin/prisma db seed
-
-# 启动所有服务
+docker compose run --rm chatcafe-api bun run node_modules/.bin/prisma/seed.ts
 docker compose up -d
 ```
 
-### 3. 更新 DeepSeek API Key
-
-```bash
-docker compose exec postgres psql -U chatcafe -d chatcafe -c "UPDATE \"Configuration\" SET value = 'sk-你的真实Key' WHERE name = 'chat-secret-key';"
-```
-
-### 项目结构
+## 项目结构
 
 ```
 chatcafe/
-├── api/              # 后端 API（Bun + Elysia + Prisma）
-├── admin/            # 管理后台（Vue3 + NaiveUI）
-├── mobile/           # 移动端（Vue3 + Vant）
-├── nginx.conf        # 反向代理配置
+├── api/              # 后端 API
+├── admin/            # 管理后台
+├── client/           # 移动端
+├── nginx.conf        # 反向代理
 ├── docker-compose.yml
-├── .env              # Docker 部署配置（不进 git）
-└── api/.env.keys     # dotenvx 加密密钥（不进 git）
+├── package.json      # 根目录 pnpm dev 一键启动
+└── .env              # Docker 部署配置（不进 git）
 ```
 
-### 常用命令
+## 常用命令
 
-| 命令 | 说明 |
-|------|------|
-| `pnpm dev` | 本地启动开发服务 |
-| `pnpm exec prisma migrate deploy` | 执行数据库迁移 |
-| `pnpm exec prisma db seed` | 导入种子数据 |
-| `pnpm exec prisma studio` | 打开数据库可视化 |
-| `pnpm encrypt-dev` / `pnpm decrypt-dev` | 加密/解密开发环境变量 |
-| `docker compose build` | 构建 Docker 镜像 |
-| `docker compose up -d` | 启动所有容器 |
-| `docker compose logs -f chatcafe-api` | 查看 API 日志 |
+```bash
+pnpm dev                              # 一键启动所有服务
+pnpm encrypt / pnpm decrypt           # 加密/解密 .env
+pnpm encrypt:dev / pnpm decrypt:dev   # 加密/解密 .env.development
+docker compose up -d                  # 启动所有容器
+docker compose logs -f chatcafe-api   # 查看 API 日志
+docker compose logs -f one-api        # 查看 One-API 日志
+```

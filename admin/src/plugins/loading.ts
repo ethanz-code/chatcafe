@@ -6,10 +6,17 @@ import systemLogo from '@/assets/svg-icon/logo.svg?raw';
 
 export function setupLoading() {
   const themeColor = localStg.get('themeColor') || '#646cff';
+  const themeSettings = localStg.get('themeSettings');
+  const isDark =
+    themeSettings?.themeScheme === 'dark' ||
+    (themeSettings?.themeScheme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   const { r, g, b } = getRgbOfColor(themeColor);
 
   const primaryColor = `--primary-color: ${r} ${g} ${b}`;
+
+  const bgColor = isDark ? 'background:#18181c;' : '';
+  const textColor = isDark ? 'color:rgba(255,255,255,0.82);' : 'color:#646464;';
 
   const loadingClasses = [
     'left-0 top-0',
@@ -27,14 +34,14 @@ export function setupLoading() {
     .join('\n');
 
   const loading = `
-<div class="fixed-center flex-col" style="${primaryColor}">
+<div class="fixed-center flex-col" style="${primaryColor}${bgColor}">
   ${logoWithClass}
   <div class="w-56px h-56px my-36px">
     <div class="relative h-full animate-spin">
       ${dot}
     </div>
   </div>
-  <h2 class="text-28px font-500 text-#646464">${$t('system.title')}</h2>
+  <h2 class="text-28px font-500" style="${textColor}">${$t('system.title')}</h2>
 </div>`;
 
   const app = document.getElementById('app');

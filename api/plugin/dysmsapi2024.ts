@@ -23,8 +23,8 @@ export const sendSmsWithOptions = async (
   const client = createClient();
   const sendSmsRequest = new $Dysmsapi2024.SendSmsRequest({
     phoneNumbers: phoneNumber,
-    signName: "济宁市若森计算机软件开发",
-    templateCode: "SMS_301580453",
+    signName: "上海宏途数创科技",
+    templateCode: "SMS_505325083",
     templateParam: `{"code": "${code}"}`,
   });
   const runtime = new $Util.RuntimeOptions({});

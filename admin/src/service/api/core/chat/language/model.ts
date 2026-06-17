@@ -21,3 +21,19 @@ export function fetchPostModel(d: PostModelParams) {
     }
   });
 }
+
+export interface CreateModelParams {
+  name: string;
+  model: string;
+  cost: number;
+  relatedUrl?: string;
+}
+export function fetchCreateModel(d: CreateModelParams) {
+  return request({
+    url: '/chat/language/createModel',
+    method: 'POST',
+    data: {
+      ...d
+    }
+  });
+}

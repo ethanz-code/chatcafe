@@ -4,8 +4,8 @@ import Stream from "@elysiajs/stream";
 import axios from "axios";
 
 const config = await getConfig();
-const chatProxyAddress = config["chat-proxy-address"];
-const chatSecretKey = config["chat-secret-key"];
+const oneApiUrl = config["one-api-url"];
+const oneApiKey = config["one-api-key"];
 const chatMaxTokens = config["chat-max-tokens"];
 
 export default async function ({ body: { model, prompt, token } }: any) {
@@ -21,10 +21,10 @@ export default async function ({ body: { model, prompt, token } }: any) {
       axios
         .request({
           method: "POST",
-          url: `${chatProxyAddress}chat/completions`,
+          url: `${oneApiUrl}chat/completions`,
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${chatSecretKey}`,
+            Authorization: `Bearer ${oneApiKey}`,
           },
           data: stringfyData,
           responseType: "stream",

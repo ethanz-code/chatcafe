@@ -3,8 +3,8 @@
 # private key
 .env.keys
 
-# Generate's Images
-/media/genImg
+# Media files (images, uploads)
+/media
 
 # Logs
 

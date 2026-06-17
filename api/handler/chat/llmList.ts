@@ -5,7 +5,6 @@ export const llmList = async (app: any) => {
     select: {
       name: true,
       cost: true,
-      imgUrl: true,
       relatedUrl: true,
     },
     orderBy: {
@@ -16,7 +15,6 @@ export const llmList = async (app: any) => {
   return result.map((item: any) => ({
     model: item.name,
     cost: item.cost,
-    imgUrl: item.imgUrl,
     relatedUrl: item.relatedUrl,
   }));
 };

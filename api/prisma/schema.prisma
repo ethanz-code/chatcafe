@@ -43,7 +43,7 @@ model User {
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
   name             String?
-  avatar           String?            @default("/media/avatar/default.png")
+  avatar           String?            @default("/media/avatar/default.webp")
   dialogueBalance  Int?               @default(50)
   paintingBalance  Int?               @default(2)
   vip              Boolean?           @default(false)

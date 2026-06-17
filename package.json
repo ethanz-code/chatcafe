@@ -1,0 +1,10 @@
+{
+  "name": "chatcafe",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n api,admin,client -c blue,green,yellow \"cd api && pnpm exec prisma generate && pnpm dev\" \"cd admin && pnpm dev\" \"cd client && pnpm dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}

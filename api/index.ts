@@ -16,7 +16,11 @@ const config = await getConfig();
 const jwtSecret = config["jwt-secret"];
 
 const rootPrefix = Bun.env.ROOT_PREFIX || "/";
-const corsOrigin = Bun.env.CORS_ORIGIN || ".*";
+const corsOrigin = Bun.env.CORS_ORIGIN;
+
+const corsConfig = corsOrigin
+  ? cors({ origin: new RegExp(corsOrigin) })
+  : cors({ origin: false });
 
 new Elysia()
   .use(
@@ -26,11 +30,7 @@ new Elysia()
       exp: "3d",
     }),
   )
-  .use(
-    cors({
-      origin: new RegExp(corsOrigin),
-    }),
-  )
+  .use(corsConfig)
   .use(ChatPlugin({ prefix: rootPrefix + "chat" }))
   .use(FilePlugin({ prefix: rootPrefix }))
   .use(CompressPlugin({ prefix: rootPrefix }))

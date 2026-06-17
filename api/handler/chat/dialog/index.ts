@@ -16,7 +16,7 @@ export const DialogPlugin = (config: Config) =>
     .post(`${config.prefix}/newDialog`, newDialog, {
       body: t.Object({
         title: t.String(),
-        imgUrl: t.String(),
+        imgUrl: t.Optional(t.String()),
       }),
       headers: t.Object({
         authorization: t.String(),
@@ -41,7 +41,7 @@ export const DialogPlugin = (config: Config) =>
         uuid: t.String(),
         role: t.String(),
         content: t.String(),
-        imgUrl: t.String(),
+        imgUrl: t.Optional(t.String()),
         time: t.String(),
       }),
       headers: t.Object({

@@ -9,6 +9,18 @@ services:
       - pg-data:/var/lib/postgresql/data
     restart: unless-stopped
 
+  one-api:
+    image: justsong/one-api:latest
+    environment:
+      TZ: Asia/Shanghai
+      SESSION_SECRET: ${ONE_API_SECRET:-chatcafe-one-api-secret}
+      SQL_DSN: postgres://chatcafe:${POSTGRES_PASSWORD:-chatcafe123}@postgres:5432/chatcafe?sslmode=disable
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
   chatcafe-api:
     build:
       context: ./api
@@ -16,9 +28,21 @@ services:
     environment:
       DATABASE_URL: postgresql://chatcafe:${POSTGRES_PASSWORD:-chatcafe123}@postgres:5432/chatcafe?schema=public
       ROOT_PREFIX: /
-      CORS_ORIGIN: ${CORS_ORIGIN:-.*}
-      SUPER_USERNAME: ${SUPER_USERNAME:-admin}
-      SUPER_PASSWORD: ${SUPER_PASSWORD:-admin123}
+      CORS_ORIGIN: ${CORS_ORIGIN:-}
+      # 阿里云短信
+      ALIBABA_CLOUD_ACCESS_KEY_ID: ${ALIBABA_CLOUD_ACCESS_KEY_ID:-}
+      ALIBABA_CLOUD_ACCESS_KEY_SECRET: ${ALIBABA_CLOUD_ACCESS_KEY_SECRET:-}
+      # 蓝兔支付
+      LTZF_MCH_ID: ${LTZF_MCH_ID:-}
+      LTZF_MCH_SECRET: ${LTZF_MCH_SECRET:-}
+      LTZF_NOTIFY_URL: ${LTZF_NOTIFY_URL:-}
+      LTZF_QUIT_URL: ${LTZF_QUIT_URL:-}
+      LTZF_RETURN_URL: ${LTZF_RETURN_URL:-}
+      # 后台管理员
+      SUPER_USERNAME: ${SUPER_USERNAME:-}
+      SUPER_PASSWORD: ${SUPER_PASSWORD:-}
+    ports:
+      - "8888:9091"
     volumes:
       - media-data:/usr/src/app/media
     depends_on:
@@ -31,9 +55,9 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
 
-  chatcafe-mobile:
+  chatcafe-client:
     build:
-      context: ./mobile
+      context: ./client
       dockerfile: Dockerfile
     restart: unless-stopped
 
@@ -47,7 +71,7 @@ services:
     depends_on:
       - chatcafe-api
       - chatcafe-admin
-      - chatcafe-mobile
+      - chatcafe-client
     restart: unless-stopped
 
 volumes:

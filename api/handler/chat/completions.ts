@@ -5,8 +5,8 @@ import axios from "axios";
 import { calcBalance } from "@/plugin/balance";
 
 const config = await getConfig();
-const chatProxyAddress = config["chat-proxy-address"];
-const chatSecretKey = config["chat-secret-key"];
+const oneApiUrl = config["one-api-url"];
+const oneApiKey = config["one-api-key"];
 const chatMaxTokens = config["chat-max-tokens"];
 
 export default async ({
@@ -138,10 +138,10 @@ export default async ({
       axios
         .request({
           method: "POST",
-          url: `${chatProxyAddress}chat/completions`,
+          url: `${oneApiUrl}chat/completions`,
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${chatSecretKey}`,
+            Authorization: `Bearer ${oneApiKey}`,
           },
           data: stringfyData,
           responseType: "stream",

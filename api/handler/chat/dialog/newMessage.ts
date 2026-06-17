@@ -1,7 +1,7 @@
 import prisma from "@/plugin/prismaClient";
 
 export default async function ({
-  body: { uuid, role, content, imgUrl, time },
+  body: { uuid, role, content, imgUrl = '', time },
   jwt,
   set,
   headers,

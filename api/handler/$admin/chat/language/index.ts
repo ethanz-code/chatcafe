@@ -2,6 +2,7 @@ import { Elysia, t } from "elysia";
 
 import getAllModel from "./modules/getAllModel";
 import postModel from "./modules/postModel";
+import createModel from "./modules/createModel";
 import getAllHotIssues from "./modules/getAllHotIssues";
 import createHotIssue from "./modules/createHotIssue";
 import deleteHotIssue from "./modules/deleteHotIssue";
@@ -15,6 +16,14 @@ export const LanguagePlugin = ({ prefix }: IAuthPluginParams) =>
       body: t.Object({
         id: t.Number(),
         name: t.String(),
+        cost: t.Number(),
+        relatedUrl: t.Optional(t.String()),
+      }),
+    })
+    .post(`${prefix}/createModel`, createModel, {
+      body: t.Object({
+        name: t.String(),
+        model: t.String(),
         cost: t.Number(),
         relatedUrl: t.Optional(t.String()),
       }),

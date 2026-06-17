@@ -2,27 +2,27 @@
   "name": "chatcafe-api",
   "module": "index.ts",
   "type": "module",
-  "scripts": {
+"scripts": {
     "format": "prettier --write .",
     "prepare-fallback": "prisma generate && husky install",
     "buildx": "docker buildx build --push --platform linux/amd64 -t 61.183.42.177:9000/chatcafe-api .",
-    "prisma format": "prisma format",
-    "prisma migrate dev": "prisma migrate dev",
-    "prisma migrate deploy": "prisma migrate deploy",
-    "divider": "---------------------------------------------------------------",
-    "dev": "dotenvx run -f .env .env .env.development -- bun --watch index.ts",
-    "prod": "dotenvx run -f .env .env.production --overload -- bun --watch index.ts",
-    "encrypt-dev": "dotenvx encrypt -f .env.development",
-    "encrypt-prod": "dotenvx encrypt -f .env.production",
-    "decrypt-dev": "dotenvx decrypt -f .env.development",
-    "decrypt-prod": "dotenvx decrypt -f .env.production",
-    "divider2": "---------------------------------------------------------------",
-    "devPublish-fix": "dotenvx run -f .env.development -- bun ./plugin/publish.ts --level fix",
-    "devPublish-feat": "dotenvx run -f .env.development -- bun ./plugin/publish.ts --level feat",
-    "devPublish-release": "dotenvx run -f .env.development -- bun ./plugin/publish.ts --level release",
-    "publish-fix": "dotenvx run -f .env.production -- bun ./plugin/publish.ts --level fix && bun buildx",
-    "publish-feat": "dotenvx run -f .env.production -- bun ./plugin/publish.ts --level feat && bun buildx",
-    "publish-release": "dotenvx run -f .env.production -- bun ./plugin/publish.ts --level release && bun buildx"
+    "prisma:format": "prisma format",
+    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "seed": "bun prisma/seed.ts",
+    "seed:force": "bun prisma/seed.ts --force",
+    "dev": "dotenvx run -f .env.development -- bun --watch index.ts",
+    "prod": "dotenvx run -f .env.production --overload -- bun --watch index.ts",
+    "encrypt:dev": "dotenvx encrypt -f .env.development",
+    "encrypt:prod": "dotenvx encrypt -f .env.production",
+    "decrypt:dev": "dotenvx decrypt -f .env.development",
+    "decrypt:prod": "dotenvx decrypt -f .env.production",
+    "devPublish:fix": "dotenvx run -f .env.development -- bun ./plugin/publish.ts --level fix",
+    "devPublish:feat": "dotenvx run -f .env.development -- bun ./plugin/publish.ts --level feat",
+    "devPublish:release": "dotenvx run -f .env.development -- bun ./plugin/publish.ts --level release",
+    "publish:fix": "dotenvx run -f .env.production -- bun ./plugin/publish.ts --level fix && bun buildx",
+    "publish:feat": "dotenvx run -f .env.production -- bun ./plugin/publish.ts --level feat && bun buildx",
+    "publish:release": "dotenvx run -f .env.production -- bun ./plugin/publish.ts --level release && bun buildx"
   },
   "devDependencies": {
     "@types/bun": "latest",
@@ -54,7 +54,7 @@
     "uuid": "^9.0.1"
   },
   "prisma": {
-    "seed": "pnpm exec tsx prisma/seed.ts"
+    "seed": "bun prisma/seed.ts"
   },
   "lint-staged": {
     "*.{js,cjs,mjs,md,ts,vue,json,css}": [

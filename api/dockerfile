@@ -5,7 +5,8 @@ WORKDIR /usr/src/app
 COPY . .
 
 RUN bun install
+RUN bunx prisma generate
 
 EXPOSE 9091
 
-CMD ["bun", "run", "index.ts"]
+CMD ["sh", "-c", "bunx prisma migrate deploy && bun run index.ts"]
