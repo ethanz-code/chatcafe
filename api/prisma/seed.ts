@@ -5,19 +5,25 @@ const FORCE = process.argv.includes('--force')
 
 // ---- 种子数据 ----
 
-const configurations = [
-  { name: 'jwt-secret', value: 'chatcafe-jwt-secret-change-me', description: 'JWT 签名密钥，用于生成和验证用户登录 Token，生产环境必须修改' },
-  { name: 'one-api-url', value: 'http://one-api:3000/', description: 'One-API 地址，用于代理 AI 请求' },
-  { name: 'one-api-key', value: 'sk-YOUR_ONE_API_TOKEN', description: 'One-API 令牌，在 One-API 后台添加令牌后填入' },
-  { name: 'chat-max-tokens', value: '8192', description: '单次对话最大输出 Token 数，DeepSeek-V3 最大支持 8192' },
-]
-
 const languageModels = [
   {
-    name: 'DeepSeek-V4-Flash',
-    model: 'deepseek-v4-flash',
+    name: 'DeepSeek V4 Flash',
+    model: 'deepseek-chat',
     cost: 1,
+    apiKey: '',
+    baseUrl: 'https://api.deepseek.com',
+    imgUrl: 'https://cdn.simpleicons.org/deepseek/1A1A1A',
     description: 'DeepSeek V4 Flash，速度快，性价比最高',
+    relatedUrl: 'https://platform.deepseek.com',
+  },
+  {
+    name: 'DeepSeek V4 Pro',
+    model: 'deepseek-reasoner',
+    cost: 4,
+    apiKey: '',
+    baseUrl: 'https://api.deepseek.com',
+    imgUrl: 'https://cdn.simpleicons.org/deepseek/1A1A1A',
+    description: 'DeepSeek V4 Pro 深度推理，复杂逻辑和数学',
     relatedUrl: 'https://platform.deepseek.com',
   },
 ]
@@ -27,7 +33,7 @@ const categoryNames = ['工作效率', '编程开发', '创意写作', '学习�
 const assistants = [
   {
     name: '翻译助手',
-    imgUrl: '',
+    imgUrl: '/media/assistant/translator.svg',
     description: '专业的多语言翻译助手',
     content_zh_CN: '你是一个专业的翻译助手，能够准确流畅地翻译多种语言。请将用户输入的内容翻译为目标语言，保持原文的语气和风格。',
     content_en_US: 'You are a professional translation assistant. Translate the user input accurately while maintaining the original tone and style.',
@@ -35,7 +41,7 @@ const assistants = [
   },
   {
     name: '代码助手',
-    imgUrl: '',
+    imgUrl: '/media/assistant/coder.svg',
     description: '专业的编程开发助手',
     content_zh_CN: '你是一个专业的编程助手，精通多种编程语言和框架。请帮助用户解决编程问题，提供清晰的代码示例和解释。',
     content_en_US: 'You are a professional programming assistant proficient in multiple languages and frameworks. Help users with clear code examples and explanations.',
@@ -43,7 +49,7 @@ const assistants = [
   },
   {
     name: '文案写手',
-    imgUrl: '',
+    imgUrl: '/media/assistant/writer.svg',
     description: '创意文案和内容创作助手',
     content_zh_CN: '你是一个创意文案写手，擅长撰写各类营销文案、社交媒体内容和品牌故事。请根据用户需求创作有吸引力的内容。',
     content_en_US: 'You are a creative copywriter skilled in marketing copy, social media content, and brand storytelling.',
@@ -51,7 +57,7 @@ const assistants = [
   },
   {
     name: '数学老师',
-    imgUrl: '',
+    imgUrl: '/media/assistant/math.svg',
     description: '耐心的数学辅导老师',
     content_zh_CN: '你是一个耐心的数学老师，擅长用简单易懂的方式解释数学概念。请逐步引导学生理解问题，而不是直接给出答案。',
     content_en_US: 'You are a patient math teacher who explains concepts in simple terms. Guide students step by step.',
@@ -59,7 +65,7 @@ const assistants = [
   },
   {
     name: '健身教练',
-    imgUrl: '',
+    imgUrl: '/media/assistant/fitness.svg',
     description: '专业的健身和饮食建议',
     content_zh_CN: '你是一个专业的健身教练，能够根据用户的目标制定训练计划和饮食建议。请给出科学、安全的健身指导。',
     content_en_US: 'You are a professional fitness coach providing scientific training plans and diet advice.',
@@ -78,20 +84,20 @@ const hotIssues = [
 const appCenterItems = [
   {
     name: 'AI 对话',
-    imgUrl: '',
+    imgUrl: '/media/app-center/chat.svg',
     description: '与 AI 进行自然语言对话',
     model: 'DeepSeek-V4-Flash',
     cost: 1,
     type: 'chat',
-    path: '/chat',
+    path: '/',
     queryType: 'chat',
   },
 ]
 
 const goodsItems = [
-  { title: '体验套餐', description: '对话 100 次', dialogueCount: 100, paintingCount: 0, imgUrl: '', price: 9.9 },
-  { title: '标准套餐', description: '对话 500 次', dialogueCount: 500, paintingCount: 0, imgUrl: '', price: 29.9 },
-  { title: '高级套餐', description: '对话 2000 次', dialogueCount: 2000, paintingCount: 0, imgUrl: '', price: 99.9 },
+  { title: '体验套餐', description: '对话 100 次', dialogueCount: 100, paintingCount: 0, imgUrl: '/media/pay/basic.svg', price: 9.9 },
+  { title: '标准套餐', description: '对话 500 次', dialogueCount: 500, paintingCount: 0, imgUrl: '/media/pay/standard.svg', price: 29.9 },
+  { title: '高级套餐', description: '对话 2000 次', dialogueCount: 2000, paintingCount: 0, imgUrl: '/media/pay/premium.svg', price: 99.9 },
 ]
 
 const taskRewards = [
@@ -105,10 +111,11 @@ const taskRewards = [
 // 有 @unique name 字段的表，直接用 upsert
 async function upsertByName(model: any, data: any[]) {
   for (const item of data) {
-    if (FORCE) {
-      await model.upsert({ where: { name: item.name }, update: item, create: item })
-    } else {
-      await model.create({ data: item, skipDuplicates: true })
+    const existing = await model.findFirst({ where: { name: item.name } })
+    if (!existing) {
+      await model.create({ data: item })
+    } else if (FORCE) {
+      await model.update({ where: { id: existing.id }, data: item })
     }
   }
 }
@@ -155,9 +162,6 @@ async function resolveCategories(): Promise<number[]> {
 async function main() {
   console.log(`Seeding database... (mode: ${FORCE ? 'force update' : 'skip duplicates'})`)
 
-  // Configuration（name 唯一）
-  await upsertByName(prisma.configuration, configurations)
-
   // LanguageModel（name 唯一）
   await upsertByName(prisma.languageModel, languageModels)
 
@@ -173,7 +177,8 @@ async function main() {
     categoryId: categoryIds[a.categoryIndex],
   }))
   await upsertByField(prisma.assistant, assistantData, (item) => ({
-    name_categoryId: { name: item.name, categoryId: item.categoryId },
+    name: item.name,
+    categoryId: item.categoryId,
   }))
 
   // LanguageHotIssues（按 description 匹配）

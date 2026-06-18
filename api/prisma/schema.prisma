@@ -8,15 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Configuration {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
-  value       String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  description String?
-}
-
 model LanguageHotIssues {
   id          Int      @id @default(autoincrement())
   description String
@@ -29,6 +20,8 @@ model LanguageModel {
   name        String   @unique
   cost        Int
   model       String
+  apiKey      String?
+  baseUrl     String?
   imgUrl      String?
   description String?
   relatedUrl  String?
@@ -234,6 +227,23 @@ model TaskRewardReceived {
   value        Int // -1表示已完成该任务，>=0为正常状态值
   taskReward   TaskReward @relation(fields: [taskRewardId], references: [id])
   taskRewardId Int
+}
+
+// API 使用量记录表
+model UsageLog {
+  id              Int      @id @default(autoincrement())
+  userId          Int?
+  model           String
+  promptTokens    Int      @default(0)
+  completionTokens Int     @default(0)
+  totalTokens     Int      @default(0)
+  cost            Int      @default(0)
+  ip              String?
+  createdAt       DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([userId])
+  @@index([model])
 }
 
 // 任务奖励数据表
