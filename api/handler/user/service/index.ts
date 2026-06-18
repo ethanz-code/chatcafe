@@ -9,7 +9,7 @@ import verify from "./activationCode/verify";
 
 import getAllInviteeUser from "./promotion/getAllInviteeUser";
 
-import getVersion from "./about/getVersion";
+
 
 import starMsg from "./star/starMsg";
 import getAllStar from "./star/getAllStar";
@@ -85,7 +85,7 @@ export const UserServicePlugin = (config: Config) =>
         authorization: t.String(),
       }),
     })
-    .get(`${config.prefix}/about/getVersion`, getVersion)
+
     .post(`${config.prefix}/star/starMsg`, starMsg, {
       headers: t.Object({
         authorization: t.String(),

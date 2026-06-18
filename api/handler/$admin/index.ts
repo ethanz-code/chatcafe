@@ -2,13 +2,9 @@ import { Elysia, t } from "elysia";
 import { jwt } from "@elysiajs/jwt";
 import type { IAuthPluginParams } from "./types";
 
-import { getConfig } from "@/plugin/writeConfig";
-
-const config = await getConfig();
-const jwtSecret = config["jwt-secret"];
+const jwtSecret = Bun.env.JWT_SECRET;
 
 import { AuthPlugin } from "./auth";
-import { ConfigPlugin } from "./configuration";
 import { UserServicePlugin } from "./user-service";
 import { RechargePlugin } from "./recharge";
 import { ChatPlugin } from "./chat";
@@ -46,7 +42,6 @@ export const $AdminPlugin = ({ prefix }: IAuthPluginParams) =>
       }
     })
     .use(AuthPlugin({ prefix: `${prefix}/auth` }))
-    .use(ConfigPlugin({ prefix: `${prefix}/configuration` }))
     .use(UserServicePlugin({ prefix: `${prefix}/user-service` }))
     .use(RechargePlugin({ prefix: `${prefix}/recharge` }))
     .use(ChatPlugin({ prefix: `${prefix}/chat` }))
