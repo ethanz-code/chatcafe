@@ -1,8 +1,6 @@
 import prisma from "@/plugin/prismaClient";
-import { getConfig } from "@/plugin/writeConfig";
 
-const config = await getConfig();
-const getHotIssuesMax = Number.parseInt(config["hot-issues-max"]);
+const getHotIssuesMax = 5;
 
 export const hotIssues = async (app: any) => {
   const issues = await prisma.languageHotIssues.findMany({

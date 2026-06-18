@@ -1,53 +1,60 @@
 import prisma from "@/plugin/prismaClient";
-import { getConfig } from "@/plugin/writeConfig";
 import Stream from "@elysiajs/stream";
-import axios from "axios";
+import { createOpenAI } from "@ai-sdk/openai";
+import { streamText } from "ai";
 
-const config = await getConfig();
-const oneApiUrl = config["one-api-url"];
-const oneApiKey = config["one-api-key"];
-const chatMaxTokens = config["chat-max-tokens"];
+const chatMaxTokens = Number(Bun.env.CHAT_MAX_TOKENS) || 8192;
 
 export default async function ({ body: { model, prompt, token } }: any) {
-  const stringfyData = JSON.stringify({
-    model: model || "gpt-3.5-turbo",
-    messages: [{ role: "user", content: prompt }],
-    stream: true,
-    max_tokens: Number(token || chatMaxTokens),
-  });
+  const modelResult = model
+    ? await prisma.languageModel.findUnique({
+        where: { name: model },
+        select: { model: true, apiKey: true, baseUrl: true },
+      })
+    : null;
 
-  return new Stream((stream) => {
+  const modelName = modelResult?.model || model || "deepseek-chat";
+  const apiKey = modelResult?.apiKey || "";
+  const baseURL = modelResult?.baseUrl || "https://api.deepseek.com";
+
+  const openai = createOpenAI({ apiKey, baseURL });
+
+  return new Stream(async (stream) => {
     try {
-      axios
-        .request({
-          method: "POST",
-          url: `${oneApiUrl}chat/completions`,
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${oneApiKey}`,
-          },
-          data: stringfyData,
-          responseType: "stream",
-        })
-        .then((res) => {
-          // 处理响应流
-          res.data.on("data", (chunk: any) => {
-            let data = chunk.toString();
-            // console.log(data);
-            if (data.startsWith("data: ")) {
-              data = data.replace("data: ", "");
-            }
-            stream.send(data);
-          });
-          res.data.on("end", () => {
-            // console.log("响应流结束");
-            stream.close();
-          });
-        })
-        .catch((err) => {
-          console.log(err);
-          stream.close();
-        });
+      const result = streamText({
+        model: openai(modelName),
+        messages: [{ role: "user", content: prompt }],
+        maxOutputTokens: Number(token || chatMaxTokens),
+      });
+
+      const id = "chatcmpl-" + crypto.randomUUID();
+      const created = Math.floor(Date.now() / 1000);
+
+      for await (const part of result.fullStream) {
+        if (part.type === "text-delta") {
+          stream.send(
+            JSON.stringify({
+              id,
+              object: "chat.completion.chunk",
+              created,
+              model: modelName,
+              choices: [{ index: 0, delta: { content: part.text }, finish_reason: null }],
+            })
+          );
+        } else if (part.type === "finish") {
+          stream.send(
+            JSON.stringify({
+              id,
+              object: "chat.completion.chunk",
+              created,
+              model: modelName,
+              choices: [{ index: 0, delta: {}, finish_reason: part.finishReason || "stop" }],
+            })
+          );
+        }
+      }
+      stream.send("[DONE]");
+      stream.close();
     } catch (error) {
       console.log(error);
       stream.close();

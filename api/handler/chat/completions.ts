@@ -1,13 +1,35 @@
-import { getConfig } from "@/plugin/writeConfig";
 import Stream from "@elysiajs/stream";
 import prisma from "@/plugin/prismaClient";
-import axios from "axios";
 import { calcBalance } from "@/plugin/balance";
+import { createOpenAI } from "@ai-sdk/openai";
+import { streamText } from "ai";
 
-const config = await getConfig();
-const oneApiUrl = config["one-api-url"];
-const oneApiKey = config["one-api-key"];
-const chatMaxTokens = config["chat-max-tokens"];
+const chatMaxTokens = Number(Bun.env.CHAT_MAX_TOKENS) || 8192;
+
+async function logUsage(params: {
+  userId: number | null;
+  model: string;
+  cost: number;
+  promptTokens: number;
+  completionTokens: number;
+  ip: string | null;
+}) {
+  try {
+    await prisma.usageLog.create({
+      data: {
+        userId: params.userId,
+        model: params.model,
+        cost: params.cost,
+        promptTokens: params.promptTokens,
+        completionTokens: params.completionTokens,
+        totalTokens: params.promptTokens + params.completionTokens,
+        ip: params.ip,
+      },
+    });
+  } catch {
+    // silently fail logging - don't affect user experience
+  }
+}
 
 export default async ({
   body: { messages, model, loadDbData, uuid, isAssistant, assistantId },
@@ -15,38 +37,28 @@ export default async ({
   set,
   headers,
 }: any) => {
-  // 如果用户使用的是免费模型，则可以直接进行请求
-  // 关于model前端传过来的只是一个名字，需要转换为实际的model型号，考虑存在一定盗用风险不在客户端上传真实model
   const modelResult = await prisma.languageModel.findUnique({
-    where: {
-      name: model,
-    },
-    select: {
-      cost: true,
-      model: true,
-    },
+    where: { name: model },
+    select: { cost: true, model: true, apiKey: true, baseUrl: true },
   });
 
-  const payload = await jwt.verify(headers["authorization"].split(" ")[1]);
+  let payload: any = null;
+  try {
+    payload = await jwt.verify(headers["authorization"].split(" ")[1]);
+  } catch {
+    // payload stays null
+  }
+
   if (!payload && (modelResult?.cost || 0) > 0) {
     set.status = 401;
     return { error: "Unauthorized" };
   }
 
-  // 扣除用户相应聊天费用
   if (modelResult && modelResult?.cost !== 0) {
     const result = await calcBalance(payload, -modelResult.cost, "dialogue");
-
     if (result.status === -1)
       return new Stream((stream) => {
-        const info = JSON.stringify({
-          status: -1,
-          error: "Insufficient balance",
-        });
-        stream.send(info);
-
-        // stream.wait(50);
-
+        stream.send(JSON.stringify({ status: -1, error: "Insufficient balance" }));
         stream.close();
       });
   }
@@ -54,122 +66,111 @@ export default async ({
   let contents: any = [];
   loadDbData = JSON.parse(loadDbData);
   if (loadDbData) {
-    // 加载数据库中的对话信息
     const result = await prisma.user.findUnique({
-      where: {
-        phoneNumber: payload.phoneNumber,
-        password: payload.password,
-      },
+      where: { id: payload.id },
       select: {
         allDialog: {
           select: {
             uuid: true,
             delta: {
-              select: {
-                role: true,
-                content: true,
-              },
-              orderBy: {
-                time: "asc",
-              },
+              select: { role: true, content: true },
+              orderBy: { time: "asc" },
             },
           },
         },
       },
     });
-    contents = result?.allDialog.filter((item) => item.uuid === uuid)[0].delta;
+    contents = result?.allDialog.filter((item: any) => item.uuid === uuid)[0].delta;
   } else {
     contents = JSON.parse(messages);
     if (isAssistant && assistantId) {
       isAssistant = JSON.parse(isAssistant);
       assistantId = JSON.parse(assistantId);
     }
-
-    // 如果用户正在使用助理来回答问题，这时候另外添加助力的特定system
     if (isAssistant && assistantId) {
       const getAssistant = await prisma.assistant.findUnique({
-        where: {
-          id: assistantId,
-        },
-        select: {
-          content_zh_CN: true,
-          content_en_US: true,
-        },
+        where: { id: assistantId },
+        select: { content_zh_CN: true, content_en_US: true },
       });
-
       if (getAssistant?.content_zh_CN)
-        contents.unshift({
-          role: "system",
-          content: getAssistant?.content_zh_CN,
-        });
+        contents.unshift({ role: "system", content: getAssistant.content_zh_CN });
       if (getAssistant?.content_en_US)
-        contents.unshift({
-          role: "system",
-          content: getAssistant?.content_en_US,
-        });
+        contents.unshift({ role: "system", content: getAssistant.content_en_US });
     }
   }
 
-  // 设置超时，防止意外，同时后端程序一定要添加错误捕获，以防止程序意外崩溃。
   set.headers["keep-alive"] = "timeout=5, max=100";
 
-  // 判断语言模型
   if (modelResult?.model === "")
     return new Stream((stream) => {
-      const info = JSON.stringify({
-        status: -1,
-        error: "No model found",
-      });
-      stream.send(info);
-
+      stream.send(JSON.stringify({ status: -1, error: "No model found" }));
       stream.close();
     });
 
-  // 正式请求聊天接口
-  const stringfyData = JSON.stringify({
-    model: modelResult?.model,
-    messages: contents,
-    stream: true,
-    max_tokens: Number(chatMaxTokens),
-  });
-  // console.log(JSON.parse(stringfyData))
-  return new Stream((stream) => {
+  const modelName = modelResult?.model || "deepseek-chat";
+  const apiKey = modelResult?.apiKey || "";
+  const baseURL = modelResult?.baseUrl || "https://api.deepseek.com";
+  const modelCost = modelResult?.cost || 0;
+  const userId = payload?.id || null;
+  const clientIp = headers["x-forwarded-for"] || headers["x-real-ip"] || null;
+
+  const openai = createOpenAI({ apiKey, baseURL });
+
+  return new Stream(async (stream) => {
     try {
-      axios
-        .request({
-          method: "POST",
-          url: `${oneApiUrl}chat/completions`,
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${oneApiKey}`,
-          },
-          data: stringfyData,
-          responseType: "stream",
-        })
-        .then((res) => {
-          // 处理响应流
-          res.data.on("data", (chunk: any) => {
-            let data = chunk.toString();
-            // console.log(data);
-            if (data.startsWith("data: ")) {
-              data = data.replace("data: ", "");
-            }
-            stream.send(data);
-          });
-          res.data.on("end", () => {
-            // console.log("响应流结束");
-            stream.close();
-          });
-        })
-        .catch((err) => {
-          // 上游请求失败，退回余额
-          if (modelResult && modelResult?.cost !== 0)
-            calcBalance(payload, modelResult.cost, "dialogue");
-          // console.log(err);
-          stream.close();
+      const result = streamText({
+        model: openai(modelName),
+        messages: contents,
+        maxOutputTokens: Number(chatMaxTokens),
+      });
+
+      const id = "chatcmpl-" + crypto.randomUUID();
+      const created = Math.floor(Date.now() / 1000);
+      let finished = false;
+
+      for await (const part of result.fullStream) {
+        if (part.type === "text-delta") {
+          stream.send(
+            JSON.stringify({
+              id,
+              object: "chat.completion.chunk",
+              created,
+              model: modelName,
+              choices: [{ index: 0, delta: { content: part.text }, finish_reason: null }],
+            })
+          );
+        } else if (part.type === "finish") {
+          finished = true;
+          stream.send(
+            JSON.stringify({
+              id,
+              object: "chat.completion.chunk",
+              created,
+              model: modelName,
+              choices: [{ index: 0, delta: {}, finish_reason: part.finishReason || "stop" }],
+            })
+          );
+        }
+      }
+
+      // log usage after stream completes
+      if (finished) {
+        const usage = await result.usage;
+        logUsage({
+          userId,
+          model: modelName,
+          cost: modelCost,
+          promptTokens: usage?.promptTokens || 0,
+          completionTokens: usage?.completionTokens || 0,
+          ip: clientIp,
         });
+      }
+
+      stream.send("[DONE]");
+      stream.close();
     } catch (error) {
-      // console.log(error);
+      if (modelResult && modelCost !== 0)
+        calcBalance(payload, modelCost, "dialogue");
       stream.close();
     }
   });
