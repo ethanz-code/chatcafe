@@ -398,7 +398,6 @@ declare namespace App {
           introduction: string;
           projectInfo: {
             title: string;
-            version: string;
             latestBuildTime: string;
             githubLink: string;
             previewLink: string;

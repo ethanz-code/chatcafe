@@ -148,15 +148,14 @@ const local: App.I18n.Schema = {
     recharge: 'Recharge system',
     recharge_goods: 'Product management',
     recharge_order: 'Order management',
+    usage: 'Usage Stats',
     chat: 'AI Chat',
     'chat_hot-issues': 'Hot issue',
     chat_model: 'LLM',
     chat_assistant: 'AI assistant',
     chat_assistant_category: 'categorization',
     chat_assistant_view: 'List of assistants',
-    image: 'Image generation',
-    image_community: 'Image community',
-    'image_gen-list': 'Generate list',
+
     login: 'Login',
     403: 'No Permission',
     404: 'Page Not Found',
@@ -228,7 +227,6 @@ const local: App.I18n.Schema = {
       introduction: `SoybeanAdmin is an elegant and powerful admin template, based on the latest front-end technology stack, including Vue3, Vite5, TypeScript, Pinia and UnoCSS. It has built-in rich theme configuration and components, strict code specifications, and an automated file routing system. In addition, it also uses the online mock data solution based on ApiFox. SoybeanAdmin provides you with a one-stop admin solution, no additional configuration, and out of the box. It is also a best practice for learning cutting-edge technologies quickly.`,
       projectInfo: {
         title: 'Project Info',
-        version: 'Version',
         latestBuildTime: 'Latest Build Time',
         githubLink: 'Github Link',
         previewLink: 'Preview Link'
