@@ -194,15 +194,15 @@
 
         <!--  浮窗内容区域  -->
         <div class="mt-3 flex flex-col gap-3 px-3 pb-2">
-          <!--  物品列表，内部包含左右两部分  -->
           <div
             class="flex justify-between items-center cursor-pointer"
             v-for="(item, index) in store.llm"
             :key="item.model"
             @click="selectLLM(index)"
           >
-            <div class="flex">
-              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+            <div class="flex items-center">
+              <img v-if="item.imgUrl" :src="item.imgUrl" class="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+              <div v-else class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                 AI
               </div>
               <div class="flex flex-col ml-2">
@@ -324,7 +324,7 @@ import {
 // import { v4 as uuidv4 } from 'uuid'
 import { isWeixinBrowser, isAppleDevice } from '@/utils/operationEnv'
 import { useChatFirstLoadedStore } from '@/stores/chat-first-loaded.js'
-import { versionDiff } from '@/utils/versionDiff'
+
 import { showFailToast } from 'vant'
 
 const store = useChatStore()
@@ -524,7 +524,7 @@ watch(store.selectedDialog, async () => {
 
 const newDialog = async () => {
   await store.newDialog()
-  store.processAllDialogNotSplit()
+  store.buildDialogFromNotSplit()
 }
 
 const sendMessage = async (prompt, ownNotSendMsg = false) => {
@@ -820,8 +820,6 @@ onMounted(async () => {
 
   // 页面首次加载完之后调用函数
   if (chatFirstLoaded.chatFirstLoaded) {
-    await versionDiff()
-
     loadLLMDataAndOther()
     chatFirstLoaded.chatFirstLoaded = false
   } else loadLLMDataAndOther()

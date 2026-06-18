@@ -43,7 +43,7 @@ import loginVerify from '@/utils/loginVerify'
 import { useUserCenterStore } from '@/stores/user-center'
 import { onMounted, ref } from 'vue'
 import { autoClear } from '@/utils/clearLocalStorage'
-import { versionDiff } from '@/utils/versionDiff'
+
 import { useRoute } from 'vue-router'
 import { useTaskRewardStore } from '@/stores/task-reward'
 
@@ -78,10 +78,8 @@ const isNotLoginIssues = () => {
   autoClear()
 }
 
-// 引入版本号概念，每次检测版本号是否与网络最新版本号相同，不同时清空本地存储
 onMounted(() => {
   verify()
   isNotLoginIssues()
-  if (route.fullPath !== '/') versionDiff()
 })
 </script>
