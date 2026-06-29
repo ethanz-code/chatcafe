@@ -71,7 +71,7 @@ export default async function ({
       if (inviter) {
         // 颁发奖励：50次对话
         await calcBalance(
-          { phoneNumber: inviter.phoneNumber, password: inviter.password },
+          { id: inviter.id },
           50,
           "dialogue",
         );

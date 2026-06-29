@@ -172,8 +172,8 @@ export default async ({
           userId,
           model: modelName,
           cost: modelCost,
-          promptTokens: usage?.promptTokens || 0,
-          completionTokens: usage?.completionTokens || 0,
+          promptTokens: usage?.inputTokens || 0,
+          completionTokens: usage?.outputTokens || 0,
           ip: clientIp,
         });
       }

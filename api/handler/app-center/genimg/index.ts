@@ -1,4 +1,4 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 
 const disabledResponse = {
   status: -1,
@@ -12,21 +12,21 @@ interface Config {
 export const GenImgPlugin = (config: Config) =>
   new Elysia()
     .get(`${config.prefix}/getAllGenImg`, () => disabledResponse, {
-      headers: (t: any) => ({ authorization: t.String() }),
+      headers: t.Object({ authorization: t.String() }),
     })
     .delete(`${config.prefix}/deleteGenImg`, () => disabledResponse, {
-      query: (t: any) => ({ id: t.String() }),
-      headers: (t: any) => ({ authorization: t.String() }),
+      query: t.Object({ id: t.String() }),
+      headers: t.Object({ authorization: t.String() }),
     })
     .post(`${config.prefix}/generate`, () => disabledResponse, {
-      headers: (t: any) => ({ authorization: t.String() }),
+      headers: t.Object({ authorization: t.String() }),
     })
     .post(`${config.prefix}/addGenImg`, () => disabledResponse, {
-      headers: (t: any) => ({ authorization: t.String() }),
+      headers: t.Object({ authorization: t.String() }),
     })
     .post(`${config.prefix}/modifyGenImg`, () => disabledResponse, {
-      headers: (t: any) => ({ authorization: t.String() }),
+      headers: t.Object({ authorization: t.String() }),
     })
     .post(`${config.prefix}/mjCheckStatus`, () => disabledResponse, {
-      headers: (t: any) => ({ authorization: t.String() }),
+      headers: t.Object({ authorization: t.String() }),
     });

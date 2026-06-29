@@ -20,7 +20,7 @@ export const $AdminPlugin = ({ prefix }: IAuthPluginParams) =>
     .use(
       jwt({
         name: "adminJWT",
-        secret: jwtSecret,
+        secret: jwtSecret!,
       }),
     )
     .onBeforeHandle(async ({ path, adminJWT, set, headers }: any) => {

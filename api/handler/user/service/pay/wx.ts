@@ -38,6 +38,8 @@ export default async function ({ jwt, set, headers, body: { goodId } }: any) {
     body: `ChatCafe-${goods.title}`,
     quit_url: process.env.LTZF_QUIT_URL,
     return_url: process.env.LTZF_RETURN_URL,
+    notify_url: process.env.LTZF_NOTIFY_URL || "",
+    timestamp: String(stamp),
     time_expire: "10m",
   });
 

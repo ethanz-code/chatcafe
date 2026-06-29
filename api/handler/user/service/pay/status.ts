@@ -19,8 +19,11 @@ export default async function ({ jwt, set, headers, params: { orderNo } }: any) 
   }
 
   try {
-    const result = await ltzf.getPayOrder({ out_trade_no: orderNo });
-    if (result.code === 0 && result.data?.pay_status === "1") {
+    const result = await ltzf.getPayOrder({
+      out_trade_no: orderNo,
+      timestamp: String(Math.floor(Date.now() / 1000)),
+    });
+    if (result.code === 0 && result.data?.pay_status === 1) {
       await processPaymentOrder(orderNo, result.data.pay_no);
       return { status: 0, data: { paymentStatus: "paid" } };
     }

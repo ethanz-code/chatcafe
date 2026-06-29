@@ -72,8 +72,8 @@ export const CompressPlugin = (config: Config) =>
 
         const origPath = resolve(dir, `${filename}.${format}`);
         const compPath = resolve(dir, `${filename}gz.${format}`);
-        await writeFile(origPath, buffer);
-        await writeFile(compPath, compressed);
+        await writeFile(origPath, new Uint8Array(buffer));
+        await writeFile(compPath, new Uint8Array(compressed));
 
         const host =
           request.headers.get("host") || `localhost:${process.env.PORT || 9091}`;

@@ -30,7 +30,7 @@ new Elysia({ adapter: node() })
   .use(
     jwt({
       name: "jwt",
-      secret: jwtSecret,
+      secret: jwtSecret!,
       exp: "3d",
     }),
   )

@@ -37,6 +37,8 @@ export default async function ({ jwt, set, headers, body: { goodId } }: any) {
     total_fee: String(goods.price),
     body: `ChatCafe-${goods.title}`,
     return_url: process.env.LTZF_RETURN_URL,
+    notify_url: process.env.LTZF_NOTIFY_URL || "",
+    timestamp: String(stamp),
     time_expire: "10m",
   });
 
