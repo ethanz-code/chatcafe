@@ -112,7 +112,7 @@ const password = ref('')
 const verifyCode = ref()
 // 账号（手机号）和密码的匹配正则
 const usernamePattern = /^1(3\d|4[5-9]|5[0-35-9]|6[567]|7[0-8]|8\d|9[0-35-9])\d{8}$/
-const passwordPattern = /^(?=.*\d)(?=.*[A-z])[\da-zA-Z]{6,20}$/
+const passwordPattern = /^(?=.*\d)(?=.*[A-Za-z])[A-Za-z\d]{6,20}$/
 const verifyCodePattern = /^[0-9]{6}$/
 const inOneMinuteHasSent = ref(false)
 const usernameErrMsg = ref('')
@@ -129,17 +129,26 @@ const sendVerifyCode = async () => {
 
   // 将手机号请求给后端，让后端做短信发送
   const options = { phoneNumber: username.value }
-  const result = await axios.request({
-    url: '/user/registerVerifyCode',
-    method: 'post',
-    data: options
-  })
+  let result
+  try {
+    result = await axios.request({
+      url: '/user/registerVerifyCode',
+      method: 'post',
+      data: options
+    })
+  } catch {
+    showFailToast('网络错误')
+    return
+  }
   if (result.status === 200) {
     const parsedData = (result.data)
     if (parsedData.status === -1) {
       showFailToast(parsedData.message)
       return
     }
+  } else {
+    showFailToast('网络错误')
+    return
   }
   inOneMinuteHasSent.value = true
   timer = setInterval(() => {
@@ -189,6 +198,9 @@ const register = () => {
           showFailToast(parsedData.message)
         }
       }
+    })
+    .catch(() => {
+      showFailToast('网络错误，注册失败')
     })
 }
 

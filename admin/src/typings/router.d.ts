@@ -61,5 +61,10 @@ declare module 'vue-router' {
     fixedIndexInTab?: number | null;
     /** if set query parameters, it will be automatically carried when entering the route */
     query?: Record<string, string>;
+    /** Alert banner config displayed at the top of the page content area */
+    alertBanner?: {
+      message: string;
+      type?: 'success' | 'info' | 'warning' | 'error';
+    };
   }
 }

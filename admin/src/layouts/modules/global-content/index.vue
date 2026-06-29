@@ -9,7 +9,6 @@ defineOptions({
 });
 
 interface Props {
-  /** Show padding for content */
   showPadding?: boolean;
 }
 
@@ -22,6 +21,14 @@ const themeStore = useThemeStore();
 const routeStore = useRouteStore();
 
 const transitionName = computed(() => (themeStore.page.animate ? themeStore.page.animateMode : ''));
+
+const componentClass = computed(() => {
+  const base = 'flex-grow bg-layout transition-300';
+  if (appStore.isMobile) {
+    return `${base} self-start min-w-full`;
+  }
+  return base;
+});
 </script>
 
 <template>
@@ -37,8 +44,8 @@ const transitionName = computed(() => (themeStore.page.animate ? themeStore.page
           :is="Component"
           v-if="appStore.reloadFlag"
           :key="route.path"
-          :class="{ 'p-16px': showPadding }"
-          class="flex-grow bg-layout transition-300"
+          :class="[componentClass, { 'p-16px': showPadding }]"
+          :style="appStore.isMobile ? { maxWidth: '1580px' } : undefined"
         />
       </KeepAlive>
     </Transition>

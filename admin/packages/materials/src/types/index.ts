@@ -98,6 +98,22 @@ export interface AdminLayoutContentConfig {
   fullContent?: boolean;
 }
 
+/** Banner config */
+export interface AdminLayoutBannerConfig {
+  /**
+   * Banner class
+   *
+   * @default ''
+   */
+  bannerClass?: string;
+  /**
+   * Banner height
+   *
+   * @default 36
+   */
+  bannerHeight?: number;
+}
+
 /** Footer config */
 export interface AdminLayoutFooterConfig {
   /**
@@ -156,6 +172,7 @@ export interface AdminLayoutProps
     AdminLayoutTabConfig,
     AdminLayoutSiderConfig,
     AdminLayoutContentConfig,
+    AdminLayoutBannerConfig,
     AdminLayoutFooterConfig {
   /**
    * Layout mode

@@ -28,6 +28,7 @@ const createColumns = ({
     {
       title: '角色',
       key: 'role',
+      width: 100,
       render(row) {
         return h(
           NTag,
@@ -39,11 +40,13 @@ const createColumns = ({
     {
       title: '内容',
       key: 'content',
+      width: 300,
       ellipsis: true
     },
     {
       title: '对话时间',
       key: 'time',
+      width: 170,
       sorter: (row1, row2) => {
         return dayjs(row1.time).unix() - dayjs(row2.time).unix();
       },
@@ -54,6 +57,7 @@ const createColumns = ({
     {
       title: '对话框ID',
       key: 'dialogId',
+      width: 130,
       render(row) {
         return h(NTag, { size: 'small' }, { default: () => row.dialogId });
       }
@@ -61,6 +65,7 @@ const createColumns = ({
     {
       title: '',
       key: 'actions',
+      width: 130,
       render(row) {
         return h(NSpace, null, {
           default: () => [
@@ -273,7 +278,7 @@ onMounted(async () => {
         <NButton size="small" @click="clearFilters">清空过滤</NButton>
       </NSpace>
     </template>
-      <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" />
+      <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" :scroll-x="970" />
       <div class="flex justify-end pt-12px">
         <NPagination
           v-model:page="page"

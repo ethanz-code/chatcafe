@@ -110,7 +110,11 @@ export const generatedRoutes: GeneratedRoute[] = [
     meta: {
       title: 'home',
       i18nKey: 'route.home',
-      icon: 'carbon:cloud-satellite-config'
+      icon: 'carbon:cloud-satellite-config',
+      alertBanner: {
+        message: '请谨慎修改配置信息，修改后需要重启 API 服务程序才可生效，若有疑问请联系开发者。',
+        type: 'warning'
+      }
     }
   },
   {
@@ -211,7 +215,11 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: 'user-service_activation-code',
           icon: 'carbon:sim-card',
-          i18nKey: 'route.user-service_activation-code'
+          i18nKey: 'route.user-service_activation-code',
+          alertBanner: {
+            message:
+              '输入正确的密码、对话和绘画次数，点击"生成"即可生成特有代码，可在客户端"我的服务 — 卡密兑换"中使用。'
+          }
         }
       },
       {
@@ -230,7 +238,10 @@ export const generatedRoutes: GeneratedRoute[] = [
             meta: {
               title: 'user-service_dialog_all-dialog',
               i18nKey: 'route.user-service_dialog_all-dialog',
-              icon: 'carbon:list-boxes'
+              icon: 'carbon:list-boxes',
+              alertBanner: {
+                message: '用户新建的所有对话框在这里都可以看到。点击 ID 可跳转至对话详情。'
+              }
             }
           },
           {
@@ -272,7 +283,11 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: 'user-service_promotion',
           i18nKey: 'route.user-service_promotion',
-          icon: 'carbon:airline-manage-gates'
+          icon: 'carbon:airline-manage-gates',
+          alertBanner: {
+            message: '可点击复制"邀请人ID"和"被邀请人ID"到其他地方快捷查询。',
+            type: 'success'
+          }
         }
       },
       {
@@ -292,7 +307,11 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: 'user-service_task-reward',
           i18nKey: 'route.user-service_task-reward',
-          icon: 'carbon:task-approved'
+          icon: 'carbon:task-approved',
+          alertBanner: {
+            message: '完成状态列的值对应：0=进行中，1=已完成，-1=已领取。',
+            type: 'info'
+          }
         }
       },
       {
@@ -302,7 +321,10 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: 'user-service_user',
           i18nKey: 'route.user-service_user',
-          icon: 'carbon:user-profile'
+          icon: 'carbon:user-profile',
+          alertBanner: {
+            message: '在行数据中右键可以自定义修改账户余额。'
+          }
         }
       }
     ]

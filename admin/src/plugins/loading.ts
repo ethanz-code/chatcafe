@@ -41,7 +41,7 @@ export function setupLoading() {
       ${dot}
     </div>
   </div>
-  <h2 class="text-28px" style="${textColor};font-family:'Playwrite DE Grund',cursive">ChatCafe Admin</h2>
+  <h2 class="text-30px" style="${textColor};font-family:'LogoBrush',cursive">ChatCafe Admin</h2>
 </div>`;
 
   const app = document.getElementById('app');

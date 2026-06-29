@@ -45,32 +45,19 @@ export default async function ({
       CryptoJS.enc.Utf8,
     );
 
-    // 获取最大的用户id号码
-    const userId = await prisma.user.findMany({
-      orderBy: {
-        id: "desc",
-      },
-    });
-    const maxIdNumber = userId.length === 0 ? 10000 : userId[0].id + 1;
-
-    // 随机迭代数，生成百位整数
-    // 随机生成一个两位整数
-    const randomIterate = Math.floor(Math.random() * 100);
-    const newUserId = maxIdNumber + randomIterate;
-
-    // 创建用户
-    await prisma.user.create({
+    // 创建用户（使用自增id，避免竞态条件）
+    const newUser = await prisma.user.create({
       data: {
-        id: newUserId,
         phoneNumber: verifyCodeValue,
         password: decodedPassword,
         inviteCode: getNewInviteCode(),
       },
     });
+
     // 如果传入了邀请码参数，则将新用户id存入原邀请码用户的Relation分销推广列表中
     if (inviteCode) {
-      // 先获取用户唯一主键id
-      const userId = await prisma.user.findMany({
+      // 先获取邀请用户
+      const inviter = await prisma.user.findFirst({
         where: {
           inviteCode: inviteCode,
         },
@@ -80,27 +67,28 @@ export default async function ({
           password: true,
         },
       });
-      // 颁发奖励：50次对话
-      await calcBalance(
-        { phoneNumber: userId[0].phoneNumber, password: userId[0].password },
-        50,
-        "dialogue",
-      );
 
-      if (userId.length !== 0)
+      if (inviter) {
+        // 颁发奖励：50次对话
+        await calcBalance(
+          { phoneNumber: inviter.phoneNumber, password: inviter.password },
+          50,
+          "dialogue",
+        );
+
         await prisma.user.update({
           where: {
-            id: userId[0].id,
-            inviteCode: inviteCode,
+            id: inviter.id,
           },
           data: {
             promotion: {
               create: {
-                inviteeUserId: newUserId, // 被邀请用户的id
+                inviteeUserId: newUser.id,
               },
             },
           },
         });
+      }
     }
 
     return {

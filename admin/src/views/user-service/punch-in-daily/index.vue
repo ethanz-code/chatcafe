@@ -4,66 +4,46 @@ import { NTag, useMessage } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import dayjs from 'dayjs';
 import { fetchGetAllPunchInDaily } from '@/service/api/core/user-service/punchInDaily';
+import { PageHeader } from '@/components/usage';
 import copy from '@/utils/clipboard';
 
 const message = useMessage();
+const loading = ref(true);
 const data = ref<Api.Core.UserService.PunchInDaily[]>([]);
-const createColumns = ({
-  copyUserId
-}: {
-  copyUserId: (row: Api.Core.UserService.PunchInDaily) => void;
-}): DataTableColumns<Api.Core.UserService.PunchInDaily> => {
-  return [
-    {
-      title: 'ID',
-      key: 'id',
-      width: 80
-    },
-    {
-      title: '创建时间',
-      key: 'creadtedAt',
-      defaultSortOrder: false,
-      sorter: {
-        compare: (row1, row2) => {
-          return dayjs(row1.createdAt).unix() - dayjs(row2.createdAt).unix();
-        },
-        multiple: 1
-      },
-      render(row) {
-        return h('span', null, { default: () => dayjs(row.createdAt).format('YYYY-MM-DD HH:mm') });
-      }
-    },
-    {
-      title: '奖励对话次数',
-      key: 'rewardDialogue',
-      width: 200,
-      defaultSortOrder: false,
-      sorter: {
-        compare: (a, b) => a.rewardDialogue - b.rewardDialogue,
-        multiple: 2
-      },
-      render(row) {
-        return h('span', { class: 'text-primary font-medium' }, { default: () => row.rewardDialogue });
-      }
-    },
-    {
-      title: '用户ID',
-      key: 'userId',
-      render(row) {
-        return h(
-          NTag,
-          { size: 'small', class: 'cursor-pointer', onClick: () => copyUserId(row) },
-          { default: () => row.userId }
-        );
-      }
+
+const columns: DataTableColumns<Api.Core.UserService.PunchInDaily> = [
+  { title: 'ID', key: 'id', width: 80 },
+  {
+    title: '创建时间',
+    key: 'createdAt',
+    width: 170,
+    sorter: (a, b) => dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
+    render(row) {
+      return h('span', null, { default: () => dayjs(row.createdAt).format('YYYY-MM-DD HH:mm') });
     }
-  ];
-};
-const columns = createColumns({
-  copyUserId(row) {
-    copy(row.userId.toString(), () => message.success('复制成功'));
+  },
+  {
+    title: '奖励对话次数',
+    key: 'rewardDialogue',
+    width: 130,
+    sorter: (a, b) => a.rewardDialogue - b.rewardDialogue,
+    render(row) {
+      return h('span', { class: 'text-#6366f1 font-600' }, { default: () => row.rewardDialogue });
+    }
+  },
+  {
+    title: '用户ID',
+    key: 'userId',
+    width: 130,
+    render(row) {
+      return h(
+        NTag,
+        { size: 'small', class: 'cursor-pointer', onClick: () => copy(row.userId.toString(), () => message.success('复制成功')) },
+        { default: () => row.userId }
+      );
+    }
   }
-});
+];
 
 const page = ref(1);
 const pageSize = ref(10);
@@ -73,22 +53,34 @@ const filtersDataByPage = computed(() =>
 );
 
 onMounted(async () => {
+  loading.value = true;
   const result = await fetchGetAllPunchInDaily();
   if (!result.error) data.value = result.data;
+  else message.error(result.error.message);
+  loading.value = false;
 });
 </script>
 
 <template>
-  <NCard title="打卡日志" size="small">
-    <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" />
-    <div class="flex justify-end pt-12px">
-      <NPagination
-        v-model:page="page"
-        v-model:page-size="pageSize"
-        :page-count="pageCount"
-        show-size-picker
-        :page-sizes="[5, 10, 20, 30, 999]"
+  <div>
+    <PageHeader title="每日打卡" />
+    <NCard size="small" :bordered="true">
+      <NDataTable
+        :columns="columns"
+        :data="filtersDataByPage"
+        :loading="loading"
+        :bordered="false"
+        :scroll-x="620"
       />
-    </div>
-  </NCard>
+      <div class="flex justify-end pt-3">
+        <NPagination
+          v-model:page="page"
+          v-model:page-size="pageSize"
+          :page-count="pageCount"
+          show-size-picker
+          :page-sizes="[10, 20, 50, 100]"
+        />
+      </div>
+    </NCard>
+  </div>
 </template>

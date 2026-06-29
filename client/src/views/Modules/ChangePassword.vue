@@ -60,7 +60,7 @@
 import { ref } from 'vue'
 import axios from '@/utils/axios'
 import CryptoJS from 'crypto-js'
-import { showFailToast } from 'vant'
+import { showFailToast, showSuccessToast } from 'vant'
 import { useFloatingFunction } from '@/stores/floating-function'
 import { useRouter } from 'vue-router'
 import { useUserCenterStore } from '@/stores/user-center'
@@ -71,7 +71,7 @@ const historyStore = useFloatingFunction()
 const rawPassword = ref('')
 const newPassword = ref('')
 const confirmPassword = ref('')
-const passwordPattern = /^(?=.*\d)(?=.*[A-z])[\da-zA-Z]{6,20}$/
+const passwordPattern = /^(?=.*\d)(?=.*[A-Za-z])[A-Za-z\d]{6,20}$/
 const validatorNewPdIsSame = (val) => {
   if (val !== newPassword.value) return '两次密码必须相同'
 }
@@ -105,6 +105,9 @@ const onSubmit = () => {
           showFailToast(parsedData.message)
         }
       }
+    })
+    .catch(() => {
+      showFailToast('网络错误，修改失败')
     })
 }
 </script>

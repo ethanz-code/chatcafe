@@ -7,70 +7,46 @@ import { fetchGetAllPromotion } from '@/service/api/core/user-service/promotion'
 import copy from '@/utils/clipboard';
 
 const message = useMessage();
+const loading = ref(true);
 const data = ref<Api.Core.UserService.Promotion[]>([]);
-const createColumns = ({
-  copyInviteeId,
-  copyInviteId
-}: {
-  copyInviteeId: (row: Api.Core.UserService.Promotion) => void;
-  copyInviteId: (row: Api.Core.UserService.Promotion) => void;
-}): DataTableColumns<Api.Core.UserService.Promotion> => {
-  return [
-    {
-      title: 'ID',
-      key: 'id'
-    },
-    {
-      title: '创建时间',
-      key: 'creadtedAt',
-      defaultSortOrder: false,
-      sorter: {
-        compare: (row1, row2) => {
-          return dayjs(row1.createdAt).unix() - dayjs(row2.createdAt).unix();
-        },
-        multiple: 1
-      },
-      render(row) {
-        return h('span', null, { default: () => dayjs(row.createdAt).format('YYYY-MM-DD HH:mm') });
-      }
-    },
-    {
-      title: '邀请人ID',
-      key: 'inviteUserId',
-      defaultSortOrder: false,
-      sorter: {
-        compare: (a, b) => a.inviteUserId - b.inviteUserId,
-        multiple: 2
-      },
-      render(row) {
-        return h(
-          NTag,
-          { size: 'small', class: 'cursor-pointer', onClick: () => copyInviteId(row) },
-          { default: () => row.inviteUserId }
-        );
-      }
-    },
-    {
-      title: '被邀请人ID',
-      key: 'inviteeUserId',
-      render(row) {
-        return h(
-          NTag,
-          { size: 'small', class: 'cursor-pointer', onClick: () => copyInviteeId(row) },
-          { default: () => row.inviteeUserId }
-        );
-      }
+
+const columns: DataTableColumns<Api.Core.UserService.Promotion> = [
+  { title: 'ID', key: 'id', width: 80 },
+  {
+    title: '创建时间',
+    key: 'createdAt',
+    width: 170,
+    sorter: (a, b) => dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
+    render(row) {
+      return h('span', null, { default: () => dayjs(row.createdAt).format('YYYY-MM-DD HH:mm') });
     }
-  ];
-};
-const columns = createColumns({
-  copyInviteeId(row) {
-    copy(row.inviteeUserId.toString(), () => message.success('复制成功'));
   },
-  copyInviteId(row) {
-    copy(row.inviteUserId.toString(), () => message.success('复制成功'));
+  {
+    title: '邀请人ID',
+    key: 'inviteUserId',
+    width: 130,
+    sorter: (a, b) => a.inviteUserId - b.inviteUserId,
+    render(row) {
+      return h(
+        NTag,
+        { size: 'small', class: 'cursor-pointer', onClick: () => copy(row.inviteUserId.toString(), () => message.success('复制成功')) },
+        { default: () => row.inviteUserId }
+      );
+    }
+  },
+  {
+    title: '被邀请人ID',
+    key: 'inviteeUserId',
+    width: 130,
+    render(row) {
+      return h(
+        NTag,
+        { size: 'small', class: 'cursor-pointer', onClick: () => copy(row.inviteeUserId.toString(), () => message.success('复制成功')) },
+        { default: () => row.inviteeUserId }
+      );
+    }
   }
-});
+];
 
 const page = ref(1);
 const pageSize = ref(10);
@@ -80,23 +56,33 @@ const filtersDataByPage = computed(() =>
 );
 
 onMounted(async () => {
+  loading.value = true;
   const result = await fetchGetAllPromotion();
   if (!result.error) data.value = result.data;
+  else message.error(result.error.message);
+  loading.value = false;
 });
 </script>
 
 <template>
-  <NAlert type="success">您可点击复制"邀请人ID"和"被邀请人ID"到其他地方快捷查询。</NAlert>
-  <NCard title="邀请日志" size="small">
-    <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" />
-    <div class="flex justify-end pt-12px">
-      <NPagination
-        v-model:page="page"
-        v-model:page-size="pageSize"
-        :page-count="pageCount"
-        show-size-picker
-        :page-sizes="[5, 10, 20, 30, 999]"
+  <div>
+    <NCard size="small" :bordered="true">
+      <NDataTable
+        :columns="columns"
+        :data="filtersDataByPage"
+        :loading="loading"
+        :bordered="false"
+        :scroll-x="550"
       />
-    </div>
-  </NCard>
+      <div class="flex justify-end pt-3">
+        <NPagination
+          v-model:page="page"
+          v-model:page-size="pageSize"
+          :page-count="pageCount"
+          show-size-picker
+          :page-sizes="[10, 20, 50, 100]"
+        />
+      </div>
+    </NCard>
+  </div>
 </template>

@@ -80,6 +80,7 @@ import { onMounted } from 'vue'
 import { showFailToast, showSuccessToast } from 'vant'
 import { useRouter, useRoute } from 'vue-router'
 import axios from '@/utils/axios'
+import CryptoJS from 'crypto-js'
 import { useChatFirstLoadedStore } from '@/stores/chat-first-loaded'
 
 const chatFirstLoaded = useChatFirstLoadedStore()
@@ -96,16 +97,16 @@ const content = ref('')
 
 // 账号（手机号）和密码的匹配正则
 const usernamePattern = /^1(3\d|4[5-9]|5[0-35-9]|6[567]|7[0-8]|8\d|9[0-35-9])\d{8}$/
-const passwordPattern = /^(?=.*\d)(?=.*[A-z])[\da-zA-Z]{6,20}$/
+const passwordPattern = /^(?=.*\d)(?=.*[A-Za-z])[A-Za-z\d]{6,20}$/
 
 const login = async () => {
   axios
     .post(
-      '/user/login/',
-      JSON.stringify({
+      '/user/login',
+      {
         phoneNumber: username.value,
-        password: password.value
-      })
+        password: CryptoJS.AES.encrypt(password.value, 'ydai').toString()
+      }
     )
     .then((result) => {
       result = (result.data)
@@ -150,6 +151,9 @@ const login = async () => {
           clearTimeout(timer)
         }, 1000)
       }
+    })
+    .catch(() => {
+      showFailToast('网络错误，登录失败')
     })
 }
 

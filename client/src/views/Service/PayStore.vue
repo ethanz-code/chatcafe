@@ -80,7 +80,7 @@ const goToPay = async (goodId) => {
     headers: {
       Authorization: `Bearer ${localStorage.getItem('token')}`
     },
-    data: JSON.stringify({ goodId })
+    data: { goodId }
   })
   if (response.status === 200) {
     const parsedData = response.data

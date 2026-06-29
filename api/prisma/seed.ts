@@ -169,6 +169,8 @@ async function resolveCategories(): Promise<number[]> {
 async function main() {
   console.log(`Seeding database... (mode: ${FORCE ? 'force update' : 'skip duplicates'})`)
 
+  await prisma.$executeRawUnsafe(`ALTER SEQUENCE "User_id_seq" RESTART WITH 100010`)
+
   // LanguageModel（name 唯一）
   await upsertByName(prisma.languageModel, languageModels)
 

@@ -57,7 +57,7 @@ const bgColor = computed(() => {
       <div class="w-400px lt-sm:w-300px">
         <header class="flex-y-center justify-between">
           <SystemLogo class="text-64px text-primary lt-sm:text-48px" />
-          <h3 class="text-22px text-#333" style="font-family: 'Playwrite DE Grund', cursive; white-space: nowrap;">
+          <h3 class="text-24px text-#333" style="font-family: 'LogoBrush', cursive; white-space: nowrap;">
             ChatCafe Admin
           </h3>
 

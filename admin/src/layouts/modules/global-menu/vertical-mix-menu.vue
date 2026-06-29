@@ -56,7 +56,7 @@ function handleResetActiveMenu() {
         :style="{ width: showDrawer ? themeStore.sider.mixChildMenuWidth + 'px' : '0px' }"
       >
         <header class="flex-y-center justify-between" :style="{ height: themeStore.header.height + 'px' }">
-          <h2 class="pl-8px text-16px text-primary font-bold" style="font-family: 'Playwrite DE Grund', cursive;">
+          <h2 class="pl-8px text-16px text-primary" style="font-family: 'LogoBrush', cursive;">
             ChatCafe Admin
           </h2>
           <PinToggler

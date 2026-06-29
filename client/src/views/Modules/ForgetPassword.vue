@@ -84,7 +84,7 @@
 import { ref } from 'vue'
 import axios from '@/utils/axios'
 import CryptoJS from 'crypto-js'
-import { showFailToast } from 'vant'
+import { showFailToast, showSuccessToast } from 'vant'
 import { useFloatingFunction } from '@/stores/floating-function'
 import { useRouter } from 'vue-router'
 import { useUserCenterStore } from '@/stores/user-center'
@@ -98,7 +98,7 @@ const newPassword = ref('')
 const confirmPassword = ref('')
 const usernameErrMsg = ref('')
 const usernamePattern = /^1(3\d|4[5-9]|5[0-35-9]|6[567]|7[0-8]|8\d|9[0-35-9])\d{8}$/
-const passwordPattern = /^(?=.*\d)(?=.*[A-z])[\da-zA-Z]{6,20}$/
+const passwordPattern = /^(?=.*\d)(?=.*[A-Za-z])[A-Za-z\d]{6,20}$/
 const verifyCodePattern = /^[0-9]{6}$/
 const validatorNewPdIsSame = (val) => {
   if (val !== newPassword.value) return '两次密码必须相同'
@@ -118,25 +118,27 @@ const sendVerifyCode = async () => {
   }
 
   const formData = { phoneNumber: username.value }
-  let directExit = false
-  await axios
-    .request({
+  let res
+  try {
+    res = await axios.request({
       url: '/user/forgetPasswordVerifyCode',
       method: 'post',
       data: formData
     })
-    .then((res) => {
-      if (res.status === 200) {
-        const parsed = res.data
-        if (parsed.status === -1) {
-          directExit = true
-          showFailToast(parsed.message)
-          return
-        }
-      }
-    })
-
-  if (directExit) return
+  } catch {
+    showFailToast('网络错误')
+    return
+  }
+  if (res.status === 200) {
+    const parsed = res.data
+    if (parsed.status === -1) {
+      showFailToast(parsed.message)
+      return
+    }
+  } else {
+    showFailToast('网络错误')
+    return
+  }
 
   inOneMinuteHasSent.value = true
   timer = setInterval(() => {
@@ -183,6 +185,9 @@ const onSubmit = async () => {
           userStore.isLogin = false
         }, 1500)
       }
+    })
+    .catch(() => {
+      showFailToast('网络错误，修改失败')
     })
 }
 </script>

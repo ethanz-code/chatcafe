@@ -200,16 +200,15 @@ const share = (imgId) => {
   })
     .then(async () => {
       // on confirm
-      const jsonData = JSON.stringify({
-        imgId: imgId
-      })
       const response = await axios.request({
         url: '/community/publishImg',
         method: 'post',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         },
-        data: jsonData
+        data: {
+          imgId: imgId
+        }
       })
       if (response.status === 200) {
         const parsedData = response.data

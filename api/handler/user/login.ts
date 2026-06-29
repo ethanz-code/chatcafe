@@ -1,10 +1,15 @@
 import prisma from "@/plugin/prismaClient";
+import CryptoJS from "crypto-js";
 
 export default async function ({ body, jwt, cookie: { ydai_auth }, set }: any) {
+  const decodedPassword = CryptoJS.AES.decrypt(body.password, "ydai").toString(
+    CryptoJS.enc.Utf8,
+  );
+
   const user = await prisma.user.findUnique({
     where: {
       phoneNumber: body.phoneNumber,
-      password: body.password,
+      password: decodedPassword,
     },
     select: {
       id: true,

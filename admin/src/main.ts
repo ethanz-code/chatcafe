@@ -4,6 +4,7 @@ import { setupDayjs, setupIconifyOffline, setupLoading, setupNProgress } from '.
 import { setupStore } from './store';
 import { setupRouter } from './router';
 import { setupI18n } from './locales';
+import { useAuthStore } from './store/modules/auth';
 import App from './App.vue';
 
 async function setupApp() {
@@ -22,6 +23,9 @@ async function setupApp() {
   await setupRouter(app);
 
   setupI18n(app);
+
+  // initialize auth route before mount to prevent first-navigation redirect
+  await useAuthStore().bootstrap();
 
   app.mount('#app');
 }

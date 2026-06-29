@@ -48,6 +48,8 @@ type Slots = {
   sider?: SlotFn;
   /** Footer */
   footer?: SlotFn;
+  /** Banner displayed between tab and main content */
+  banner?: SlotFn;
 };
 
 const slots = defineSlots<Slots>();
@@ -60,6 +62,7 @@ const showTab = computed(() => Boolean(slots.tab) && props.tabVisible);
 const showSider = computed(() => !props.isMobile && Boolean(slots.sider) && props.siderVisible);
 const showMobileSider = computed(() => props.isMobile && Boolean(slots.sider) && props.siderVisible);
 const showFooter = computed(() => Boolean(slots.footer) && props.footerVisible);
+const showBanner = computed(() => Boolean(slots.banner));
 
 // scroll mode
 const isWrapperScroll = computed(() => props.scrollMode === 'wrapper');
@@ -161,6 +164,17 @@ function handleClickMask() {
           class="flex-shrink-0 overflow-hidden"
           :class="[style['layout-tab-placement']]"
         ></div>
+      </template>
+
+      <!-- Banner -->
+      <template v-if="showBanner">
+        <div
+          v-show="!fullContent"
+          class="flex-shrink-0"
+          :class="[commonClass, bannerClass, leftGapClass]"
+        >
+          <slot name="banner"></slot>
+        </div>
       </template>
 
       <!-- Sider -->

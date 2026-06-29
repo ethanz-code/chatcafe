@@ -29,6 +29,7 @@ const createColumns = ({
     {
       title: '对话框UUID',
       key: 'dialogUUID',
+      width: 220,
       ellipsis: {
         tooltip: true
       }
@@ -36,6 +37,7 @@ const createColumns = ({
     {
       title: '用户ID',
       key: 'userId',
+      width: 130,
       render(row) {
         return h(NTag, { size: 'small' }, { default: () => row.userId });
       }
@@ -43,16 +45,19 @@ const createColumns = ({
     {
       title: '用户消息',
       key: 'userMsg',
+      width: 300,
       ellipsis: true
     },
     {
       title: 'AI消息',
       key: 'assistantMsg',
+      width: 300,
       ellipsis: true
     },
     {
       title: '收藏时间',
       key: 'createdAt',
+      width: 170,
       sorter: (row1, row2) => {
         return dayjs(row1.createdAt).unix() - dayjs(row2.createdAt).unix();
       },
@@ -63,6 +68,7 @@ const createColumns = ({
     {
       title: '',
       key: 'actions',
+      width: 130,
       render(row) {
         return h(NSpace, null, {
           default: () => [
@@ -195,7 +201,7 @@ onMounted(async () => {
 <template>
   <div>
   <NCard title="收藏列表" size="small">
-    <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" />
+    <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" :scroll-x="1390" />
     <div class="flex justify-end pt-12px">
       <NPagination
         v-model:page="page"

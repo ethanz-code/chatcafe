@@ -46,6 +46,20 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
   }
 
   /**
+   * Bootstrap auth route on app start
+   *
+   * If the user is already logged in (token + roles exist), initialize the
+   * auth route before the first navigation. This prevents the route guard
+   * from intercepting the first navigation and causing a redirect-based
+   * re-render.
+   */
+  async function bootstrap() {
+    if (isLogin.value && userInfo.roles.length > 0 && !routeStore.isInitAuthRoute) {
+      await routeStore.initAuthRoute();
+    }
+  }
+
+  /**
    * Login
    *
    * @param userName User name
@@ -110,6 +124,7 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     isLogin,
     loginLoading,
     resetStore,
+    bootstrap,
     login
   };
 });
