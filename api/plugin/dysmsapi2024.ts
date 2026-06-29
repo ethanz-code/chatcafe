@@ -30,7 +30,7 @@ export const sendSmsWithOptions = async (
   try {
     await client.sendSmsWithOptions(sendSmsRequest, runtime);
   } catch (error: any) {
-    console.log(error.message);
-    console.log(error.data.Recommend);
+    console.error(error.message);
+    console.error(error.data.Recommend);
   }
 };

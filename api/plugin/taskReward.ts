@@ -5,7 +5,7 @@ import safeEval from "safe-eval";
 import { calcBalance } from "./balance";
 
 // 比对两个时间，并任意指定比对单位
-export function diffTimeOffset(
+function diffTimeOffset(
   lastISOTime: string,
   secondISOTime: string,
   format: any,

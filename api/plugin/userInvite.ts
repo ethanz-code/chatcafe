@@ -6,8 +6,7 @@ const getAllInviteCode = await prisma.user.findMany({
   },
 });
 // 现有用户邀请码暂存区
-export const inviteCodeBuffer = getAllInviteCode.map((user) => user.inviteCode);
-console.log(inviteCodeBuffer);
+const inviteCodeBuffer = getAllInviteCode.map((user) => user.inviteCode);
 
 function generateInviteCode() {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";

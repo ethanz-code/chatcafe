@@ -63,7 +63,6 @@ export default async function ({ body: { model, prompt, token } }: any) {
       stream.send("[DONE]");
       stream.close();
     } catch (error) {
-      console.log(error);
       stream.close();
     }
   });
