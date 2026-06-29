@@ -100,7 +100,7 @@
     "vue-tsc": "2.0.14"
   },
   "simple-git-hooks": {
-    "commit-msg": "pnpm sa git-commit-verify",
+    "commit-msg": "cd admin && pnpm sa git-commit-verify",
     "pre-commit": "cd api && pnpm exec lint-staged"
   },
   "lint-staged": {
