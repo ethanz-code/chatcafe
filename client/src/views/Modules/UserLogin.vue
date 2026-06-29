@@ -158,7 +158,6 @@ const login = async () => {
 }
 
 const register = () => {
-  // console.log('register')
   historyStore.lastPagePath.push(route.fullPath)
   router.push('/modules/register')
 }

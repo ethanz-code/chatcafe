@@ -29,9 +29,8 @@ const codeBuffer = {}
 const marked = new Marked(
   markedHighlight({
     langPrefix: 'hljs language-',
-    highlight(code, lang) {
+      highlight(code, lang) {
       const language = hljs.getLanguage(lang) ? lang : 'plaintext'
-      // return hljs.highlight(code, { language }).value
       const codeUUID = uuidv4()
       const methodExtend = `<div class="absolute left-0 top-0 w-full py-2 bg-[#595b62] text-white flex gap-2 items-center justify-between px-3 box-border" >
           <span>${lang}</span>

@@ -15,7 +15,6 @@
 const userAgreement = 'https://aigc-yassine.notion.site/3e8f1814e8e6430aa771128cd9a1c220?pvs=4'
 
 const clickGoToReadUserAgreement = () => {
-  // console.log(userAgreement)
   // 新建一个a标签，之后js控制点击链接做跳转，并且target=_blank
   const a = document.createElement('a')
   a.href = userAgreement

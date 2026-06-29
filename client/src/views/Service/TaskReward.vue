@@ -86,8 +86,6 @@
             <div
               class="task_list_icon flex items-center justify-center rounded-lg w-9 h-9 text-white"
             >
-              <!-- <van-icon class-prefix="iconfont-ydai" :name="item.icon" size="28" /> -->
-              <!-- <component v-if="item.component" class="w-7 h-7" :is="item.component"></component> -->
               <component
                 v-if="item.fluentIconName"
                 class="w-7 h-7"
@@ -266,16 +264,6 @@ onMounted(async () => {
 
   // 获取任务列表数据
   await taskRewardStore.getNetworkTaskList()
-  // // finished
-  // const timer = setTimeout(() => {
-  //   // taskRewardStore.taskList[3].status === 'finished'  // 这样写无效，不能通过数组索引到去修改
-  //   taskRewardStore.taskList.forEach((item, index) => {
-  //     // 这样可以
-  //     if (index === 2) item.status = 'finished'
-  //   })
-
-  //   clearTimeout(timer)
-  // }, 3000)
 })
 </script>
 <style scoped>

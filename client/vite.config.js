@@ -1,6 +1,4 @@
 import { fileURLToPath, URL } from 'node:url'
-// import process from 'process'
-// import { loadEnv } from 'vite'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'

@@ -7,12 +7,7 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
-    CategoryDescRecommend: typeof import('./src/components/Modules/ImageGeneration/CategoryDescRecommend.vue')['default']
-    DrawList: typeof import('./src/components/Modules/ImageGeneration/DrawList.vue')['default']
-    Headline: typeof import('./src/components/Modules/ImageGeneration/Headline.vue')['default']
-    ImageList: typeof import('./src/components/Modules/ImageCommunity/ImageList.vue')['default']
     MessageModule: typeof import('./src/components/TabBar/AIChat/MessageModule.vue')['default']
-    ParameterAdjustment: typeof import('./src/components/Modules/ImageGeneration/ParameterAdjustment.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SidebarDialog: typeof import('./src/components/TabBar/AIChat/SidebarDialog.vue')['default']

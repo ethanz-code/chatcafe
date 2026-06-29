@@ -302,7 +302,6 @@ import { HamburgerMenuIcon, CaretSortIcon } from '@radix-icons/vue'
 import { useChatStore } from '@/stores/chat.js'
 import { useUserCenterStore } from '@/stores/user-center'
 import SidebarDialog from '@/components/TabBar/AIChat/SidebarDialog.vue'
-// import ChatCore from '@/components/TabBar/AIChat/ChatCore.vue'
 import { WhetherToDisableTheEffect } from '@/utils/fixedRubberBandEffect.js'
 import { sendMessage as streamSendMsg } from '@/utils/chat'
 import Message from '@/components/TabBar/AIChat/MessageModule.vue'
@@ -321,7 +320,6 @@ import {
   MoreCircle32Regular as More,
   MoreCircle32Filled as MoreFilled
 } from '@vicons/fluent'
-// import { v4 as uuidv4 } from 'uuid'
 import { isWeixinBrowser, isAppleDevice } from '@/utils/operationEnv'
 import { useChatFirstLoadedStore } from '@/stores/chat-first-loaded.js'
 
@@ -451,7 +449,6 @@ const hasDialogContent = () => {
   const result = store.dialogContent.filter(
     (item) => item.uuid === store.selectedDialog.uuid && item.delta.length > 0
   )
-  // console.log(result)
   return result.length > 0
 }
 // 不得将此移动到hasDialogContent前面，因为初始值调用了它
@@ -459,7 +456,6 @@ let hasMsg = ref(true)
 
 const setDialogContent = () => {
   const dialog = store.dialogContent.filter((item) => item.uuid === store.selectedDialog.uuid)[0]
-  // console.log('store.dialogContent: ', store.dialogContent)
   dialogContent.value = dialog.delta ? dialog.delta : []
   lastMsg.value = Math.max(dialogContent.value.length - 1, 0)
 }
@@ -662,13 +658,6 @@ const starMsg = async ({ time, content }, index) => {
   if (!userCenterStore.isLogin) return showFailToast('未登录')
 
   const userMsg = dialogContent.value[index - 1]
-  // console.log('对话框UUID：')
-  // console.log(store.selectedDialog.uuid)
-  // console.log('来自用户的消息：')
-  // console.log(userMsg.time + '\n' + userMsg.content)
-
-  // console.log('来自助理的消息：')
-  // console.log(time + '\n' + content)
   const response = await axios.request({
     url: '/user/service/star/starMsg',
     method: 'post',

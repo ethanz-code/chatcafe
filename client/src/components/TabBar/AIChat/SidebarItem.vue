@@ -39,7 +39,6 @@
           <van-field v-else v-model="editText" class="bg-gray-100 h-8 py-0" center />
         </div>
         <div ref="functionArea" class="opacity-0 group-hover:opacity-100 flex items-center gap-2">
-          <!-- <van-icon class="cursor-pointer" name="star-o" /> -->
           <van-icon
             v-show="!curNodeEdit(index)"
             @click="editDialogTitle(index)"

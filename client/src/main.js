@@ -9,8 +9,6 @@ import { usePersist } from 'pinia-use-persist'
 
 import { autoAnimatePlugin } from '@formkit/auto-animate/vue'
 
-// import VConsole from 'vconsole'
-// new VConsole()
 import lazyPlugin from 'vue3-lazy'
 
 const app = createApp(App)

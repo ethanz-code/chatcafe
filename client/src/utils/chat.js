@@ -145,10 +145,8 @@ export const sendMessage = async (
         if (event.data === '[DONE]') {
           // 检测回答内容是否真正完成，因为token限制结束不算
           if (backupData.finish_reason === null || backupData.finish_reason === 'length') {
-            // console.log('未完成')
             notFinished()
           } else if (backupData.finish_reason === 'stop') {
-            // console.log('完成')
           }
           // onclose()
           return
@@ -174,7 +172,6 @@ export const sendMessage = async (
           accepted = true
           clearTimeout(loadFrameTimer)
           respString += data.delta.content
-          // console.log(respString)
           msgList[msgLength].content = respString
           processing()
 
@@ -189,7 +186,6 @@ export const sendMessage = async (
         }
       },
       async onclose() {
-        // console.log('结束2')
         if (execOnClose) onclose()
       }
     })

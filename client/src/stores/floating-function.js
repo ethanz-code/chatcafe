@@ -20,9 +20,7 @@ export const useFloatingFunction = defineStore(
     const backLastPage = () => {
       // 执行回到上一页的操作
       if (lastPagePath.value.length > 0) {
-        // console.log('prev', lastPagePath.value)
         const path = lastPagePath.value.pop()
-        // console.log('next', lastPagePath.value)
         router.push(path)
       }
     }

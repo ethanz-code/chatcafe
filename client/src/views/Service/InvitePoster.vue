@@ -80,7 +80,6 @@ const drawWork = () => {
 
     // 获取生成的二维码图片
     const qrImage = new Image()
-    // console.log(base64)
     qrImage.src = base64
     qrImage.onload = () => {
       // 在目标 Canvas 上指定位置绘制二维码

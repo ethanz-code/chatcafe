@@ -141,7 +141,6 @@ const userAvatar = computed(() => {
   else return '/res/avatar.png'
 })
 const logout = () => {
-  // console.log('退出登录')
   store.reset()
   showSuccessToast({
     message: '已退出登录',
@@ -193,7 +192,6 @@ const modifyName = () => {
 // 登录密码
 const loginPasswordShow = ref(false)
 const changePassword = () => {
-  // console.log('修改密码')
   historyStore.lastPagePath.push(route.fullPath)
   const timer = setTimeout(() => {
     clearTimeout(timer)
@@ -201,7 +199,6 @@ const changePassword = () => {
   }, 300)
 }
 const forgetPassword = () => {
-  // console.log('忘记密码')
   historyStore.lastPagePath.push(route.fullPath)
   const timer = setTimeout(() => {
     clearTimeout(timer)
@@ -227,7 +224,6 @@ async function getblobData(blob) {
     duration: 300
   })
 
-  // console.log(blob)
   const formData = new FormData()
   formData.append('blob', blob)
   await axios

@@ -26,9 +26,6 @@ export const useUserCenterStore = defineStore(
     const inviteCode = ref('')
 
     const reset = () => {
-      // phoneNumber.value = ''
-      // vip.value = false
-      // userId.value = 0
       dialogueBalance.value = 0
       paintingBalance.value = 0
       isLogin.value = false

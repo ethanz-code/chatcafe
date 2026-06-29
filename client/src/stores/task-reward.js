@@ -41,7 +41,6 @@ export const useTaskRewardStore = defineStore(
         const parsedData = res.data
         if (parsedData.status === 0) {
           // 更新任务列表
-          // console.log('rewrite taskList.value')
           taskList.value = parsedData.data.map((item) => {
             return {
               name: item.name,

@@ -246,7 +246,6 @@ import copy from '@/utils/copyInformation'
 import { useRouter, useRoute } from 'vue-router'
 import moment from 'moment'
 import axios from '@/utils/axios'
-// import { v4 as uuidv4 } from 'uuid'
 import {
   ArrowClockwise24Regular as Replay,
   SaveCopy24Regular as Copy,
@@ -494,13 +493,6 @@ const starMsg = async ({ time, content }, index) => {
   if (!userCenterStore.isLogin) return showFailToast('未登录')
 
   const userMsg = dialogContent.value[index - 1]
-  // console.log('对话框UUID：')
-  // console.log(store.selectedDialog.uuid)
-  // console.log('来自用户的消息：')
-  // console.log(userMsg.time + '\n' + userMsg.content)
-
-  // console.log('来自助理的消息：')
-  // console.log(time + '\n' + content)
   const response = await axios.request({
     url: '/user/service/star/starMsg',
     method: 'post',
@@ -585,7 +577,6 @@ const continueSendMsg = () => {
   canContinueControl.value = false
   message.value = '继续'
   const sendMsgButton = document.querySelector('#sendMsgButton')
-  // (sendMsgButton.value as ButtonHTMLAttributes).click()
   const timer = setTimeout(() => {
     sendMsgButton.click()
     clearTimeout(timer)
