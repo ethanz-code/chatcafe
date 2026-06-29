@@ -254,6 +254,7 @@ onMounted(async () => {
 </script>
 
 <template>
+  <div>
   <NCard title="详情数据" size="small">
     <template #header-extra>
       <NSpace>
@@ -304,4 +305,5 @@ onMounted(async () => {
         </NForm>
       </NDrawerContent>
     </NDrawer>
+  </div>
 </template>

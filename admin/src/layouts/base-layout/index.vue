@@ -53,6 +53,13 @@ const headerProps = computed(() => headerPropsConfig[themeStore.layout.mode]);
 
 const siderVisible = computed(() => themeStore.layout.mode !== 'horizontal');
 
+const contentClass = computed(() => {
+  if (appStore.isMobile) {
+    return 'overflow-x-auto';
+  }
+  return appStore.contentXScrollable ? 'overflow-x-hidden' : '';
+});
+
 const isVerticalMix = computed(() => themeStore.layout.mode === 'vertical-mix');
 
 const isHorizontalMix = computed(() => themeStore.layout.mode === 'horizontal-mix');
@@ -98,7 +105,7 @@ function getSiderCollapsedWidth() {
     :header-height="themeStore.header.height"
     :tab-visible="themeStore.tab.visible"
     :tab-height="themeStore.tab.height"
-    :content-class="appStore.contentXScrollable ? 'overflow-x-hidden' : ''"
+    :content-class="contentClass"
     :sider-visible="siderVisible"
     :sider-width="siderWidth"
     :sider-collapsed-width="siderCollapsedWidth"

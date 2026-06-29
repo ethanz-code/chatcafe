@@ -301,6 +301,7 @@ onMounted(async () => {
 </script>
 
 <template>
+  <div>
   <NCard title="助手列表" size="small">
     <template #header-extra>
       <NForm ref="formRef2" inline :label-width="0" :model="formValue" :rules="rules" size="small">
@@ -352,4 +353,5 @@ onMounted(async () => {
         </NForm>
       </NDrawerContent>
     </NDrawer>
+  </div>
 </template>

@@ -256,6 +256,7 @@ onMounted(async () => {
 </script>
 
 <template>
+  <div>
   <NCard title="模型列表" size="small">
     <template #header-extra>
       <NButton type="primary" @click="openCreateDrawer">新增模型</NButton>
@@ -302,4 +303,5 @@ onMounted(async () => {
       </NForm>
     </NDrawerContent>
   </NDrawer>
+  </div>
 </template>

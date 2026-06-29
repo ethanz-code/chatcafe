@@ -275,6 +275,7 @@ onMounted(async () => {
 </script>
 
 <template>
+  <div>
   <NCard title="用户列表" size="small">
     <template #header-extra>
       <NForm ref="formRef" inline :label-width="0" :model="formValue" :rules="rules" size="small">
@@ -330,4 +331,5 @@ onMounted(async () => {
       :on-clickoutside="onClickoutside"
       @select="handleSelect"
     />
+  </div>
 </template>
