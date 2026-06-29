@@ -330,5 +330,4 @@ onMounted(async () => {
       :on-clickoutside="onClickoutside"
       @select="handleSelect"
     />
-  </div>
 </template>

@@ -291,5 +291,4 @@ onMounted(async () => {
       </NForm>
     </NDrawerContent>
   </NDrawer>
-  </div>
 </template>
