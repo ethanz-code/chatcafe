@@ -212,7 +212,7 @@ const share = (imgId) => {
         data: jsonData
       })
       if (response.status === 200) {
-        const parsedData = JSON.parse(response.data)
+        const parsedData = response.data
         if (parsedData.status === 0) {
           showSuccessToast('分享成功')
         } else {

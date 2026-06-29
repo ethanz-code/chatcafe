@@ -1,4 +1,5 @@
 import { Elysia } from "elysia";
+import { node } from "@elysiajs/node";
 import { jwt } from "@elysiajs/jwt";
 import { cors } from "@elysiajs/cors";
 import { cron } from "@elysiajs/cron";
@@ -12,17 +13,20 @@ import { CommunityPlugin } from "./handler/community";
 import { $AdminPlugin } from "./handler/$admin";
 
 import { cleanupOldData } from "./plugin/cleanup";
+import { initLtzf } from "./plugin/ltzf";
 
-const jwtSecret = Bun.env.JWT_SECRET;
+const jwtSecret = process.env.JWT_SECRET;
 
-const rootPrefix = Bun.env.ROOT_PREFIX || "/";
-const corsOrigin = Bun.env.CORS_ORIGIN;
+initLtzf();
+
+const rootPrefix = process.env.ROOT_PREFIX || "/";
+const corsOrigin = process.env.CORS_ORIGIN;
 
 const corsConfig = corsOrigin
   ? cors({ origin: new RegExp(corsOrigin) })
   : cors({ origin: false });
 
-new Elysia()
+new Elysia({ adapter: node() })
   .use(
     jwt({
       name: "jwt",

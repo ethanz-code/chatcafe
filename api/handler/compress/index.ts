@@ -76,7 +76,7 @@ export const CompressPlugin = (config: Config) =>
         await writeFile(compPath, compressed);
 
         const host =
-          request.headers.get("host") || `localhost:${Bun.env.PORT || 9091}`;
+          request.headers.get("host") || `localhost:${process.env.PORT || 9091}`;
         const protocol = request.headers.get("x-forwarded-proto") || "http";
         const base = `${protocol}://${host}`;
 

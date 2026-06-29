@@ -1,14 +1,15 @@
 import prisma from "@/plugin/prismaClient";
 
-export default async function ({ body: { id, name, cost, relatedUrl } }: any) {
+export default async function ({ body: { id, name, cost, relatedUrl, imgUrl, apiKey, baseUrl } }: any) {
   await prisma.languageModel.update({
-    where: {
-      id: id,
-    },
+    where: { id },
     data: {
-      name: name,
-      cost: cost,
-      relatedUrl: relatedUrl,
+      name,
+      cost,
+      relatedUrl,
+      imgUrl: imgUrl || '',
+      apiKey: apiKey || '',
+      baseUrl: baseUrl || '',
     },
   });
 

@@ -172,8 +172,7 @@ const modifyName = () => {
   modifyNameShow.value = false
   store.name = modifyedName.value
 
-  const formData = new FormData()
-  formData.append('name', modifyedName.value)
+  const formData = { name: modifyedName.value }
   axios
     .request({
       url: '/user/modifyName',
@@ -242,7 +241,7 @@ async function getblobData(blob) {
     })
     .then((res) => {
       if (res.status === 200) {
-        const parsedData = JSON.parse(res.data)
+        const parsedData = res.data
         if (parsedData.status === 0) {
           store.avatar = parsedData.avatarUrl
           // showSuccessToast('上传成功')

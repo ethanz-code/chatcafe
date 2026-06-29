@@ -9,8 +9,7 @@ export default async function ({ jwt, set, headers }: any) {
 
   const dialogs = await prisma.user.findUnique({
     where: {
-      phoneNumber: payload.phoneNumber,
-      password: payload.password,
+      id: payload.id,
     },
     include: {
       allDialog: {

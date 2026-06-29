@@ -4,6 +4,14 @@ import { useUserCenterStore } from '@/stores/user-center'
 import axios from './axios'
 import moment from 'moment'
 
+function generateTitle(text) {
+  const cleaned = text.replace(/\s+/g, ' ').trim()
+  if (cleaned.length <= 30) return cleaned
+  const cut = cleaned.slice(0, 30)
+  const lastSpace = cut.lastIndexOf(' ')
+  return lastSpace > 10 ? cut.slice(0, lastSpace) + '...' : cut + '...'
+}
+
 export const sendMessage = async (
   messages,
   model,
@@ -46,16 +54,16 @@ export const sendMessage = async (
   const popMsg = async () => {
     // 登录状态下删除信息做网络请求
     if (userStore.isLogin) {
-      const msgOptions = new FormData()
-      msgOptions.append('uuid', store.selectedDialog.uuid)
-      msgOptions.append('time', msgList[msgLength].time)
       await axios.request({
         url: '/chat/dialog/deleteMessage',
         method: 'post',
         headers: {
           Authorization: 'Bearer ' + localStorage.getItem('token')
         },
-        data: msgOptions
+        data: {
+          uuid: store.selectedDialog.uuid,
+          time: msgList[msgLength].time
+        }
       })
     }
     msgList.pop()
@@ -91,14 +99,23 @@ export const sendMessage = async (
         )[0]
         targetNotSplit.updatedAt = time
 
+        // 首次对话自动生成标题
+        if (msgList.length === 2 && store.selectedDialog.title === '新的对话') {
+          const title = generateTitle(msgList[0].content)
+          store.selectedDialog.title = title
+          targetNotSplit.title = title
+          store.editDialog(title)
+        }
+
         // 检测是否登录状态，登录后直接将响应消息存到数据库
         if (userStore.isLogin) {
-          const msgOptions = new FormData()
-          msgOptions.append('uuid', store.selectedDialog.uuid)
-          msgOptions.append('content', msgList[msgLength].content)
-          msgOptions.append('role', 'assistant')
-          msgOptions.append('imgUrl', msgList[msgLength].imgUrl)
-          msgOptions.append('time', time)
+          const msgOptions = {
+            uuid: store.selectedDialog.uuid,
+            content: msgList[msgLength].content,
+            role: 'assistant',
+            imgUrl: msgList[msgLength].imgUrl,
+            time
+          }
           axios.request({
             url: '/chat/dialog/newMessage',
             method: 'post',
@@ -140,11 +157,11 @@ export const sendMessage = async (
         if (event.data === null || event.data === undefined || event.data.length === 0) return
         const parsed = JSON.parse(event.data)
 
-        // 检测余额是否充足
+        // 检测错误（余额不足 / API Key 未配置等）
         if (parsed.status && parsed.status === -1) {
           execOnClose = false
           accepted = true
-          insufficientBalance()
+          insufficientBalance(parsed.error || '')
           popMsg()
           after()
           return
@@ -178,17 +195,15 @@ export const sendMessage = async (
     })
   }
 
-  const chatOption = new FormData()
-  chatOption.append('model', model)
-  chatOption.append('loadDbData', userStore.isLogin && !assistantDialogContent)
-  if (userStore.isLogin && !assistantDialogContent)
-    chatOption.append('uuid', store.selectedDialog.uuid)
-  else {
-    chatOption.append('messages', JSON.stringify(messages))
-    if (assistantDialogContent) {
-      chatOption.append('isAssistant', true)
-      chatOption.append('assistantId', assistantId)
-    }
-  }
-  sse(`${baseUrl}/chat/completions`, localStorage.getItem('token'), chatOption)
+  const chatOption = JSON.stringify({
+    model,
+    loadDbData: String(userStore.isLogin && !assistantDialogContent),
+    ...(userStore.isLogin && !assistantDialogContent
+      ? { uuid: store.selectedDialog.uuid }
+      : {
+          messages: JSON.stringify(messages),
+          ...(assistantDialogContent ? { isAssistant: String(true), assistantId: String(assistantId) } : {})
+        })
+  })
+  sse(`${baseUrl}/chat/completions`, localStorage.getItem('token'), chatOption, { 'Content-Type': 'application/json' })
 }

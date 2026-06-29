@@ -51,7 +51,7 @@ const headerMenus = computed(() => {
     <GlobalLogo v-if="showLogo" class="h-full" :style="{ width: themeStore.sider.width + 'px' }" />
     <HorizontalMenu v-if="showMenu" mode="horizontal" :menus="headerMenus" class="px-12px" />
     <div v-else class="h-full flex-y-center flex-1-hidden">
-      <MenuToggler v-if="showMenuToggler" :collapsed="appStore.siderCollapse" @click="appStore.toggleSiderCollapse" />
+      <MenuToggler v-if="showMenuToggler" class="ml-16px" :collapsed="appStore.siderCollapse" @click="appStore.toggleSiderCollapse" />
       <GlobalBreadcrumb v-if="!appStore.isMobile" class="ml-12px" />
     </div>
     <div class="h-full flex-y-center justify-end">

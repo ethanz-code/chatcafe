@@ -1,7 +1,7 @@
 import prisma from "@/plugin/prismaClient";
 import moment from "moment";
 import { resolve } from "path";
-import { unlink } from "node:fs/promises";
+import { unlink, writeFile as writeFilePromise } from "node:fs/promises";
 
 export default async function ({
   body: { id, name, imgBlob, content_zh_CN, categoryId },
@@ -19,8 +19,7 @@ export default async function ({
 
     if (imgBlob) {
       const path = resolve("./", ...(assistant?.imgUrl.split("/") || []));
-      const file = Bun.file(path);
-      if (await file.exists()) await unlink(path);
+      try { await unlink(path); } catch {}
 
       // 将上传的文件保存到本地目录中
       // 六位随机数字
@@ -28,7 +27,7 @@ export default async function ({
       // 生成图片文件名
       const filename = `${moment().unix()}_${code}.webp`;
       const fileUrl = resolve("./", "media", "assistant", filename);
-      await Bun.write(fileUrl, imgBlob);
+      await writeFilePromise(fileUrl, imgBlob);
 
       relativePath = `/media/assistant/${filename}`;
     }
@@ -50,7 +49,7 @@ export default async function ({
     // 生成图片文件名
     const filename = `${moment().unix()}_${code}.webp`;
     const fileUrl = resolve("./", "media", "assistant", filename);
-    await Bun.write(fileUrl, imgBlob);
+    await writeFilePromise(fileUrl, imgBlob);
 
     relativePath = `/media/assistant/${filename}`;
 

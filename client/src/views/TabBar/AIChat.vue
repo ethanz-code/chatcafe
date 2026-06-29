@@ -473,8 +473,12 @@ const autoScroll2Bottom = () => {
   element.scrollTop = element.scrollHeight
 }
 
-// 余额不足时，弹出对话框
-const insuficientBalance = () => {
+// 余额不足或服务端其他错误
+const insuficientBalance = (error = '') => {
+  if (error && !error.includes('Insufficient')) {
+    showFailToast(error)
+    return
+  }
   // eslint-disable-next-line no-undef
   showConfirmDialog({
     title: '对话余额不足',
@@ -563,19 +567,19 @@ const sendMessage = async (prompt, ownNotSendMsg = false) => {
     })
 
     if (userCenterStore.isLogin) {
-      const msgOptions = new FormData()
-      msgOptions.append('uuid', store.selectedDialog.uuid)
-      msgOptions.append('content', prompt)
-      msgOptions.append('role', 'user')
-      msgOptions.append('imgUrl', '')
-      msgOptions.append('time', time)
       await axios.request({
         url: '/chat/dialog/newMessage',
         method: 'post',
         headers: {
           Authorization: 'Bearer ' + localStorage.getItem('token')
         },
-        data: msgOptions
+        data: {
+          uuid: store.selectedDialog.uuid,
+          content: prompt,
+          role: 'user',
+          imgUrl: '',
+          time
+        }
       })
     }
 
@@ -665,23 +669,23 @@ const starMsg = async ({ time, content }, index) => {
 
   // console.log('来自助理的消息：')
   // console.log(time + '\n' + content)
-  const formData = new FormData()
-  formData.append('dialogUUID', store.selectedDialog.uuid)
-  formData.append('userMsgTime', userMsg.time)
-  formData.append('userMsg', userMsg.content)
-  formData.append('assistantMsgTime', time)
-  formData.append('assistantMsg', content)
   const response = await axios.request({
     url: '/user/service/star/starMsg',
     method: 'post',
     headers: {
       Authorization: 'Bearer ' + localStorage.getItem('token')
     },
-    data: formData
+    data: {
+      dialogUUID: store.selectedDialog.uuid,
+      userMsgTime: userMsg.time,
+      userMsg: userMsg.content,
+      assistantMsgTime: time,
+      assistantMsg: content
+    }
   })
   if (response.status === 200) {
-    const parsedData = JSON.parse(response.data)
-    if (parsedData.status === 0) {
+      const parsedData = response.data
+      if (parsedData.status === 0) {
       // eslint-disable-next-line no-undef
       showSuccessToast('已收藏')
       allStar.value.push(parsedData.data)
@@ -712,7 +716,7 @@ onMounted(async () => {
     }
   })
   if (res.status === 200) {
-    const parsedData = JSON.parse(res.data)
+    const parsedData = res.data
     if (parsedData.status === 0) {
       allStar.value = parsedData.data
     }
@@ -742,16 +746,16 @@ const deleteMsg = async (i) => {
 
   // 登录状态下删除信息做网络请求
   if (userCenterStore.isLogin) {
-    const msgOptions = new FormData()
-    msgOptions.append('uuid', store.selectedDialog.uuid)
-    msgOptions.append('time', time)
     axios.request({
       url: '/chat/dialog/deleteMessage',
       method: 'post',
       headers: {
         Authorization: 'Bearer ' + localStorage.getItem('token')
       },
-      data: msgOptions
+      data: {
+        uuid: store.selectedDialog.uuid,
+        time
+      }
     })
   }
 }

@@ -45,6 +45,11 @@ export function setupElegantRouter() {
         i18nKey: `route.${key}` as App.I18n.I18nKey
       };
 
+      if (key === 'usage') {
+        meta.icon = 'carbon:chart-line-data';
+        meta.order = 5;
+      }
+
       if (constantRoutes.includes(key)) {
         meta.constant = true;
       }

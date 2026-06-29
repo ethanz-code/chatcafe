@@ -79,9 +79,7 @@ const onSubmit = () => {
   // 将密码加密
   const encryptedOriginPassword = CryptoJS.AES.encrypt(rawPassword.value, 'ydai').toString()
   const encryptedPassword = CryptoJS.AES.encrypt(newPassword.value, 'ydai').toString()
-  const formData = new FormData()
-  formData.append('originPassword', encryptedOriginPassword)
-  formData.append('newPassword', encryptedPassword)
+  const formData = { originPassword: encryptedOriginPassword, newPassword: encryptedPassword }
   axios
     .request({
       url: '/user/changePassword',
@@ -93,7 +91,7 @@ const onSubmit = () => {
     })
     .then((res) => {
       if (res.status === 200) {
-        const parsedData = JSON.parse(res.data)
+        const parsedData = res.data
         if (parsedData.status === 0) {
           // eslint-disable-next-line no-undef
           showSuccessToast('修改成功')

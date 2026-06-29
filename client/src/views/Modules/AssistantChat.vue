@@ -145,15 +145,15 @@
 
         <!--  浮窗内容区域  -->
         <div class="mt-3 flex flex-col gap-2 px-3 pb-2">
-          <!--  物品列表，内部包含左右两部分  -->
           <div
             class="flex justify-between items-center cursor-pointer"
             v-for="(item, index) in store.llm"
             :key="item.model"
             @click="selectLLM(index)"
           >
-            <div class="flex">
-              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+            <div class="flex items-center">
+              <img v-if="item.imgUrl" :src="item.imgUrl" class="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+              <div v-else class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                 AI
               </div>
               <div class="flex flex-col ml-2">
@@ -347,8 +347,12 @@ const autoScroll2Bottom = () => {
   element.scrollTop = element.scrollHeight - element.clientHeight
 }
 
-// 余额不足时，弹出对话框
-const insuficientBalance = () => {
+// 余额不足或服务端其他错误
+const insuficientBalance = (error = '') => {
+  if (error && !error.includes('Insufficient')) {
+    showFailToast(error)
+    return
+  }
   // eslint-disable-next-line no-undef
   showConfirmDialog({
     title: '对话余额不足',
@@ -497,23 +501,23 @@ const starMsg = async ({ time, content }, index) => {
 
   // console.log('来自助理的消息：')
   // console.log(time + '\n' + content)
-  const formData = new FormData()
-  formData.append('dialogUUID', store.selectedDialog.uuid)
-  formData.append('userMsgTime', userMsg.time)
-  formData.append('userMsg', userMsg.content)
-  formData.append('assistantMsgTime', time)
-  formData.append('assistantMsg', content)
   const response = await axios.request({
     url: '/user/service/star/starMsg',
     method: 'post',
     headers: {
       Authorization: 'Bearer ' + localStorage.getItem('token')
     },
-    data: formData
+    data: {
+      dialogUUID: store.selectedDialog.uuid,
+      userMsgTime: userMsg.time,
+      userMsg: userMsg.content,
+      assistantMsgTime: time,
+      assistantMsg: content
+    }
   })
   if (response.status === 200) {
-    const parsedData = JSON.parse(response.data)
-    if (parsedData.status === 0) {
+      const parsedData = response.data
+      if (parsedData.status === 0) {
       // eslint-disable-next-line no-undef
       showSuccessToast('已收藏')
       allStar.value.push(parsedData.data)
@@ -544,7 +548,7 @@ onMounted(async () => {
     }
   })
   if (res.status === 200) {
-    const parsedData = JSON.parse(res.data)
+    const parsedData = res.data
     if (parsedData.status === 0) {
       allStar.value = parsedData.data
     }
@@ -626,7 +630,7 @@ onMounted(() => {
       method: 'get'
     })
     .then((res) => {
-      res = JSON.parse(res.data)
+      res = res.data
       if (res.status === 0) {
         assistantInfo.value.name = res.data.name
         assistantInfo.value.imgUrl = res.data.imgUrl

@@ -18,8 +18,7 @@ export default async function ({ jwt, set, headers, body: { id } }: any) {
   // 获取用户id
   const getUserId = await prisma.user.findUnique({
     where: {
-      phoneNumber: payload.phoneNumber,
-      password: payload.password,
+      id: payload.id,
     },
   });
   if (!getUserId) return { status: -1, error: "未找到用户！" };

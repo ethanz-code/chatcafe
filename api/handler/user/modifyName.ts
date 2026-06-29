@@ -12,8 +12,7 @@ export default async function ({ jwt, set, headers, body: { name } }: any) {
   // 修改用户名
   const modifyUserName = await prisma.user.update({
     where: {
-      phoneNumber: payload.phoneNumber,
-      password: payload.password,
+      id: payload.id,
     },
     select: {
       id: true,

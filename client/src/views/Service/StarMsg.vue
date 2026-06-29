@@ -83,12 +83,13 @@ const allStar = ref([])
 const hasStar = ref([])
 const readMore = ref([])
 const starMsg = async (item, index) => {
-  const formData = new FormData()
-  formData.append('dialogUUID', item.dialogUUID)
-  formData.append('userMsgTime', item.userMsgTime)
-  formData.append('userMsg', item.userMsg)
-  formData.append('assistantMsgTime', item.assistantMsgTime)
-  formData.append('assistantMsg', item.assistantMsg)
+  const formData = {
+    dialogUUID: item.dialogUUID,
+    userMsgTime: item.userMsgTime,
+    userMsg: item.userMsg,
+    assistantMsgTime: item.assistantMsgTime,
+    assistantMsg: item.assistantMsg
+  }
   const response = await axios.request({
     url: '/user/service/star/starMsg',
     method: 'post',
@@ -98,7 +99,7 @@ const starMsg = async (item, index) => {
     data: formData
   })
   if (response.status === 200) {
-    const parsedData = JSON.parse(response.data)
+    const parsedData = response.data
     if (parsedData.status === 0) {
       // eslint-disable-next-line no-undef
       showSuccessToast('已收藏')
@@ -122,7 +123,7 @@ onMounted(async () => {
     }
   })
   if (res.status === 200) {
-    const parsedData = JSON.parse(res.data)
+    const parsedData = res.data
     if (parsedData.status === 0) {
       allStar.value = parsedData.data
       // 循环为hasStar push布尔值true,

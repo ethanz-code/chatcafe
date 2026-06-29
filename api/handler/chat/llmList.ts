@@ -6,6 +6,7 @@ export const llmList = async (app: any) => {
       name: true,
       cost: true,
       relatedUrl: true,
+      imgUrl: true,
     },
     orderBy: {
       id: "asc",
@@ -16,5 +17,6 @@ export const llmList = async (app: any) => {
     model: item.name,
     cost: item.cost,
     relatedUrl: item.relatedUrl,
+    imgUrl: item.imgUrl,
   }));
 };

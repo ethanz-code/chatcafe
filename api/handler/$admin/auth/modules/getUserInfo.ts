@@ -1,4 +1,4 @@
-const SUPER_USERNAME = Bun.env.SUPER_USERNAME;
+const SUPER_USERNAME = process.env.SUPER_USERNAME;
 
 export default async function () {
   return {

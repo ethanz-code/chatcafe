@@ -8,7 +8,19 @@ import { transformElegantRoutesToVueRoutes } from '../elegant/transform';
  *
  * @link https://github.com/soybeanjs/elegant-router?tab=readme-ov-file#custom-route
  */
-const customRoutes: CustomRoute[] = [];
+const customRoutes: CustomRoute[] = [
+  {
+    name: 'usage',
+    path: '/usage',
+    component: 'layout.base$view.usage',
+    meta: {
+      title: '使用量统计',
+      i18nKey: 'route.usage',
+      icon: 'carbon:chart-line-data',
+      order: 3
+    }
+  }
+];
 
 /** create routes when the auth route mode is static */
 export function createStaticRoutes() {

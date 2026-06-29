@@ -9,11 +9,7 @@ export default async function ({ jwt, set, headers, body: { taskName } }: any) {
     return { status: -1, error: "Unauthorized" };
   }
 
-  const userWhere = {
-    phoneNumber: payload.phoneNumber,
-    password: payload.password,
-  };
-  const user = await prisma.user.findUnique({ where: userWhere });
+  const user = await prisma.user.findUnique({ where: { id: payload.id } });
   if (!user) return { status: -1, error: "User not found" };
 
   const task = await prisma.taskReward.findMany({

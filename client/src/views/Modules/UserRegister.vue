@@ -78,7 +78,7 @@
             href="https://aigc-yassine.notion.site/3e8f1814e8e6430aa771128cd9a1c220?pvs=4"
             target="_blank"
             class="cursor-pointer text-[#ff6034]"
-            >《爱设计用户协议》</a
+            >《ChatCafe用户协议》</a
           >
         </p>
       </div>
@@ -128,15 +128,14 @@ const sendVerifyCode = async () => {
   }
 
   // 将手机号请求给后端，让后端做短信发送
-  const options = new FormData()
-  options.append('phoneNumber', username.value)
+  const options = { phoneNumber: username.value }
   const result = await axios.request({
     url: '/user/registerVerifyCode',
     method: 'post',
     data: options
   })
   if (result.status === 200) {
-    const parsedData = JSON.parse(result.data)
+    const parsedData = (result.data)
     if (parsedData.status === -1) {
       showFailToast(parsedData.message)
       return
@@ -162,10 +161,11 @@ const register = () => {
 
   // 将密码加密
   const encryptedPassword = CryptoJS.AES.encrypt(password.value, 'ydai').toString()
-  const options = new FormData()
-  options.append('verifyCode', verifyCode.value)
-  options.append('password', encryptedPassword)
-  if (props.inviteCode) options.append('inviteCode', props.inviteCode)
+  const options = {
+    verifyCode: verifyCode.value,
+    password: encryptedPassword,
+    ...(props.inviteCode ? { inviteCode: props.inviteCode } : {})
+  }
   axios
     .request({
       url: '/user/register',
@@ -174,7 +174,7 @@ const register = () => {
     })
     .then((res) => {
       if (res.status === 200) {
-        const parsedData = JSON.parse(res.data)
+        const parsedData = (res.data)
         if (parsedData.status === 0) {
           // 注册成功
           // eslint-disable-next-line no-undef

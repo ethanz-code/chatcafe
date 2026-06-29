@@ -108,7 +108,7 @@ const login = async () => {
       })
     )
     .then((result) => {
-      result = JSON.parse(result.data)
+      result = (result.data)
       if (result.status && result.status === -1) {
         showFailToast('登录失败')
       } else {

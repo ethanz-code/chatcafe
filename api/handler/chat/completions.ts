@@ -4,7 +4,7 @@ import { calcBalance } from "@/plugin/balance";
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
 
-const chatMaxTokens = Number(Bun.env.CHAT_MAX_TOKENS) || 8192;
+const chatMaxTokens = Number(process.env.CHAT_MAX_TOKENS) || 8192;
 
 async function logUsage(params: {
   userId: number | null;
@@ -80,7 +80,12 @@ export default async ({
         },
       },
     });
-    contents = result?.allDialog.filter((item: any) => item.uuid === uuid)[0].delta;
+    const dialog = result?.allDialog.filter((item: any) => item.uuid === uuid)[0];
+    if (!dialog) {
+      set.status = 404;
+      return { error: "Dialog not found" };
+    }
+    contents = dialog.delta;
   } else {
     contents = JSON.parse(messages);
     if (isAssistant && assistantId) {
@@ -109,6 +114,13 @@ export default async ({
 
   const modelName = modelResult?.model || "deepseek-chat";
   const apiKey = modelResult?.apiKey || "";
+
+  if (!apiKey) {
+    set.status = 503;
+    return {
+      error: `Model "${model}" API key is not configured. Please contact the administrator.`,
+    };
+  }
   const baseURL = modelResult?.baseUrl || "https://api.deepseek.com";
   const modelCost = modelResult?.cost || 0;
   const userId = payload?.id || null;

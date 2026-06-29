@@ -9,16 +9,13 @@ export const hotIssues = async (app: any) => {
     },
   });
 
-  const result = [];
-  const index: number[] = [];
-  // 写一个for循环随机获取索引
-  for (let i = 0; i < getHotIssuesMax; i++) {
-    let randomIndex = Math.floor(Math.random() * issues.length);
-    if (!index.includes(randomIndex)) {
-      index.push(randomIndex);
-      result.push(issues[randomIndex]);
-    }
+  if (issues.length === 0) return [];
+
+  const count = Math.min(getHotIssuesMax, issues.length);
+  const indices = new Set<number>();
+  while (indices.size < count) {
+    indices.add(Math.floor(Math.random() * issues.length));
   }
 
-  return result.map((issue) => issue.description);
+  return [...indices].map((i) => issues[i].description);
 };

@@ -147,6 +147,9 @@ declare namespace Api {
           name: string;
           cost: number;
           model: string;
+          apiKey: string;
+          baseUrl: string;
+          imgUrl: string;
           updatedAt: string;
           relatedUrl: string;
         }
@@ -159,26 +162,6 @@ declare namespace Api {
       }
     }
 
-    namespace Image {
-      interface Community {
-        id: number;
-        updatedAt: string;
-        imgUrl: string;
-        username: string;
-        pageView: number;
-        likes: number;
-      }
-
-      interface List {
-        id: number;
-        imgUrl: string;
-        model: string;
-        time: string;
-        status: string;
-        prompt: string;
-        username: string;
-      }
-    }
   }
 
   namespace Common {

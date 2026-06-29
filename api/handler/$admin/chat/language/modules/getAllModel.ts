@@ -7,8 +7,11 @@ export default async function ({}: any) {
       name: true,
       cost: true,
       model: true,
+      apiKey: true,
+      baseUrl: true,
       updatedAt: true,
       relatedUrl: true,
+      imgUrl: true,
     },
   });
 

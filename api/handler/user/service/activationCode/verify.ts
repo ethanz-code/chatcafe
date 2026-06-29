@@ -2,7 +2,7 @@ import prisma from "@/plugin/prismaClient";
 import CryptoJS from "crypto-js";
 import { calcBalance } from "@/plugin/balance";
 
-const verifyPassword = Bun.env.ACTIVATION_CODE_PASSWORD || "admin123";
+const verifyPassword = process.env.ACTIVATION_CODE_PASSWORD || "admin123";
 
 export default async function ({ jwt, set, headers, query: { code } }: any) {
   // 验证token

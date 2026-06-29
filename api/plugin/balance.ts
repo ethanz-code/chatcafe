@@ -22,8 +22,7 @@ async function updateBalance(
 }
 
 interface UserAuthPayload {
-  phoneNumber: string;
-  password: string;
+  id: number;
 }
 
 export const calcBalance = async (
@@ -33,8 +32,7 @@ export const calcBalance = async (
 ) => {
   // 将用户余额读取出来
   const whereOpt = {
-    phoneNumber: payload.phoneNumber,
-    password: payload.password,
+    id: payload.id,
   };
   const raw = await prisma.user.findUnique({
     where: whereOpt,

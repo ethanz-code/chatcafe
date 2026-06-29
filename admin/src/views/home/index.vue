@@ -158,24 +158,24 @@ onMounted(async () => {
 </script>
 
 <template>
-  <NSpace vertical :size="12">
-    <NAlert type="warning">请谨慎修改配置信息，修改后需要重启API服务程序才可生效，若有疑问之处联系开发者。</NAlert>
-    <NCard title="配置信息" size="small">
-      <NDataTable :columns="columns" :data="data" :pagination="false" :bordered="false" />
-    </NCard>
+  <div>
+  <NAlert type="warning">请谨慎修改配置信息，修改后需要重启API服务程序才可生效，若有疑问之处联系开发者。</NAlert>
+  <NCard title="配置信息" size="small">
+    <NDataTable :columns="columns" :data="data" :pagination="false" :bordered="false" />
+  </NCard>
 
-    <NDrawer v-model:show="show" :width="360">
-      <NDrawerContent title="修改数据" closable>
-        <template #footer><NButton type="primary" @click="handleValidateClick">确认</NButton></template>
-        <NForm ref="formRef" :label-width="80" :model="formValue" :rules="rules" size="medium">
-          <NFormItem label="名称" path="data.name">
-            <NInput v-model:value="formValue.data.name" placeholder="输入名称" />
-          </NFormItem>
-          <NFormItem label="值" path="data.value">
-            <NInput v-model:value="formValue.data.value" placeholder="输入值" />
-          </NFormItem>
-        </NForm>
-      </NDrawerContent>
-    </NDrawer>
-  </NSpace>
+  <NDrawer v-model:show="show" :width="360">
+    <NDrawerContent title="修改数据" closable>
+      <template #footer><NButton type="primary" @click="handleValidateClick">确认</NButton></template>
+      <NForm ref="formRef" :label-width="80" :model="formValue" :rules="rules" size="medium">
+        <NFormItem label="名称" path="data.name">
+          <NInput v-model:value="formValue.data.name" placeholder="输入名称" />
+        </NFormItem>
+        <NFormItem label="值" path="data.value">
+          <NInput v-model:value="formValue.data.value" placeholder="输入值" />
+        </NFormItem>
+      </NForm>
+    </NDrawerContent>
+  </NDrawer>
+  </div>
 </template>

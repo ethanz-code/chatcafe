@@ -1,7 +1,7 @@
 import prisma from "@/plugin/prismaClient";
 import CryptoJS from "crypto-js";
 
-const verifyPassword = Bun.env.ACTIVATION_CODE_PASSWORD || "admin123";
+const verifyPassword = process.env.ACTIVATION_CODE_PASSWORD || "admin123";
 
 export default async function ({
   body: { password, dialogueCount, paintingCount },

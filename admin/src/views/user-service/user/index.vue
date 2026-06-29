@@ -275,21 +275,18 @@ onMounted(async () => {
 </script>
 
 <template>
-  <NSpace vertical :size="12">
-    <NCard title="快捷操作" size="small">
-      <NForm ref="formRef" inline :label-width="80" :model="formValue" :rules="rules" size="medium">
-        <NFormItem label="用户ID" path="data.userId">
-          <NInput v-model:value="formValue.data.userId" placeholder="输入需要查询的用户ID" />
+  <NCard title="用户列表" size="small">
+    <template #header-extra>
+      <NForm ref="formRef" inline :label-width="0" :model="formValue" :rules="rules" size="small">
+        <NFormItem path="data.userId">
+          <NInput v-model:value="formValue.data.userId" placeholder="输入用户ID" style="width:160px" />
         </NFormItem>
         <NFormItem>
-          <NButton attr-type="button" @click="queryUserById">查询</NButton>
-        </NFormItem>
-        <NFormItem>
-          <NButton attr-type="button" @click="clearUserQuery">清除查询</NButton>
+          <NButton size="small" attr-type="button" @click="queryUserById">查询</NButton>
+          <NButton size="small" class="ml-8px" attr-type="button" @click="clearUserQuery">清除</NButton>
         </NFormItem>
       </NForm>
-    </NCard>
-    <NCard title="用户列表" size="small">
+    </template>
       <NAlert class="mb-4" type="info" :bordered="false">在行数据中右键可以自定义修改账户余额。</NAlert>
       <NDataTable
         :columns="columns"
@@ -298,7 +295,7 @@ onMounted(async () => {
         :pagination="false"
         :bordered="false"
       />
-      <div class="w-full flex justify-end p-3 pb-0 pr-0">
+      <div class="flex justify-end pt-12px">
         <NPagination
           v-model:page="page"
           v-model:page-size="pageSize"
@@ -333,5 +330,5 @@ onMounted(async () => {
       :on-clickoutside="onClickoutside"
       @select="handleSelect"
     />
-  </NSpace>
+  </div>
 </template>

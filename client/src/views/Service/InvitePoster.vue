@@ -116,7 +116,7 @@ const onSubmit = () => {
   const link = document.createElement('a')
   link.href = URL.createObjectURL(blob)
   // 设置文件名
-  link.download = '爱设计AIGC-邀请海报.png'
+  link.download = 'ChatCafe-邀请海报.png'
   link.click()
   link.remove()
 }

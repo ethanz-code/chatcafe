@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, h, onMounted, ref } from 'vue';
-import { NSpace, NTag, useMessage } from 'naive-ui';
+import { NTag, useMessage } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import dayjs from 'dayjs';
 import { fetchGetAllPromotion } from '@/service/api/core/user-service/promotion';
@@ -86,19 +86,17 @@ onMounted(async () => {
 </script>
 
 <template>
-  <NSpace vertical :size="12">
-    <NAlert type="success">您可点击复制”邀请人ID“和”被邀请人ID“到其他地方快捷查询。</NAlert>
-    <NCard title="邀请日志" size="small">
-      <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" />
-      <div class="w-full flex justify-end p-3 pb-0 pr-0">
-        <NPagination
-          v-model:page="page"
-          v-model:page-size="pageSize"
-          :page-count="pageCount"
-          show-size-picker
-          :page-sizes="[5, 10, 20, 30, 999]"
-        />
-      </div>
-    </NCard>
-  </NSpace>
+  <NAlert type="success">您可点击复制"邀请人ID"和"被邀请人ID"到其他地方快捷查询。</NAlert>
+  <NCard title="邀请日志" size="small">
+    <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" />
+    <div class="flex justify-end pt-12px">
+      <NPagination
+        v-model:page="page"
+        v-model:page-size="pageSize"
+        :page-count="pageCount"
+        show-size-picker
+        :page-sizes="[5, 10, 20, 30, 999]"
+      />
+    </div>
+  </NCard>
 </template>

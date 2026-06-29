@@ -108,7 +108,7 @@ const getImageList = async () => {
     method: 'get'
   })
   if (response.status === 200) {
-    const parsedData = JSON.parse(response.data)
+    const parsedData = response.data
     if (parsedData.status === 0) {
       imageCommunity.allGzData = parsedData.data
     }

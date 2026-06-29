@@ -1,6 +1,5 @@
 {
   "name": "chatcafe-api",
-  "module": "index.ts",
   "type": "module",
   "scripts": {
     "format": "prettier --write .",
@@ -9,21 +8,21 @@
     "prisma:format": "prisma format",
     "prisma:migrate:dev": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
-    "seed": "bun prisma/seed.ts",
-    "seed:force": "bun prisma/seed.ts --force",
-    "dev": "dotenvx run -f .env.development -- bun --watch index.ts",
-    "prod": "dotenvx run -f .env.production --overload -- bun --watch index.ts",
+    "seed": "tsx prisma/seed.ts",
+    "seed:force": "tsx prisma/seed.ts --force",
+    "dev": "dotenvx run -f .env.development -- nodemon --exec tsx index.ts",
+    "prod": "dotenvx run -f .env.production --overload -- tsx watch index.ts",
     "encrypt:dev": "dotenvx encrypt -f .env.development",
     "encrypt:prod": "dotenvx encrypt -f .env.production",
     "decrypt:dev": "dotenvx decrypt -f .env.development",
     "decrypt:prod": "dotenvx decrypt -f .env.production"
   },
   "devDependencies": {
-    "@types/bun": "latest",
     "@types/crypto-js": "^4.2.2",
     "@types/uuid": "^9.0.8",
     "husky": "^8.0.0",
     "lint-staged": "^15.2.2",
+    "nodemon": "^3.1.14",
     "prettier": "3.2.5",
     "prisma": "^5.13.0",
     "tsx": "^4.22.4"
@@ -34,11 +33,15 @@
   "dependencies": {
     "@ai-sdk/openai": "^3.0.73",
     "@alicloud/dysmsapi20170525": "2.0.24",
+    "@alicloud/openapi-client": "^0.4.15",
+    "@alicloud/tea-util": "^1.4.11",
     "@dotenvx/dotenvx": "^1.31.0",
     "@elysiajs/cors": "^1.0.2",
     "@elysiajs/cron": "^1.0.3",
     "@elysiajs/jwt": "^1.0.2",
+    "@elysiajs/node": "^1.4.5",
     "@elysiajs/stream": "^1.0.2",
+    "@ethan-utils/pay-gateway": "^1.4.2",
     "@prisma/client": "^5.13.0",
     "ai": "^6.0.208",
     "axios": "^1.6.8",
@@ -50,7 +53,7 @@
     "uuid": "^9.0.1"
   },
   "prisma": {
-    "seed": "bun prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts"
   },
   "lint-staged": {
     "*.{js,cjs,mjs,md,ts,vue,json,css}": [

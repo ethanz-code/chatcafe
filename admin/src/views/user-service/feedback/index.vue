@@ -126,18 +126,16 @@ onMounted(async () => {
 </script>
 
 <template>
-  <NSpace vertical :size="12">
-    <NCard title="意见列表" size="small">
-      <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" />
-      <div class="w-full flex justify-end p-3 pb-0 pr-0">
-        <NPagination
-          v-model:page="page"
-          v-model:page-size="pageSize"
-          :page-count="pageCount"
-          show-size-picker
-          :page-sizes="[5, 10, 20, 30, 999]"
-        />
-      </div>
-    </NCard>
-  </NSpace>
+  <NCard title="意见列表" size="small">
+    <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" />
+    <div class="flex justify-end pt-12px">
+      <NPagination
+        v-model:page="page"
+        v-model:page-size="pageSize"
+        :page-count="pageCount"
+        show-size-picker
+        :page-sizes="[5, 10, 20, 30, 999]"
+      />
+    </div>
+  </NCard>
 </template>

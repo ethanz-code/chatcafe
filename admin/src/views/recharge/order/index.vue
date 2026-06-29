@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, h, onMounted, ref } from 'vue';
-import { NSpace, NTag } from 'naive-ui';
+import { NTag } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import dayjs from 'dayjs';
 import { fetchGetAllOrders } from '@/service/api/core/recharge/order';
@@ -78,18 +78,16 @@ onMounted(async () => {
 </script>
 
 <template>
-  <NSpace vertical :size="12">
-    <NCard title="订单列表" size="small">
-      <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" />
-      <div class="w-full flex justify-end p-3 pb-0 pr-0">
-        <NPagination
-          v-model:page="page"
-          v-model:page-size="pageSize"
-          :page-count="pageCount"
-          show-size-picker
-          :page-sizes="[5, 10, 20, 30, 999]"
-        />
-      </div>
-    </NCard>
-  </NSpace>
+  <NCard title="订单列表" size="small">
+    <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" />
+    <div class="flex justify-end pt-12px">
+      <NPagination
+        v-model:page="page"
+        v-model:page-size="pageSize"
+        :page-count="pageCount"
+        show-size-picker
+        :page-sizes="[5, 10, 20, 30, 999]"
+      />
+    </div>
+  </NCard>
 </template>

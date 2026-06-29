@@ -117,8 +117,7 @@ const sendVerifyCode = async () => {
     usernameErrMsg.value = ''
   }
 
-  const formData = new FormData()
-  formData.append('phoneNumber', username.value)
+  const formData = { phoneNumber: username.value }
   let directExit = false
   await axios
     .request({
@@ -128,7 +127,7 @@ const sendVerifyCode = async () => {
     })
     .then((res) => {
       if (res.status === 200) {
-        const parsed = JSON.parse(res.data)
+        const parsed = res.data
         if (parsed.status === -1) {
           directExit = true
           showFailToast(parsed.message)
@@ -161,9 +160,7 @@ const onSubmit = async () => {
 
   // 将密码加密
   const encryptedPassword = CryptoJS.AES.encrypt(newPassword.value, 'ydai').toString()
-  const options = new FormData()
-  options.append('verifyCode', verifyCode.value)
-  options.append('newPassword', encryptedPassword)
+  const options = { verifyCode: verifyCode.value, newPassword: encryptedPassword }
   await axios
     .request({
       url: '/user/forgetPassword',
@@ -172,7 +169,7 @@ const onSubmit = async () => {
     })
     .then((res) => {
       if (res.status === 200) {
-        const parsed = JSON.parse(res.data)
+        const parsed = res.data
         if (parsed.status === -1) {
           showFailToast(parsed.message)
           return

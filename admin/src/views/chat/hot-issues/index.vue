@@ -131,7 +131,7 @@ onMounted(async () => {
     </NCard>
     <NCard title="主页热门问题推荐" size="small">
       <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" />
-      <div class="w-full flex justify-end p-3 pb-0 pr-0">
+      <div class="flex justify-end pt-12px">
         <NPagination
           v-model:page="page"
           v-model:page-size="pageSize"

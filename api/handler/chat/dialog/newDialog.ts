@@ -17,8 +17,7 @@ export default async function ({
 
   const dialog = await prisma.user.update({
     where: {
-      phoneNumber: payload.phoneNumber,
-      password: payload.password,
+      id: payload.id,
     },
     include: {
       allDialog: {

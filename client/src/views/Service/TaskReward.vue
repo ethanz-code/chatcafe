@@ -219,7 +219,7 @@ const punchInDaysButtonClick = async () => {
     }
   })
   if (response.status === 200) {
-    const parsedData = JSON.parse(response.data)
+    const parsedData = response.data
     if (parsedData.status === 0) {
       punchInDaysData.value.unshift(parsedData.punchInDaily)
       continuousPunch.value++
@@ -235,8 +235,7 @@ const continuousPunch = ref(0)
 // 领取奖励值
 const receiveReward = (item) => {
   // if (item.status !== 'available reward') return
-  const formData = new FormData()
-  formData.append('taskName', item.name)
+  const formData = { taskName: item.name }
   axios
     .request({
       url: '/user/service/task/receiveAReward',

@@ -18,11 +18,11 @@ AIGC 智能对话应用，支持多模型聊天。
 
 ## 技术栈
 
-- **后端**：Bun + Elysia + Prisma
+- **后端**：Node.js + Elysia + Prisma
 - **管理后台**：Vue3 + NaiveUI + Vite
 - **移动端**：Vue3 + Vant + Vite
 - **数据库**：PostgreSQL 16
-- **AI 代理**：One-API（支持多提供商）
+- **AI SDK**：Vercel AI SDK + OpenAI 兼容接口
 - **部署**：Docker Compose + Nginx
 
 ## 本地开发
@@ -31,7 +31,7 @@ AIGC 智能对话应用，支持多模型聊天。
 
 - Node.js >= 18
 - pnpm
-- bun（运行 API）
+- Node.js >= 18 + tsx（运行 API）
 - PostgreSQL 16
 
 ### 启动步骤
@@ -71,9 +71,8 @@ pnpm dev
 
 种子数据中的 API Key 是占位符，需要：
 
-1. 启动 One-API：`docker compose up -d one-api`
-2. 访问 http://localhost:3000 配置 AI 渠道和令牌
-3. 在 ChatCafe 后台面板更新 `one-api-key`
+1. 在 `.env` 中配置 `OPENAI_API_KEY` 和 `OPENAI_BASE_URL`（默认 DeepSeek）
+2. 或在 ChatCafe 后台面板更新 `openai-api-key` 和 `openai-base-url`
 
 ## Docker 部署
 
@@ -92,8 +91,8 @@ pnpm dev
 # 修改 .env（数据库密码、CORS 等）
 docker compose build
 docker compose up -d postgres && sleep 5
-docker compose run --rm chatcafe-api bun run node_modules/.bin/prisma migrate deploy
-docker compose run --rm chatcafe-api bun run node_modules/.bin/prisma/seed.ts
+docker compose run --rm chatcafe-api pnpm exec prisma migrate deploy
+docker compose run --rm chatcafe-api pnpm exec tsx prisma/seed.ts
 docker compose up -d
 ```
 
@@ -118,5 +117,4 @@ pnpm encrypt / pnpm decrypt           # 加密/解密 .env
 pnpm encrypt:dev / pnpm decrypt:dev   # 加密/解密 .env.development
 docker compose up -d                  # 启动所有容器
 docker compose logs -f chatcafe-api   # 查看 API 日志
-docker compose logs -f one-api        # 查看 One-API 日志
 ```

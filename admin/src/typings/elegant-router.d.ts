@@ -40,13 +40,11 @@ declare module "@elegant-router/types" {
     "chat_model": "/chat/model";
     "home": "/home";
     "iframe-page": "/iframe-page/:url";
-    "image": "/image";
-    "image_community": "/image/community";
-    "image_gen-list": "/image/gen-list";
     "login": "/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?";
     "recharge": "/recharge";
     "recharge_goods": "/recharge/goods";
     "recharge_order": "/recharge/order";
+    "usage": "/usage";
     "user-center": "/user-center";
     "user-service": "/user-service";
     "user-service_activation-code": "/user-service/activation-code";
@@ -108,9 +106,9 @@ declare module "@elegant-router/types" {
     | "chat"
     | "home"
     | "iframe-page"
-    | "image"
     | "login"
     | "recharge"
+    | "usage"
     | "user-center"
     | "user-service"
   >;
@@ -141,10 +139,9 @@ declare module "@elegant-router/types" {
     | "chat_hot-issues"
     | "chat_model"
     | "home"
-    | "image_community"
-    | "image_gen-list"
     | "recharge_goods"
     | "recharge_order"
+    | "usage"
     | "user-center"
     | "user-service_activation-code"
     | "user-service_dialog_all-dialog"

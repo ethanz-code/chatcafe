@@ -22,7 +22,7 @@ export default async function ({ body, jwt, cookie: { ydai_auth }, set }: any) {
   if (!user) return { status: -1, message: "用户不存在或密码错误！" };
 
   const option = {
-    value: await jwt.sign(body),
+    value: await jwt.sign(user),
     httpOnly: true,
     maxAge: 60 * 60 * 24 * 7,
     path: "/",

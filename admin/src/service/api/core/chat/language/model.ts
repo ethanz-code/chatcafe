@@ -11,6 +11,9 @@ export interface PostModelParams {
   name: string;
   cost: number;
   relatedUrl?: string;
+  imgUrl?: string;
+  apiKey?: string;
+  baseUrl?: string;
 }
 export function fetchPostModel(d: PostModelParams) {
   return request({
@@ -27,6 +30,9 @@ export interface CreateModelParams {
   model: string;
   cost: number;
   relatedUrl?: string;
+  imgUrl?: string;
+  apiKey?: string;
+  baseUrl?: string;
 }
 export function fetchCreateModel(d: CreateModelParams) {
   return request({

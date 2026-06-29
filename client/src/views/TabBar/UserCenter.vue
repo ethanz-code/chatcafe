@@ -212,7 +212,7 @@ onMounted(async () => {
       })
       .then((res) => {
         if (res.status !== 200) return
-        const parsedData = JSON.parse(res.data)
+        const parsedData = res.data
         store.userId = parsedData.data.id
         store.phoneNumber = parsedData.data.phoneNumber
         store.dialogueBalance = parsedData.data.dialogueBalance

@@ -1,5 +1,5 @@
-const username = Bun.env.SUPER_USERNAME;
-const password = Bun.env.SUPER_PASSWORD;
+const username = process.env.SUPER_USERNAME;
+const password = process.env.SUPER_PASSWORD;
 
 export default async function ({ body, adminJWT, cookie: { adminAuth } }: any) {
   // 验证账号密码是否正确

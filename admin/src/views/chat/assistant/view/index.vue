@@ -301,28 +301,25 @@ onMounted(async () => {
 </script>
 
 <template>
-  <NSpace vertical :size="12">
-    <NCard title="快捷操作" size="small">
-      <NSpace inline>
-        <NForm ref="formRef2" inline :label-width="80" :model="formValue" :rules="rules" size="medium">
-          <NFormItem label="助理名称" path="shortcutArea.name">
-            <NInput v-model:value="formValue.shortcutArea.name" placeholder="输入需要查询的助理名称" />
-          </NFormItem>
-          <NFormItem>
-            <NButton class="mr-3" attr-type="button" @click="queryAssistantByName(formValue.shortcutArea.name)">
-              查询
-            </NButton>
-            <NButton class="mr-3" secondary type="error" attr-type="button" @click="clearAssistantQuery">
-              清除查询
-            </NButton>
-            <NButton class="mr-3" secondary type="success" @click="newAssistant">新增助手</NButton>
-          </NFormItem>
-        </NForm>
-      </NSpace>
-    </NCard>
-    <NCard title="助手列表" size="small">
+  <NCard title="助手列表" size="small">
+    <template #header-extra>
+      <NForm ref="formRef2" inline :label-width="0" :model="formValue" :rules="rules" size="small">
+        <NFormItem path="shortcutArea.name">
+          <NInput v-model:value="formValue.shortcutArea.name" placeholder="输入助理名称" style="width:160px" />
+        </NFormItem>
+        <NFormItem>
+          <NButton size="small" attr-type="button" @click="queryAssistantByName(formValue.shortcutArea.name)">
+            查询
+          </NButton>
+          <NButton size="small" class="ml-8px" secondary type="error" attr-type="button" @click="clearAssistantQuery">
+            清除
+          </NButton>
+          <NButton size="small" class="ml-8px" secondary type="success" @click="newAssistant">新增</NButton>
+        </NFormItem>
+      </NForm>
+    </template>
       <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" />
-      <div class="w-full flex justify-end p-3 pb-0 pr-0">
+      <div class="flex justify-end pt-12px">
         <NPagination
           v-model:page="page"
           v-model:page-size="pageSize"
@@ -355,5 +352,5 @@ onMounted(async () => {
         </NForm>
       </NDrawerContent>
     </NDrawer>
-  </NSpace>
+  </div>
 </template>

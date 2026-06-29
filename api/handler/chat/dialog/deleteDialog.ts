@@ -12,8 +12,7 @@ export default async function ({ body: { uuid }, jwt, set, headers }: any) {
   // 通过事务中的两个单独查询删除对话中的所有信息以及对话
   const getDialogId = await prisma.user.findUnique({
     where: {
-      phoneNumber: payload.phoneNumber,
-      password: payload.password,
+      id: payload.id,
     },
     select: {
       // id: true,

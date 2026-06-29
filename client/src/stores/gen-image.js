@@ -20,7 +20,7 @@ export const useGenImageStore = defineStore(
           })
           .then((res) => {
             if (res.status === 200) {
-              const parsedData = JSON.parse(res.data)
+              const parsedData = res.data
               genImageList.value = parsedData.data
             }
           })
@@ -74,17 +74,14 @@ export const useGenImageStore = defineStore(
         })
         .then((res) => {
           if (res.status === 200) {
-            const parsedData = JSON.parse(res.data)
+            const parsedData = res.data
             genImageList.value.unshift(parsedData.data)
             afterHandle()
           }
         })
     }
     const modifyGenImage = (imgId, status, imgUrl) => {
-      const formData = new FormData()
-      formData.append('imgId', imgId)
-      formData.append('status', status)
-      formData.append('imgUrl', imgUrl)
+      const formData = { imgId, status, imgUrl }
       axios.request({
         url: '/app-center/genimg/modifyGenImg',
         method: 'post',
@@ -112,9 +109,7 @@ export const useGenImageStore = defineStore(
           // 调用传过来的自定义函数
           onError()
         }
-        const dataOptions = new FormData()
-        dataOptions.append('imgId', obj.id)
-        dataOptions.append('size', size)
+        const dataOptions = { imgId: obj.id, size }
         axios
           .request({
             url: '/app-center/genimg/generate',
@@ -127,7 +122,7 @@ export const useGenImageStore = defineStore(
           })
           .then((res) => {
             if (res.status === 200) {
-              const parsedData = JSON.parse(res.data)
+              const parsedData = res.data
               if (parsedData.status === 0) {
                 obj.imgUrl = parsedData.data
                 obj.status = '绘画完成'
@@ -155,9 +150,7 @@ export const useGenImageStore = defineStore(
                   retryCount--
 
                   // 发起请求获取结果
-                  const formData = new FormData()
-                  formData.append('taskId', resultId)
-                  formData.append('imgId', obj.id)
+                  const formData = { taskId: resultId, imgId: obj.id }
                   axios
                     .request({
                       url: '/app-center/genimg/mjCheckStatus',
@@ -169,7 +162,7 @@ export const useGenImageStore = defineStore(
                     })
                     .then((res) => {
                       if (res.status === 200) {
-                        const parsedData = JSON.parse(res.data)
+                        const parsedData = res.data
                         if (parsedData.status === 0) {
                           // 这个时候已经成功返回了图片url，
                           clearInterval(timer)

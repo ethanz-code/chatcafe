@@ -118,29 +118,29 @@ onMounted(async () => {
 </script>
 
 <template>
-  <NSpace vertical :size="12">
-    <NCard title="订单列表" size="small">
-      <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" />
-      <div class="w-full flex justify-end p-3 pb-0 pr-0">
-        <NPagination
-          v-model:page="page"
-          v-model:page-size="pageSize"
-          :page-count="pageCount"
-          show-size-picker
-          :page-sizes="[5, 10, 20, 30, 999]"
-        />
-      </div>
-    </NCard>
+  <div>
+  <NCard title="订单列表" size="small">
+    <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" />
+    <div class="flex justify-end pt-12px">
+      <NPagination
+        v-model:page="page"
+        v-model:page-size="pageSize"
+        :page-count="pageCount"
+        show-size-picker
+        :page-sizes="[5, 10, 20, 30, 999]"
+      />
+    </div>
+  </NCard>
 
-    <NDrawer v-model:show="show" placement="bottom" :height="300">
-      <NDrawerContent title="修改数据" closable>
-        <template #footer><NButton type="primary" @click="handleValidateClick">确认</NButton></template>
-        <NForm ref="formRef" inline :label-width="80" :model="formValue" :rules="rules" size="medium">
-          <NFormItem label="分类名称" path="data.name">
-            <NInput v-model:value="formValue.data.name" placeholder="输入自定义分类名称" />
-          </NFormItem>
-        </NForm>
-      </NDrawerContent>
-    </NDrawer>
-  </NSpace>
+  <NDrawer v-model:show="show" placement="bottom" :height="300">
+    <NDrawerContent title="修改数据" closable>
+      <template #footer><NButton type="primary" @click="handleValidateClick">确认</NButton></template>
+      <NForm ref="formRef" inline :label-width="80" :model="formValue" :rules="rules" size="medium">
+        <NFormItem label="分类名称" path="data.name">
+          <NInput v-model:value="formValue.data.name" placeholder="输入自定义分类名称" />
+        </NFormItem>
+      </NForm>
+    </NDrawerContent>
+  </NDrawer>
+  </div>
 </template>

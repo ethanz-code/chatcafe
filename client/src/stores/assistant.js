@@ -14,7 +14,7 @@ export const useAssistantStore = defineStore(
           method: 'get'
         })
 
-        const parsed = JSON.parse(result.data)
+        const parsed = (result.data)
         categoryData.value = parsed.data
       }
       return categoryData

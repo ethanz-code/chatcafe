@@ -15,8 +15,7 @@ export default async function name({
 
   const result = await prisma.user.update({
     where: {
-      phoneNumber: payload.phoneNumber,
-      password: payload.password,
+      id: payload.id,
     },
     data: {
       allDialog: {

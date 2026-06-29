@@ -254,14 +254,14 @@ onMounted(async () => {
 </script>
 
 <template>
-  <NSpace vertical :size="12">
-    <NCard title="快捷操作" size="small">
+  <NCard title="详情数据" size="small">
+    <template #header-extra>
       <NSpace>
-        <NButton ref="filtersRef" :disabled="!query.dialogId" @click="filtersByDialogId(Number(query.dialogId || 0))">
+        <NButton size="small" ref="filtersRef" :disabled="!query.dialogId" @click="filtersByDialogId(Number(query.dialogId || 0))">
           {{ `过滤对话框ID：${query.dialogId || '-'}` }}
         </NButton>
         <NPopselect v-model:value="selectedValues" multiple :options="options">
-          <NButton>
+          <NButton size="small">
             {{
               Array.isArray(selectedValues) && selectedValues.length
                 ? `已选对话框ID: ${selectedValues.join('、')}`
@@ -269,12 +269,11 @@ onMounted(async () => {
             }}
           </NButton>
         </NPopselect>
-        <NButton @click="clearFilters">清空过滤</NButton>
+        <NButton size="small" @click="clearFilters">清空过滤</NButton>
       </NSpace>
-    </NCard>
-    <NCard title="详情数据" size="small">
+    </template>
       <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" />
-      <div class="w-full flex justify-end p-3 pb-0 pr-0">
+      <div class="flex justify-end pt-12px">
         <NPagination
           v-model:page="page"
           v-model:page-size="pageSize"
@@ -305,5 +304,5 @@ onMounted(async () => {
         </NForm>
       </NDrawerContent>
     </NDrawer>
-  </NSpace>
+  </div>
 </template>

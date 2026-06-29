@@ -12,7 +12,7 @@ const languageModels = [
     cost: 1,
     apiKey: '',
     baseUrl: 'https://api.deepseek.com',
-    imgUrl: 'https://cdn.simpleicons.org/deepseek/1A1A1A',
+    imgUrl: 'https://cdn.simpleicons.org/deepseek',
     description: 'DeepSeek V4 Flash，速度快，性价比最高',
     relatedUrl: 'https://platform.deepseek.com',
   },
@@ -22,7 +22,7 @@ const languageModels = [
     cost: 4,
     apiKey: '',
     baseUrl: 'https://api.deepseek.com',
-    imgUrl: 'https://cdn.simpleicons.org/deepseek/1A1A1A',
+    imgUrl: 'https://cdn.simpleicons.org/deepseek',
     description: 'DeepSeek V4 Pro 深度推理，复杂逻辑和数学',
     relatedUrl: 'https://platform.deepseek.com',
   },
@@ -92,6 +92,13 @@ const appCenterItems = [
     path: '/',
     queryType: 'chat',
   },
+]
+
+const configurationItems = [
+  { name: 'site_name', value: 'ChatCafe', description: '网站名称' },
+  { name: 'contact_email', value: '', description: '联系邮箱' },
+  { name: 'record_number', value: '', description: '备案号' },
+  { name: 'maintenance_mode', value: 'false', description: '维护模式' },
 ]
 
 const goodsItems = [
@@ -190,6 +197,9 @@ async function main() {
   await upsertByField(prisma.applicationCenter, appCenterItems, (item) => ({
     name: item.name,
   }))
+
+  // Configuration（name 唯一）
+  await upsertByName(prisma.configuration, configurationItems)
 
   // Goods（按 title 匹配）
   await upsertByField(prisma.goods, goodsItems, (item) => ({

@@ -50,7 +50,7 @@ const onSubmit = async () => {
     params: jsonData
   })
   if (response.status === 200) {
-    const parsedData = JSON.parse(response.data)
+    const parsedData = response.data
     if (parsedData.status === 0) {
       // eslint-disable-next-line no-undef
       showSuccessToast('兑换成功')

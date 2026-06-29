@@ -237,54 +237,59 @@ onMounted(async () => {
 </script>
 
 <template>
-  <NSpace vertical :size="12">
-    <NCard title="商品列表" size="small">
-      <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" />
-      <div class="w-full flex justify-end p-3 pb-0 pr-0">
-        <NPagination
-          v-model:page="page"
-          v-model:page-size="pageSize"
-          :page-count="pageCount"
-          show-size-picker
-          :page-sizes="[5, 10, 20, 30, 999]"
-        />
-      </div>
-    </NCard>
+  <div>
+  <NCard title="商品列表" size="small">
+    <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" />
+    <div class="flex justify-end pt-12px">
+      <NPagination
+        v-model:page="page"
+        v-model:page-size="pageSize"
+        :page-count="pageCount"
+        show-size-picker
+        :page-sizes="[5, 10, 20, 30, 999]"
+      />
+    </div>
+  </NCard>
 
-    <NDrawer v-model:show="show" :width="500">
-      <NDrawerContent title="修改数据" closable>
-        <template #footer><NButton type="primary" @click="handleValidateClick">确认</NButton></template>
+  <NDrawer v-model:show="show" :width="500">
+    <NDrawerContent title="修改数据" closable>
+      <template #footer><NButton type="primary" @click="handleValidateClick">确认</NButton></template>
 
-        <NForm ref="formRef" :label-width="80" :model="formValue" :rules="rules" size="medium">
-          <NFormItem :span="12" label="商品名称" path="data.title">
-            <NInput v-model:value="formValue.data.title" placeholder="不能为空哦" />
-          </NFormItem>
-          <NFormItem :span="12" label="头图" path="data.imgUrl">
-            <img
+      <NForm ref="formRef" :label-width="80" :model="formValue" :rules="rules" size="medium">
+        <NFormItem :span="12" label="商品名称" path="data.title">
+          <NInput v-model:value="formValue.data.title" placeholder="不能为空哦" />
+        </NFormItem>
+        <NFormItem :span="12" label="头图" path="data.imgUrl">
+          <div class="flex flex-wrap gap-2">
+            <div
               v-for="(imgUrl, index) in ImgOptions"
               :key="imgUrl"
-              :src="imgUrl"
-              class="mr-2 cursor-pointer border rounded-lg transition-all hover:border-primary"
-              :class="[curSelectImgIndex === index ? 'shadow-md border-primary' : '']"
-              width="80"
-              height="80"
+              class="relative cursor-pointer rounded-lg border-2 transition-all"
+              :class="curSelectImgIndex === index ? 'border-[var(--n-color-target)] shadow-[0_0_0_2px_var(--n-color-target)] scale-105' : 'border-gray-200 opacity-60 hover:opacity-100 hover:border-gray-400'"
               @click="selectImg(imgUrl)"
-            />
-          </NFormItem>
-          <NFormItem :span="12" label="价格" path="data.price">
-            <NInputNumber v-model:value="formValue.data.price" :min="0.0" clearable :precision="2" />
-          </NFormItem>
-        </NForm>
+            >
+              <img :src="imgUrl" width="80" height="80" class="rounded-md block" />
+              <div
+                v-if="curSelectImgIndex === index"
+                class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[var(--n-color-target)] rounded-full flex items-center justify-center text-white text-xs font-bold"
+              >✓</div>
+            </div>
+          </div>
+        </NFormItem>
+        <NFormItem :span="12" label="价格" path="data.price">
+          <NInputNumber v-model:value="formValue.data.price" :min="0.0" clearable :precision="2" />
+        </NFormItem>
+      </NForm>
 
-        <NForm ref="formRef2" inline :label-width="80" :model="formValue" :rules="rules" size="medium">
-          <NFormItem :span="12" label="对话次数" path="data.dialogueCount">
-            <NInputNumber v-model:value="formValue.data.dialogueCount" :min="0" />
-          </NFormItem>
-          <NFormItem :span="12" label="绘画次数" path="data.paintingCount">
-            <NInputNumber v-model:value="formValue.data.paintingCount" :min="0" />
-          </NFormItem>
-        </NForm>
-      </NDrawerContent>
-    </NDrawer>
-  </NSpace>
+      <NForm ref="formRef2" inline :label-width="80" :model="formValue" :rules="rules" size="medium">
+        <NFormItem :span="12" label="对话次数" path="data.dialogueCount">
+          <NInputNumber v-model:value="formValue.data.dialogueCount" :min="0" />
+        </NFormItem>
+        <NFormItem :span="12" label="绘画次数" path="data.paintingCount">
+          <NInputNumber v-model:value="formValue.data.paintingCount" :min="0" />
+        </NFormItem>
+      </NForm>
+    </NDrawerContent>
+  </NDrawer>
+  </div>
 </template>

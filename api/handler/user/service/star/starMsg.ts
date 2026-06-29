@@ -16,8 +16,7 @@ export default async function ({
   // 查询用户id
   const user = await prisma.user.findUnique({
     where: {
-      phoneNumber: payload.phoneNumber,
-      password: payload.password,
+      id: payload.id,
     },
   });
   if (!user) return { status: -1, message: "用户不存在" };

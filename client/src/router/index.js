@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Box from '@/views/TabBar/BoxView.vue'
 import AIChat from '@/views/TabBar/AIChat.vue'
+import { showFailToast } from 'vant'
+import { useUserCenterStore } from '@/stores/user-center'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -163,12 +165,37 @@ const isPass = (path, name) => {
   return false
 }
 
+// 需要登录才能访问的路由
+const authRequiredRoutes = [
+  'UserCenter',
+  'UserProfile',
+  'ChangePassword',
+  'Pay',
+  'ActivationCode',
+  'InvitePoster',
+  'DistributionPromotion',
+  'StarMsg',
+  'TaskReward',
+]
+
 router.beforeEach((to, from, next) => {
   // 如果用户访问的是chat页面则直接跳转到首页，因为实际上/pages/ai-chat/alias让我设置了别名。
   if (isPass(to.path, '/pages/ai-chat') || isPass(to.path, '/pages')) next({ path: '/' })
   // 如果用户访问的是/modules并没有具体项则直接跳转到/modules/login
   else if (isPass(to.path, '/modules')) next({ path: '/modules/login' })
-  else next()
+  else {
+    // 需要登录的页面，未登录则重定向到登录页
+    if (authRequiredRoutes.includes(to.name)) {
+      const userStore = useUserCenterStore()
+      const token = localStorage.getItem('token')
+      if (!userStore.isLogin || !token) {
+        showFailToast('请先登录')
+        next({ path: '/modules/login' })
+        return
+      }
+    }
+    next()
+  }
 })
 
 export default router

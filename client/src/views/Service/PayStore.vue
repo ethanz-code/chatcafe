@@ -50,15 +50,16 @@ import axios from '@/utils/axios'
 import WXTipsMask from '@/components/Common/WXTipsMask.vue'
 import { isWeixinBrowser } from '@/utils/operationEnv'
 import { onUnmounted } from 'vue'
+import { PaymentStatusPoller } from '@/utils/paymentPoller'
+import { useUserCenterStore } from '@/stores/user-center'
 
+const store = useUserCenterStore()
 const mask = ref(false)
 const isInWxEnv = () => {
   if (isWeixinBrowser()) {
     mask.value = true
-    // 将body添加上unclickable class
     document.body.classList.add('van-toast--unclickable')
   }
-  // 否则移除该class
   else document.body.classList.remove('van-toast--unclickable')
 }
 
@@ -72,8 +73,9 @@ const goToPay = async (goodId) => {
     forbidClick: true,
     duration: 0
   })
+  const payUrl = isWeixinBrowser() ? '/user/service/pay/wx/jsapi' : '/user/service/pay/wx'
   const response = await axios.request({
-    url: '/user/service/pay/wx',
+    url: payUrl,
     method: 'post',
     headers: {
       Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -81,25 +83,68 @@ const goToPay = async (goodId) => {
     data: JSON.stringify({ goodId })
   })
   if (response.status === 200) {
-    const parsedData = JSON.parse(response.data)
+    const parsedData = response.data
     if (parsedData.status === -1) {
       // eslint-disable-next-line no-undef
       showFailToast('创建订单失败')
     } else if (parsedData.status === 0) {
       // eslint-disable-next-line no-undef
       closeToast()
+      localStorage.setItem('payingOrderNo', parsedData.orderNo)
       window.location.href = parsedData.data.data
     }
   }
 }
-onMounted(async () => {
-  // 传入state查询参数时检测付款状态，并简单向用户做反馈
-  // eslint-disable-next-line no-undef
-  if (route.query.state === 'success') showSuccessToast('付款成功')
-  // eslint-disable-next-line no-undef
-  else if (route.query.state === 'fail') showFailToast('付款失敗')
 
-  // 网络请求商品信息
+function refreshUserProfile() {
+  axios.get('/user/profile', {
+    headers: { Authorization: 'Bearer ' + localStorage.getItem('token') }
+  }).then((res) => {
+    if (res.status !== 200) return
+    const parsedData = res.data
+    store.userId = parsedData.data.id
+    store.phoneNumber = parsedData.data.phoneNumber
+    store.dialogueBalance = parsedData.data.dialogueBalance
+    store.paintingBalance = parsedData.data.paintingBalance
+    store.vip = parsedData.data.vip
+    if (parsedData.data.name) store.name = parsedData.data.name
+  })
+}
+
+let poller = null
+
+onMounted(async () => {
+  const orderNo = localStorage.getItem('payingOrderNo')
+  if (route.query.state === 'success' && orderNo) {
+    // eslint-disable-next-line no-undef
+    showLoadingToast({ message: '支付验证中...', forbidClick: true, duration: 0 })
+    poller = new PaymentStatusPoller({
+      orderNo,
+      interval: 3000,
+      maxAttempts: 60,
+      onSuccess: () => {
+        localStorage.removeItem('payingOrderNo')
+        // eslint-disable-next-line no-undef
+        closeToast()
+        // eslint-disable-next-line no-undef
+        showSuccessToast('充值成功')
+        refreshUserProfile()
+      },
+      onTimeout: () => {
+        localStorage.removeItem('payingOrderNo')
+        // eslint-disable-next-line no-undef
+        closeToast()
+        // eslint-disable-next-line no-undef
+        showFailToast('支付确认超时，请联系客服')
+      }
+    })
+    poller.start()
+  } else if (route.query.state === 'fail') {
+    localStorage.removeItem('payingOrderNo')
+    // eslint-disable-next-line no-undef
+    showFailToast('付款失敗')
+  }
+
   const response = await axios.request({
     url: '/user/service/pay/getAllGoods',
     method: 'get',
@@ -108,18 +153,17 @@ onMounted(async () => {
     }
   })
   if (response.status === 200) {
-    const parsedData = JSON.parse(response.data)
+    const parsedData = response.data
     if (parsedData.status === 0) {
       goods.value = parsedData.data
     }
   }
 
-  // 检测当前环境
   isInWxEnv()
 })
 
 onUnmounted(() => {
-  // 退出当前页面时一定要移除掉body的无法点击class
+  if (poller) poller.stop()
   document.body.classList.remove('van-toast--unclickable')
 })
 </script>

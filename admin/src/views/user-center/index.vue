@@ -12,21 +12,19 @@ onMounted(async () => {
 </script>
 
 <template>
-  <NSpace vertical>
-    <NCard title="管理员信息" size="small">
-      <div class="flex items-center justify-start gap-3">
-        <NAvatar round :size="48" src="./favicon.svg" class="bg-white dark:bg-black" />
-        <div>
-          <div class="text-lg">{{ data?.userName }}</div>
-          <div class="flex items-center gap-1 text-sm">
-            <span>
-              规则:
-              <NTag size="small" :bordered="false" type="success">{{ data?.roles[0] }}</NTag>
-            </span>
-            <span>{{ `ID: ${data?.userId}` }}</span>
-          </div>
+  <NCard title="管理员信息" size="small">
+    <div class="flex items-center justify-start gap-3">
+      <NAvatar round :size="48" src="./favicon.svg" class="bg-white dark:bg-black" />
+      <div>
+        <div class="text-lg">{{ data?.userName }}</div>
+        <div class="flex items-center gap-1 text-sm">
+          <span>
+            规则:
+            <NTag size="small" :bordered="false" type="success">{{ data?.roles[0] }}</NTag>
+          </span>
+          <span>{{ `ID: ${data?.userId}` }}</span>
         </div>
       </div>
-    </NCard>
-  </NSpace>
+    </div>
+  </NCard>
 </template>

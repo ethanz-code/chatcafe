@@ -2,16 +2,17 @@ import { Elysia, t } from "elysia";
 import { jwt } from "@elysiajs/jwt";
 import type { IAuthPluginParams } from "./types";
 
-const jwtSecret = Bun.env.JWT_SECRET;
+const jwtSecret = process.env.JWT_SECRET;
 
 import { AuthPlugin } from "./auth";
 import { UserServicePlugin } from "./user-service";
 import { RechargePlugin } from "./recharge";
 import { ChatPlugin } from "./chat";
 import { ImagePlugin } from "./image";
+import { ConfigurationPlugin } from "./configuration";
 
 // 忽略身份验证的路径
-const rootPrefix = Bun.env.ROOT_PREFIX || "/";
+const rootPrefix = process.env.ROOT_PREFIX || "/";
 const ignoreAuthPath = [`${rootPrefix}admin/auth/login`];
 
 export const $AdminPlugin = ({ prefix }: IAuthPluginParams) =>
@@ -45,4 +46,5 @@ export const $AdminPlugin = ({ prefix }: IAuthPluginParams) =>
     .use(UserServicePlugin({ prefix: `${prefix}/user-service` }))
     .use(RechargePlugin({ prefix: `${prefix}/recharge` }))
     .use(ChatPlugin({ prefix: `${prefix}/chat` }))
-    .use(ImagePlugin({ prefix: `${prefix}/image` }));
+    .use(ImagePlugin({ prefix: `${prefix}/image` }))
+    .use(ConfigurationPlugin({ prefix: `${prefix}/configuration` }));

@@ -38,7 +38,7 @@ export const useTaskRewardStore = defineStore(
         }
       })
       if (res.status === 200) {
-        const parsedData = JSON.parse(res.data)
+        const parsedData = res.data
         if (parsedData.status === 0) {
           // 更新任务列表
           // console.log('rewrite taskList.value')

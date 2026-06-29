@@ -9,8 +9,7 @@ export default async function ({ jwt, set, headers }: any) {
   }
 
   const userWhere = {
-    phoneNumber: payload.phoneNumber,
-    password: payload.password,
+    id: payload.id,
   };
 
   const { punchInDaily, continuousPunch } =

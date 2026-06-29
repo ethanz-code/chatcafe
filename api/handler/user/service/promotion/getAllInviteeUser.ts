@@ -11,8 +11,7 @@ export default async function ({ jwt, set, headers }: any) {
   // 判断用户Id是否存在
   const user = await prisma.user.findUnique({
     where: {
-      phoneNumber: payload.phoneNumber,
-      password: payload.password,
+      id: payload.id,
     },
     select: {
       promotion: true,

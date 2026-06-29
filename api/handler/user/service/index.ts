@@ -2,6 +2,8 @@ import { Elysia, t } from "elysia";
 import feedback from "./feedback";
 import notify from "./pay/notify";
 import wx from "./pay/wx";
+import wxJsapi from "./pay/wxJsapi";
+import payStatus from "./pay/status";
 import getAllGoods from "./pay/getAllGoods";
 
 import generate from "./activationCode/generate";
@@ -56,6 +58,19 @@ export const UserServicePlugin = (config: Config) =>
       body: t.Object({
         goodId: t.Integer(),
       }),
+      headers: t.Object({
+        authorization: t.String(),
+      }),
+    })
+    .post(`${config.prefix}/pay/wx/jsapi`, wxJsapi, {
+      body: t.Object({
+        goodId: t.Integer(),
+      }),
+      headers: t.Object({
+        authorization: t.String(),
+      }),
+    })
+    .get(`${config.prefix}/pay/status/:orderNo`, payStatus, {
       headers: t.Object({
         authorization: t.String(),
       }),

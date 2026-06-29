@@ -193,49 +193,49 @@ onMounted(async () => {
 </script>
 
 <template>
-  <NSpace vertical :size="12">
-    <NCard title="收藏列表" size="small">
-      <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" />
-      <div class="w-full flex justify-end p-3 pb-0 pr-0">
-        <NPagination
-          v-model:page="page"
-          v-model:page-size="pageSize"
-          :page-count="pageCount"
-          show-size-picker
-          :page-sizes="[5, 10, 20, 30, 999]"
-        />
-      </div>
-    </NCard>
+  <div>
+  <NCard title="收藏列表" size="small">
+    <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" />
+    <div class="flex justify-end pt-12px">
+      <NPagination
+        v-model:page="page"
+        v-model:page-size="pageSize"
+        :page-count="pageCount"
+        show-size-picker
+        :page-sizes="[5, 10, 20, 30, 999]"
+      />
+    </div>
+  </NCard>
 
-    <NDrawer v-model:show="show" :width="480">
-      <NDrawerContent title="修改数据" closable>
-        <template #footer><NButton type="primary" @click="handleValidateClick">确认</NButton></template>
-        <NAlert class="mb-4" type="warning">
-          修改已收藏消息，当与对话详情内容不符时在客户端无法正确匹配收藏图标。
-        </NAlert>
-        <NForm ref="formRef" :label-width="80" :model="formValue" :rules="rules" size="medium">
-          <NFormItem label="用户消息区域" path="data.userMsg">
-            <NInput
-              v-model:value="formValue.data.userMsg"
-              type="textarea"
-              :autosize="{
-                minRows: 10
-              }"
-              placeholder="内容不能为空哦"
-            />
-          </NFormItem>
-          <NFormItem label="AI消息区域" path="data.assistantMsg">
-            <NInput
-              v-model:value="formValue.data.assistantMsg"
-              type="textarea"
-              :autosize="{
-                minRows: 10
-              }"
-              placeholder="内容不能为空哦"
-            />
-          </NFormItem>
-        </NForm>
-      </NDrawerContent>
-    </NDrawer>
-  </NSpace>
+  <NDrawer v-model:show="show" :width="480">
+    <NDrawerContent title="修改数据" closable>
+      <template #footer><NButton type="primary" @click="handleValidateClick">确认</NButton></template>
+      <NAlert class="mb-4" type="warning">
+        修改已收藏消息，当与对话详情内容不符时在客户端无法正确匹配收藏图标。
+      </NAlert>
+      <NForm ref="formRef" :label-width="80" :model="formValue" :rules="rules" size="medium">
+        <NFormItem label="用户消息区域" path="data.userMsg">
+          <NInput
+            v-model:value="formValue.data.userMsg"
+            type="textarea"
+            :autosize="{
+              minRows: 10
+            }"
+            placeholder="内容不能为空哦"
+          />
+        </NFormItem>
+        <NFormItem label="AI消息区域" path="data.assistantMsg">
+          <NInput
+            v-model:value="formValue.data.assistantMsg"
+            type="textarea"
+            :autosize="{
+              minRows: 10
+            }"
+            placeholder="内容不能为空哦"
+          />
+        </NFormItem>
+      </NForm>
+    </NDrawerContent>
+  </NDrawer>
+  </div>
 </template>

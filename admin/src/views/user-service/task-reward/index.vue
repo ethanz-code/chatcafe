@@ -296,7 +296,7 @@ onMounted(async () => {
   <NSpace vertical :size="12">
     <NCard title="任务列表" size="small">
       <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" />
-      <div class="w-full flex justify-end p-3 pb-0 pr-0">
+      <div class="flex justify-end pt-12px">
         <NPagination
           v-model:page="page"
           v-model:page-size="pageSize"
@@ -335,7 +335,7 @@ onMounted(async () => {
         </ul>
       </NAlert>
       <NDataTable :columns="columns2" :data="filtersDataByPage2" :pagination="false" :bordered="false" />
-      <div class="w-full flex justify-end p-3 pb-0 pr-0">
+      <div class="flex justify-end pt-12px">
         <NPagination
           v-model:page="page2"
           v-model:page-size="pageSize2"

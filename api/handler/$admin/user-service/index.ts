@@ -7,6 +7,7 @@ import { FeedbackPlugin } from "./feedback";
 import { PromotionPlugin } from "./promotion";
 import { PunchInDailyPlugin } from "./punchInDaily";
 import { TaskRewardPlugin } from "./task-reward";
+import { UsagePlugin } from "./usage";
 import { UserPlugin } from "./user";
 
 export const UserServicePlugin = ({ prefix }: IAuthPluginParams) =>
@@ -17,4 +18,5 @@ export const UserServicePlugin = ({ prefix }: IAuthPluginParams) =>
     .use(PromotionPlugin({ prefix: `${prefix}/promotion` }))
     .use(PunchInDailyPlugin({ prefix: `${prefix}/punch-in-daily` }))
     .use(TaskRewardPlugin({ prefix: `${prefix}/task-reward` }))
+    .use(UsagePlugin({ prefix: `${prefix}/usage` }))
     .use(UserPlugin({ prefix: `${prefix}/user` }));

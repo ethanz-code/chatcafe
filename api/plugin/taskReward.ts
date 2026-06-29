@@ -14,8 +14,7 @@ export function diffTimeOffset(
 }
 
 interface JWTAuthPayload {
-  phoneNumber: string;
-  password: string;
+  id: number;
 }
 interface PunchDataReturnType {
   punchInDaily: PunchInDaily[];
@@ -29,8 +28,7 @@ export const getPunchRelatedData = async (
 ): Promise<PunchDataReturnType> => {
   const detail = await prisma.user.findUnique({
     where: {
-      phoneNumber: payload.phoneNumber,
-      password: payload.password,
+      id: payload.id,
     },
     select: {
       punchInDaily: {
@@ -106,8 +104,7 @@ export const getUserTaskStatus = async (
   // 获取到用户ID
   const userId = await prisma.user.findUnique({
     where: {
-      phoneNumber: payload.phoneNumber,
-      password: payload.password,
+      id: payload.id,
     },
     select: {
       id: true,
@@ -236,8 +233,7 @@ export const receiveAReward = async (
     // 2. 为用户颁发奖励
     const user = await prisma.user.findUnique({
       where: {
-        phoneNumber: payload.phoneNumber,
-        password: payload.password,
+        id: payload.id,
       },
       select: {
         id: true,

@@ -13,7 +13,7 @@ export default async function loginVerify(token) {
   })
 
   if (result.status !== 200) return false
-  const data = JSON.parse(result.data)
+  const data = (result.data)
   if (data.status === -1) return false
 
   return true

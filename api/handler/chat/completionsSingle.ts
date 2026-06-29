@@ -3,7 +3,7 @@ import Stream from "@elysiajs/stream";
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
 
-const chatMaxTokens = Number(Bun.env.CHAT_MAX_TOKENS) || 8192;
+const chatMaxTokens = Number(process.env.CHAT_MAX_TOKENS) || 8192;
 
 export default async function ({ body: { model, prompt, token } }: any) {
   const modelResult = model
@@ -16,6 +16,13 @@ export default async function ({ body: { model, prompt, token } }: any) {
   const modelName = modelResult?.model || model || "deepseek-chat";
   const apiKey = modelResult?.apiKey || "";
   const baseURL = modelResult?.baseUrl || "https://api.deepseek.com";
+
+  if (!apiKey) {
+    return new Stream((stream) => {
+      stream.send(JSON.stringify({ status: -1, error: `Model "${model}" API key is not configured. Please contact the administrator.` }));
+      stream.close();
+    });
+  }
 
   const openai = createOpenAI({ apiKey, baseURL });
 

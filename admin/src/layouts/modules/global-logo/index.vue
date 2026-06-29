@@ -1,27 +1,36 @@
 <script setup lang="ts">
-import { $t } from '@/locales';
-
 defineOptions({
   name: 'GlobalLogo'
 });
 
 interface Props {
-  /** Whether to show the title */
   showTitle?: boolean;
+  inverted?: boolean;
 }
 
 withDefaults(defineProps<Props>(), {
-  showTitle: true
+  showTitle: true,
+  inverted: false
 });
 </script>
 
 <template>
-  <RouterLink to="/" class="w-full flex-center nowrap-hidden">
-    <SystemLogo class="text-32px text-primary" />
-    <h2 v-show="showTitle" class="pl-8px text-16px text-primary font-bold transition duration-300 ease-in-out">
-      {{ $t('system.title') }}
-    </h2>
-  </RouterLink>
+  <div v-bind="$attrs">
+    <RouterLink v-show="showTitle" to="/" class="w-full flex-center nowrap-hidden">
+      <h2
+        class="pl-8px text-22px transition duration-300 ease-in-out"
+        :class="[inverted ? 'text-white' : 'text-#333']"
+        style="font-family: 'Playwrite DE Grund', cursive; white-space: nowrap;"
+      >
+        ChatCafe Admin
+      </h2>
+    </RouterLink>
+    <RouterLink v-show="!showTitle" to="/" class="w-full flex-center">
+      <h2 class="text-22px" :class="[inverted ? 'text-white' : 'text-#333']" style="font-family: 'Playwrite DE Grund', cursive;">
+        CFA
+      </h2>
+    </RouterLink>
+  </div>
 </template>
 
 <style scoped></style>

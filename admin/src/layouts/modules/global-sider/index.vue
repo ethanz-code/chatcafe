@@ -27,10 +27,11 @@ const showLogo = computed(() => !isVerticalMix.value && !isHorizontalMix.value);
     <GlobalLogo
       v-if="showLogo"
       :show-title="!appStore.siderCollapse"
+      :inverted="darkMenu"
       :style="{ height: themeStore.header.height + 'px' }"
     />
     <VerticalMixMenu v-if="isVerticalMix">
-      <GlobalLogo :show-title="false" :style="{ height: themeStore.header.height + 'px' }" />
+      <GlobalLogo :show-title="false" :inverted="darkMenu" :style="{ height: themeStore.header.height + 'px' }" />
     </VerticalMixMenu>
     <HorizontalMixMenu v-else-if="isHorizontalMix" />
     <VerticalMenu v-else :dark-theme="darkMenu" :menus="routeStore.menus" />

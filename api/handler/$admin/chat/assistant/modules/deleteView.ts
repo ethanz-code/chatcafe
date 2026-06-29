@@ -10,8 +10,7 @@ export default async function ({ body: { id } }: any) {
   const imgSplit = result.imgUrl.split("/");
   if (imgSplit[imgSplit.length - 1].length > 6) {
     const path = resolve("./", ...(imgSplit || []));
-    const file = Bun.file(path);
-    if (await file.exists()) await unlink(path);
+    try { await unlink(path); } catch {}
   }
 
   return {

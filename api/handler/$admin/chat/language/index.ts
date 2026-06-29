@@ -18,6 +18,9 @@ export const LanguagePlugin = ({ prefix }: IAuthPluginParams) =>
         name: t.String(),
         cost: t.Number(),
         relatedUrl: t.Optional(t.String()),
+        imgUrl: t.Optional(t.String()),
+        apiKey: t.Optional(t.String()),
+        baseUrl: t.Optional(t.String()),
       }),
     })
     .post(`${prefix}/createModel`, createModel, {
@@ -26,6 +29,9 @@ export const LanguagePlugin = ({ prefix }: IAuthPluginParams) =>
         model: t.String(),
         cost: t.Number(),
         relatedUrl: t.Optional(t.String()),
+        imgUrl: t.Optional(t.String()),
+        apiKey: t.Optional(t.String()),
+        baseUrl: t.Optional(t.String()),
       }),
     })
     .get(`${prefix}/getAllHotIssues`, getAllHotIssues)

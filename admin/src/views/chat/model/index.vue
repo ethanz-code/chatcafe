@@ -69,6 +69,16 @@ const createColumns = ({
       }
     },
     {
+      title: '图片',
+      key: 'imgUrl',
+      width: 100,
+      ellipsis: { tooltip: true },
+      render(row) {
+        if (row.imgUrl) return h('a', { href: row.imgUrl, target: '_blank' }, '查看');
+        return '-';
+      }
+    },
+    {
       title: '',
       key: 'actions',
       render(row) {
@@ -108,7 +118,10 @@ const formValue = ref({
     name: '',
     model: '',
     cost: 0,
-    relatedUrl: ''
+    relatedUrl: '',
+    imgUrl: '',
+    apiKey: '',
+    baseUrl: ''
   }
 });
 const rules = ref({
@@ -149,7 +162,10 @@ const openCreateDrawer = () => {
     name: '',
     model: '',
     cost: 1,
-    relatedUrl: ''
+    relatedUrl: '',
+    imgUrl: '',
+    apiKey: '',
+    baseUrl: 'https://api.deepseek.com'
   };
   active.value = true;
 };
@@ -161,7 +177,10 @@ const setDrawerDefaultData = (row: Api.Core.Chat.Language.Model) => {
     name: row.name,
     model: row.model,
     cost: row.cost,
-    relatedUrl: row.relatedUrl
+    relatedUrl: row.relatedUrl,
+    imgUrl: row.imgUrl || '',
+    apiKey: row.apiKey || '',
+    baseUrl: row.baseUrl || 'https://api.deepseek.com'
   };
 };
 const setAPieceOfDataById = (row: Partial<Api.Core.Chat.Language.Model>) => {
@@ -172,6 +191,9 @@ const setAPieceOfDataById = (row: Partial<Api.Core.Chat.Language.Model>) => {
       name: row.name || '',
       cost: row.cost || 0,
       relatedUrl: row.relatedUrl || '',
+      imgUrl: row.imgUrl || '',
+      apiKey: row.apiKey || '',
+      baseUrl: row.baseUrl || '',
       updatedAt: dayjs().format('YYYY-MM-DD HH:mm:ss')
     };
   }
@@ -185,7 +207,10 @@ const drawerValidate = async () => {
         name: formValue.value.data.name,
         model: formValue.value.data.model,
         cost: formValue.value.data.cost,
-        relatedUrl: formValue.value.data.relatedUrl || ''
+        relatedUrl: formValue.value.data.relatedUrl || '',
+        imgUrl: formValue.value.data.imgUrl || '',
+        apiKey: formValue.value.data.apiKey || '',
+        baseUrl: formValue.value.data.baseUrl || ''
       };
       const result = await fetchCreateModel(p);
       if (!result.error) {
@@ -199,7 +224,10 @@ const drawerValidate = async () => {
         id: formValue.value.data.id,
         name: formValue.value.data.name,
         cost: formValue.value.data.cost,
-        relatedUrl: formValue.value.data.relatedUrl || ''
+        relatedUrl: formValue.value.data.relatedUrl || '',
+        imgUrl: formValue.value.data.imgUrl || '',
+        apiKey: formValue.value.data.apiKey || '',
+        baseUrl: formValue.value.data.baseUrl || ''
       };
       setAPieceOfDataById(p);
       fetchPostModel(p);
@@ -228,43 +256,52 @@ onMounted(async () => {
 </script>
 
 <template>
-  <NSpace vertical :size="12">
-    <NCard title="模型列表" size="small">
-      <template #header-extra>
-        <NButton type="primary" @click="openCreateDrawer">新增模型</NButton>
-      </template>
-      <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" />
-      <div class="w-full flex justify-end p-3 pb-0 pr-0">
-        <NPagination
-          v-model:page="page"
-          v-model:page-size="pageSize"
-          :page-count="pageCount"
-          show-size-picker
-          :page-sizes="[5, 10, 20, 30, 999]"
-        />
-      </div>
-    </NCard>
+  <div>
+  <NCard title="模型列表" size="small">
+    <template #header-extra>
+      <NButton type="primary" @click="openCreateDrawer">新增模型</NButton>
+    </template>
+    <NDataTable :columns="columns" :data="filtersDataByPage" :pagination="false" :bordered="false" />
+    <div class="flex justify-end pt-12px">
+      <NPagination
+        v-model:page="page"
+        v-model:page-size="pageSize"
+        :page-count="pageCount"
+        show-size-picker
+        :page-sizes="[5, 10, 20, 30, 999]"
+      />
+    </div>
+  </NCard>
 
-    <NDrawer v-model:show="active" :width="502" placement="right">
-      <NDrawerContent :title="isCreate ? '新增模型' : '编辑模型'">
-        <template #footer>
-          <NButton type="primary" @click="drawerValidate">确认</NButton>
-        </template>
-        <NForm ref="formRef" :label-width="80" :model="formValue" :rules="rules" size="medium">
-          <NFormItem label="模型名称" path="data.name">
-            <NInput v-model:value="formValue.data.name" placeholder="如：DeepSeek Flash" />
-          </NFormItem>
-          <NFormItem label="模型型号" path="data.model">
-            <NInput v-model:value="formValue.data.model" :disabled="!isCreate" placeholder="如：deepseek-v4-flash" />
-          </NFormItem>
-          <NFormItem label="花费" path="data.cost">
-            <NInputNumber v-model:value="formValue.data.cost" :min="0" clearable />
-          </NFormItem>
-          <NFormItem label="相关链接" path="data.relatedUrl">
-            <NInput v-model:value="formValue.data.relatedUrl" placeholder="输入当前模型的相关链接" />
-          </NFormItem>
-        </NForm>
-      </NDrawerContent>
-    </NDrawer>
-  </NSpace>
+  <NDrawer v-model:show="active" :width="502" placement="right">
+    <NDrawerContent :title="isCreate ? '新增模型' : '编辑模型'">
+      <template #footer>
+        <NButton type="primary" @click="drawerValidate">确认</NButton>
+      </template>
+      <NForm ref="formRef" :label-width="80" :model="formValue" :rules="rules" size="medium">
+        <NFormItem label="模型名称" path="data.name">
+          <NInput v-model:value="formValue.data.name" placeholder="如：DeepSeek Flash" />
+        </NFormItem>
+        <NFormItem label="模型型号" path="data.model">
+          <NInput v-model:value="formValue.data.model" :disabled="!isCreate" placeholder="如：deepseek-v4-flash" />
+        </NFormItem>
+        <NFormItem label="花费" path="data.cost">
+          <NInputNumber v-model:value="formValue.data.cost" :min="0" clearable />
+        </NFormItem>
+        <NFormItem label="相关链接" path="data.relatedUrl">
+          <NInput v-model:value="formValue.data.relatedUrl" placeholder="输入当前模型的相关链接" />
+        </NFormItem>
+        <NFormItem label="模型图片" path="data.imgUrl">
+          <NInput v-model:value="formValue.data.imgUrl" placeholder="如：https://cdn.simpleicons.org/deepseek/1A1A1A" />
+        </NFormItem>
+        <NFormItem label="API Key" path="data.apiKey">
+          <NInput v-model:value="formValue.data.apiKey" type="password" show-password-on="click" placeholder="模型独立的 API Key，留空则使用环境变量" />
+        </NFormItem>
+        <NFormItem label="API 端点" path="data.baseUrl">
+          <NInput v-model:value="formValue.data.baseUrl" placeholder="https://api.deepseek.com" />
+        </NFormItem>
+      </NForm>
+    </NDrawerContent>
+  </NDrawer>
+  </div>
 </template>

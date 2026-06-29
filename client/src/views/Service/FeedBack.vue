@@ -57,10 +57,7 @@ const onSubmit = async () => {
     // eslint-disable-next-line no-undef
     return showFailToast('联系方式格式不正确')
 
-  const formData = new FormData()
-  formData.append('type', checked.value)
-  formData.append('content', content.value)
-  formData.append('contact', concat.value)
+  const formData = { type: checked.value, content: content.value, contact: concat.value }
   const response = await axios.request({
     url: '/user/service/feedback',
     method: 'post',
@@ -70,7 +67,7 @@ const onSubmit = async () => {
     data: formData
   })
   if (response.status === 200) {
-    const parsedData = JSON.parse(response.data)
+    const parsedData = response.data
     if (parsedData.status === 0) {
       // 提交成功
       // eslint-disable-next-line no-undef

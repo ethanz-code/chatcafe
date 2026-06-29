@@ -16,8 +16,7 @@ export default async function ({
   // 获取用户id
   const getUserId = await prisma.user.findUnique({
     where: {
-      phoneNumber: payload.phoneNumber,
-      password: payload.password,
+      id: payload.id,
     },
     select: {
       id: true,

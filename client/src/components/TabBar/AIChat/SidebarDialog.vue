@@ -1,5 +1,4 @@
 <template>
-  <!--  侧边栏，左侧弹出  -->
   <van-popup
     v-model:show="store.sidebarShowLeft"
     position="left"
@@ -8,18 +7,16 @@
     :style="{ width: '75%', height: '100%' }"
   >
     <div class="flex flex-col h-full">
-      <!--  顶部栏目  -->
       <div class="flex justify-between items-center">
-        <span class="text-lg font-medium logo-gradient">爱设计</span>
+        <span class="text-lg font-medium logo-gradient">ChatCafe</span>
         <HamburgerMenuIcon class="cursor-pointer h-5 w-5" @click="store.sidebarShowLeft = false" />
       </div>
 
-      <!--  搜索栏  -->
       <div class="flex gap-1 items-center">
         <van-search
           v-model="searchVal"
-          @search="searchDialogFallback(searchVal)"
-          @clear="clearSearchDialogFallback"
+          @search="onSearch"
+          @clear="onClearSearch"
           class="flex-1"
           maxlength="15"
         >
@@ -36,27 +33,8 @@
         />
       </div>
 
-      <div v-if="showOriginDialog" class="flex-1">
-        <!--  不同时间段的会话分类  -->
-        <sidebar-item
-          :datas="store.allDialog.today"
-          :dialog-level="store.dialogLevelTranslate['today']"
-        />
-        <sidebar-item
-          :datas="store.allDialog.past7Days"
-          :dialog-level="store.dialogLevelTranslate['past7Days']"
-        />
-        <sidebar-item
-          :datas="store.allDialog.past30Days"
-          :dialog-level="store.dialogLevelTranslate['past30Days']"
-        />
-        <sidebar-item
-          :datas="store.allDialog.past90Days"
-          :dialog-level="store.dialogLevelTranslate['past90Days']"
-        />
-      </div>
-      <div v-else>
-        <sidebar-item :datas="dialogContentFallback" :dialog-level="'搜索结果'" />
+      <div class="flex-1 overflow-y-auto">
+        <sidebar-item :datas="displayList" :dialog-level="searchVal ? '搜索结果' : '对话'" />
       </div>
     </div>
   </van-popup>
@@ -65,45 +43,19 @@
 import SidebarItem from './SidebarItem.vue'
 import { HamburgerMenuIcon, MagnifyingGlassIcon } from '@radix-icons/vue'
 import { useChatStore } from '@/stores/chat'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 const store = useChatStore()
 
 defineEmits(['new-dialog'])
 
-const showOriginDialog = ref(true)
 const searchVal = ref('')
-const dialogContentFallback = ref([])
-const searchDialogFallback = (value = '') => {
-  if (value === '') showOriginDialog.value = true
-  else {
-    showOriginDialog.value = false
-    dialogContentFallback.value = []
-
-    dialogContentFallback.value.push(
-      ...store.allDialog.today.filter((item) => {
-        return item.title.includes(value)
-      })
-    )
-    dialogContentFallback.value.push(
-      ...store.allDialog.past7Days.filter((item) => {
-        return item.title.includes(value)
-      })
-    )
-    dialogContentFallback.value.push(
-      ...store.allDialog.past30Days.filter((item) => {
-        return item.title.includes(value)
-      })
-    )
-    dialogContentFallback.value.push(
-      ...store.allDialog.past90Days.filter((item) => {
-        return item.title.includes(value)
-      })
-    )
-  }
-}
-const clearSearchDialogFallback = () => {
-  showOriginDialog.value = true
+const displayList = computed(() => {
+  if (!searchVal.value) return store.allDialogNotSplit
+  return store.allDialogNotSplit.filter((item) => item.title.includes(searchVal.value))
+})
+const onSearch = () => {}
+const onClearSearch = () => {
   searchVal.value = ''
 }
 </script>

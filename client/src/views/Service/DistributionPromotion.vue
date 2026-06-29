@@ -72,7 +72,7 @@ onMounted(async () => {
     }
   })
   if (response.status === 200) {
-    const parsedData = JSON.parse(response.data)
+    const parsedData = response.data
     if (parsedData.status === 0) {
       invitee.value = parsedData.data
     }

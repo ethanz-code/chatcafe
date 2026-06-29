@@ -15,7 +15,7 @@ export const useAppCenterStore = defineStore(
       })
 
       if (res.status === 200) {
-        const parsedData = JSON.parse(res.data)
+        const parsedData = res.data
         if (parsedData.status === 0) {
           if (allApp.value.length === 0 || force) {
             allApp.value = parsedData.data

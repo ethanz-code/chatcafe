@@ -7,6 +7,7 @@ export default async function ({}: any) {
       updatedAt: true,
       orderNo: true,
       status: true,
+      transactionNo: true,
       goodsId: true,
       userId: true,
     },

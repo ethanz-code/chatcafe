@@ -127,39 +127,6 @@ export const generatedRoutes: GeneratedRoute[] = [
     }
   },
   {
-    name: 'image',
-    path: '/image',
-    component: 'layout.base',
-    meta: {
-      title: 'image',
-      i18nKey: 'route.image',
-      order: 5,
-      icon: 'carbon:image'
-    },
-    children: [
-      {
-        name: 'image_community',
-        path: '/image/community',
-        component: 'view.image_community',
-        meta: {
-          title: 'image_community',
-          i18nKey: 'route.image_community',
-          icon: 'carbon:ibm-watsonx-orchestrate'
-        }
-      },
-      {
-        name: 'image_gen-list',
-        path: '/image/gen-list',
-        component: 'view.image_gen-list',
-        meta: {
-          title: 'image_gen-list',
-          i18nKey: 'route.image_gen-list',
-          icon: 'carbon:image-search'
-        }
-      }
-    ]
-  },
-  {
     name: 'login',
     path: '/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?',
     component: 'layout.blank$view.login',
@@ -203,6 +170,17 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       }
     ]
+  },
+  {
+    name: 'usage',
+    path: '/usage',
+    component: 'layout.base$view.usage',
+    meta: {
+      title: 'usage',
+      i18nKey: 'route.usage',
+      icon: 'carbon:chart-line-data',
+      order: 5
+    }
   },
   {
     name: 'user-center',
