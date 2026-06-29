@@ -75,7 +75,6 @@ onMounted(async () => {
     await Promise.all([loadOverview(), loadModelData(), loadUserData(), loadTrends()])
   } catch (e) {
     message.error('数据加载失败，请稍后重试')
-    console.error('Usage page load error:', e)
   } finally {
     loading.value = false
   }

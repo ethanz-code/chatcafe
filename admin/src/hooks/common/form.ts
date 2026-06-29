@@ -41,9 +41,6 @@ export function useFormRules() {
     email: [createRequiredRule($t('form.email.required')), patternRules.email]
   } satisfies Record<string, App.Global.FormRule[]>;
 
-  /** the default required rule */
-  const defaultRequiredRule = createRequiredRule($t('form.required'));
-
   function createRequiredRule(message: string): App.Global.FormRule {
     return {
       required: true,
@@ -70,10 +67,7 @@ export function useFormRules() {
   }
 
   return {
-    patternRules,
     formRules,
-    defaultRequiredRule,
-    createRequiredRule,
     createConfirmPwdRule
   };
 }
@@ -85,13 +79,8 @@ export function useNaiveForm() {
     await formRef.value?.validate();
   }
 
-  async function restoreValidation() {
-    formRef.value?.restoreValidation();
-  }
-
   return {
     formRef,
-    validate,
-    restoreValidation
+    validate
   };
 }

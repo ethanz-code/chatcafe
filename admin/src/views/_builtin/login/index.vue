@@ -3,7 +3,6 @@ import { computed } from 'vue';
 import type { Component } from 'vue';
 import { getColorPalette, mixColor } from '@sa/utils';
 import { $t } from '@/locales';
-// import { useAppStore } from '@/store/modules/app';
 import { useThemeStore } from '@/store/modules/theme';
 import { loginModuleRecord } from '@/constants/app';
 import PwdLogin from './modules/pwd-login.vue';
@@ -19,7 +18,6 @@ interface Props {
 
 const props = defineProps<Props>();
 
-// const appStore = useAppStore();
 const themeStore = useThemeStore();
 
 interface LoginModule {
@@ -60,23 +58,6 @@ const bgColor = computed(() => {
           <h3 class="text-24px text-#333" style="font-family: 'LogoBrush', cursive; white-space: nowrap;">
             ChatCafe Admin
           </h3>
-
-          <div class="i-flex-col">
-            <!--
- <ThemeSchemaSwitch
-              :theme-schema="themeStore.themeScheme"
-              :show-tooltip="false"
-              class="text-20px lt-sm:text-18px"
-              @switch="themeStore.toggleThemeScheme"
-            />
-            <LangSwitch
-              :lang="appStore.locale"
-              :lang-options="appStore.localeOptions"
-              :show-tooltip="false"
-              @change-lang="appStore.changeLocale"
-            /> 
--->
-          </div>
         </header>
         <main class="pt-24px">
           <h3 class="text-18px text-primary font-medium">{{ $t(activeModule.label) }}</h3>

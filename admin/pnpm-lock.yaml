@@ -171,6 +171,9 @@ importers:
       axios-retry:
         specifier: 4.1.0
         version: 4.1.0(axios@1.6.8)
+      nanoid:
+        specifier: 5.0.7
+        version: 5.0.7
       qs:
         specifier: 6.12.1
         version: 6.12.1
@@ -203,12 +206,6 @@ importers:
       typed-css-modules:
         specifier: 0.9.1
         version: 0.9.1
-
-  packages/ofetch:
-    dependencies:
-      ofetch:
-        specifier: 1.3.4
-        version: 1.3.4
 
   packages/scripts:
     devDependencies:

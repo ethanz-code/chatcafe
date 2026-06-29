@@ -5,13 +5,3 @@ export function fetchGetAllPromotion() {
     url: '/user-service/promotion'
   });
 }
-
-export function fetchProcessFeedback(id: number) {
-  return request({
-    url: '/user-service/feedback/process',
-    method: 'POST',
-    data: {
-      id
-    }
-  });
-}
