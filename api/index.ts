@@ -5,7 +5,6 @@ import { cors } from "@elysiajs/cors";
 import { cron } from "@elysiajs/cron";
 import { ChatPlugin } from "./handler/chat";
 import { FilePlugin } from "./handler/file";
-import { CompressPlugin } from "./handler/compress";
 import { UserPlugin } from "./handler/user";
 import { AssistantPlugin } from "./handler/assistant";
 import { AppCenterPlugin } from "./handler/app-center";
@@ -38,7 +37,6 @@ new Elysia({ adapter: node() })
   .use(corsConfig)
   .use(ChatPlugin({ prefix: rootPrefix + "chat" }))
   .use(FilePlugin({ prefix: rootPrefix }))
-  .use(CompressPlugin({ prefix: rootPrefix }))
   .use(UserPlugin({ prefix: rootPrefix + "user" }))
   .use(AssistantPlugin({ prefix: rootPrefix + "assistant" }))
   .use(AppCenterPlugin({ prefix: rootPrefix + "app-center" }))

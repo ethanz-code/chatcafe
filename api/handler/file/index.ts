@@ -19,7 +19,8 @@ export const FilePlugin = (config: Config) =>
     )
     .get(
       `${config.prefix}${rootAlias}/assistant/:name`,
-      ({ params: { name } }) => serveFile(resolve(rootAlias, "assistant", name)),
+      ({ params: { name } }) =>
+        serveFile(resolve(rootAlias, "assistant", name)),
     )
     .get(
       `${config.prefix}${rootAlias}/app-center/:name`,
@@ -31,9 +32,4 @@ export const FilePlugin = (config: Config) =>
     )
     .get(`${config.prefix}${rootAlias}/pay/:name`, ({ params: { name } }) =>
       serveFile(resolve(rootAlias, "pay", name)),
-    )
-    .get(
-      `${config.prefix}compress/:format/:name`,
-      ({ params: { format, name } }) =>
-        serveFile(resolve("media", "compress", format, name)),
     );
