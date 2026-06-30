@@ -3,11 +3,6 @@
   /*--van-sidebar-width: 110px !important;*/
   --van-sidebar-padding: 20px 15px;
 
-  --van-floating-bubble-background: linear-gradient(to right, #ff6034, #ee0a24);
-
-  /* --van-nav-bar-icon-color: #ff6e65;
-  --van-nav-bar-text-color: #ff6e65; */
-  /* --van-sidebar-selected-border-color: #ff6e65; */
   --van-primary-color: #ff6e65;
 
   --van-uploader-size: 100px;
@@ -30,6 +25,3 @@
   max-width: 150px;
 }
 
-.van-floating-bubble {
-  box-shadow: 2rem;
-}

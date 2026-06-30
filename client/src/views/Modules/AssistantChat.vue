@@ -220,7 +220,7 @@
           v-show="message.length > 0"
           class="self-start mr-2"
           size="small"
-          color="linear-gradient(to right, #ff6034, #ee0a24)"
+          color="linear-gradient(to right, #ff6034, #ff6e65)"
           type="success"
           @click="() => sendMessage(message)"
         >
@@ -357,7 +357,7 @@ const insuficientBalance = (error = '') => {
     title: '对话余额不足',
     message: '您当前对话余额不足，可以通过任务奖励领取余额或者前往充值。',
     confirmButtonText: '充值',
-    confirmButtonColor: '#ed776b'
+    confirmButtonColor: '#ff6e65'
   })
     .then(() => {
       // on confirm

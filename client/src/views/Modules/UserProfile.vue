@@ -88,7 +88,7 @@
           </van-cell-group>
         </div>
         <div class="mx-5 mt-3 grid grid-cols-1 md:grid-cols-none md:flex">
-          <van-button @click="modifyName" round color="linear-gradient(to right, #ff6034, #ee0a24)">
+          <van-button @click="modifyName" round color="linear-gradient(to right, #ff6034, #ff6e65)">
             确定
           </van-button>
         </div>

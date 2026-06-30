@@ -14,7 +14,7 @@
               <van-steps
                 :active="punchInDaysOverviewActive"
                 active-icon="success"
-                active-color="#ff564d"
+                active-color="#ff6e65"
               >
                 <van-step v-for="item in punchInDaysOverviewData" :key="item">
                   <template v-slot:inactive-icon>
@@ -24,12 +24,12 @@
                   </template>
                   <template v-slot:active-icon>
                     <div class="w-full h-full flex justify-center items-center">
-                      <ActiveIcon class="w-5 text-[#ff564d]" />
+                      <ActiveIcon class="w-5 text-[#ff6e65]" />
                     </div>
                   </template>
                   <template v-slot:finish-icon>
                     <div class="w-full h-full flex justify-center items-center">
-                      <ActiveIcon class="w-5 text-[#ff564d]" />
+                      <ActiveIcon class="w-5 text-gray-400" />
                     </div>
                   </template>
                   {{ `${item}天` }}
@@ -39,7 +39,7 @@
                 @click="punchInDaysButtonClick"
                 :class="[
                   'cursor-pointer text-center py-3 rounded-md',
-                  punchInToday ? 'bg-gray-100 text-gray-400' : 'bg-[#ff564d] text-white'
+                  punchInToday ? 'bg-gray-100 text-gray-400' : 'bg-[#ff6e65] text-white'
                 ]"
               >
                 {{ `${punchInToday ? `已连续签到${continuousPunch}天` : '点击签到'}` }}
@@ -84,13 +84,15 @@
         >
           <div class="mr-3">
             <div
-              class="task_list_icon flex items-center justify-center rounded-lg w-9 h-9 text-white"
+              class="flex items-center justify-center rounded-lg w-9 h-9 text-white text-sm font-bold"
+              style="background: linear-gradient(135deg, #ff8a84, #ff6e65)"
             >
               <component
-                v-if="item.fluentIconName"
-                class="w-7 h-7"
+                v-if="item.fluentIconName && taskComponentsRemap[item.fluentIconName]"
+                class="w-5 h-5 text-white"
                 :is="taskComponentsRemap[item.fluentIconName]"
               ></component>
+              <span v-else class="text-white text-sm font-bold">{{ item.title?.charAt(0) }}</span>
             </div>
           </div>
           <div class="w-full flex flex-col justify-start">
@@ -111,7 +113,7 @@
             <van-button
               v-if="item.status === 'available reward'"
               @click="receiveReward(item)"
-              class="w-14 h-6 bg-[#ff564d]"
+              class="w-14 h-6 bg-[#ff6e65]"
               round
               type="primary"
             >
@@ -127,10 +129,10 @@
             </van-button>
             <van-button
               v-if="item.status === 'in progress'"
-              class="w-14 h-6 border-[#ff564d]"
+              class="w-14 h-6 border-gray-300 text-gray-500"
               plain
               round
-              type="primary"
+              type="default"
             >
               0/1
             </van-button>
@@ -267,7 +269,4 @@ onMounted(async () => {
 })
 </script>
 <style scoped>
-.task_list_icon {
-  background-image: linear-gradient(135deg, #fdd819 10%, #e80505 100%);
-}
 </style>

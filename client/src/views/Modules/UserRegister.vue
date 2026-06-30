@@ -64,7 +64,7 @@
       <div class="flex flex-col items-center gap-3 mx-4 mt-6">
         <van-button
           class="shadow-md"
-          color="linear-gradient(to right, #ff6034, #ee0a24)"
+          color="linear-gradient(to right, #ff6034, #ff6e65)"
           round
           block
           type="primary"
@@ -77,7 +77,7 @@
           * 注册代表您同意<a
             href="https://aigc-yassine.notion.site/3e8f1814e8e6430aa771128cd9a1c220?pvs=4"
             target="_blank"
-            class="cursor-pointer text-[#ff6034]"
+            class="cursor-pointer text-gray-500"
             >《ChatCafe用户协议》</a
           >
         </p>

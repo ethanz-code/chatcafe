@@ -12,7 +12,7 @@
       @click="onSubmit"
       class="w-full"
       round
-      color="linear-gradient(to right, #ff6034, #ee0a24)"
+      color="linear-gradient(to right, #ff6034, #ff6e65)"
     >
       点击保存图片
     </van-button>

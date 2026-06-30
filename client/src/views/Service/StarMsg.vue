@@ -17,7 +17,7 @@
               readMore[index] ? '' : 'max-h-52'
             ]"
           >
-            <div class="p-1 leading-3 bg-[#ff6034] text-white">答</div>
+            <div class="p-1 leading-3 bg-[#ff6e65] text-white">答</div>
             <MessageModule
               show-cursor="false"
               :text="item.assistantMsg"

@@ -66,93 +66,38 @@
           </div>
         </div>
       </div>
-      <div v-show="hasMsg" class="w-full max-w-full pt-4 px-2 pb-10 box-border">
-        <ul v-auto-animate class="flex flex-col gap-16">
+      <div v-show="hasMsg" class="w-full max-w-full pt-4 px-5 pb-10 box-border">
+        <ul v-auto-animate class="flex flex-col gap-10">
           <li :key="item" v-for="(item, index) in dialogContent">
+            <!-- 时间分隔（仅在跨时间段显示，全宽居中） -->
+            <div v-if="showTimeDivider(index)" class="flex justify-center my-2">
+              <span class="text-[11px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                {{ moment(item.time).format('MM-DD HH:mm') }}
+              </span>
+            </div>
             <div
               :class="['flex gap-2', item.role === 'assistant' ? 'justify-start' : 'justify-end']"
             >
-              <!-- 助理头像区域 -->
-              <div
-                v-if="item.role === 'assistant'"
-                class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-              >
-                AI
-              </div>
-
               <!-- 消息内容区域 -->
               <div
-                style="width: calc(100% - 48px)"
                 :class="[
-                  'max-w-[1000px] flex-1 flex flex-col gap-1',
+                  'max-w-[1000px] flex-1 flex flex-col gap-1 text-[15px]',
                   item.role === 'assistant' ? 'items-start' : 'items-end'
                 ]"
               >
-                <!-- 消息发送时间戳 -->
                 <div
-                  :class="[
-                    'text-gray-600 text-[12px] min-h-[20px]',
-                    item.func_available ? 'opacity-100' : 'opacity-0'
-                  ]"
+                  class="relative select-none"
+                  style="max-width: calc(100% - 15px)"
+                  @contextmenu.prevent="openPopover($event, item, index)"
+                  @touchstart.prevent="onTouchStart($event, item, index)"
+                  @touchend="onTouchEnd"
+                  @touchmove="onTouchMove"
                 >
-                  {{ moment(item.time).format('YYYY-MM-DD HH:mm:ss') }}
-                </div>
-
-                <div class="relative" style="max-width: calc(100% - 15px)">
                   <Message
                     :show-cursor="item.role === 'assistant' ? false : false"
                     :text="item.content"
                     :item="item"
                   />
-
-                  <!-- 消息主题底部功能区 -->
-                  <div
-                    v-auto-animate
-                    v-if="item.func_available"
-                    :class="[
-                      'absolute -bottom-5 flex justify-end items-center w-full overflow-x-visible gap-2 text-[12px] text-gray-600',
-                      item.role === 'assistant' && item.content.length < 8 ? 'right-0' : 'right-2'
-                    ]"
-                  >
-                    <div
-                      @click="rewriteMsg"
-                      v-if="lastMsg === index && item.role === 'assistant'"
-                      class="flex-shrink-0 cursor-pointer flex items-center gap-1"
-                    >
-                      <Replay class="w-3.5" /> 重写
-                    </div>
-                    <div
-                      @click="starMsg(item, index)"
-                      v-if="item.role === 'assistant'"
-                      class="flex-shrink-0 cursor-pointer flex items-center gap-1"
-                    >
-                      <Star v-if="!msgAlreadyStar(item)" class="w-3.5" />
-                      <StarFilled v-else class="w-3.5 text-[#ff6e65]" />
-                      收藏
-                    </div>
-                    <div
-                      v-if="item.role === 'user' || !item.collapse"
-                      @click="copyMsg(item.content)"
-                      class="flex-shrink-0 cursor-pointer flex items-center gap-1"
-                    >
-                      <Copy class="w-3.5" /> 复制
-                    </div>
-                    <div
-                      v-if="item.role === 'user' || !item.collapse"
-                      @click="deleteMsg(index)"
-                      class="flex-shrink-0 cursor-pointer flex items-center gap-1"
-                    >
-                      <Delete class="w-3.5" /> 删除
-                    </div>
-                    <div
-                      v-if="item.role === 'assistant'"
-                      @click="item.collapse = !item.collapse"
-                      class="flex-shrink-0 cursor-pointer flex items-center gap-1"
-                    >
-                      <More v-if="item.collapse" class="w-3.5" />
-                      <MoreFilled v-else class="w-3.5 text-[#ff6e65]" />
-                    </div>
-                  </div>
                 </div>
               </div>
 
@@ -280,7 +225,7 @@
           v-show="message.length > 0"
           class="self-start mr-2"
           size="small"
-          color="linear-gradient(to right, #ff6034, #ee0a24)"
+          color="linear-gradient(to right, #ff6034, #ff6e65)"
           type="success"
           @click="() => sendMessage(message)"
         >
@@ -294,6 +239,46 @@
       <!--  最底部导航栏区域空缺出来  -->
       <div class="h-[50px]"></div>
     </div>
+
+    <!-- 长按/右键 Popover -->
+    <teleport to="body">
+      <div v-if="showPopover" class="fixed inset-0 z-[999]" @click="closePopover" @contextmenu.prevent="closePopover">
+        <div
+          class="fixed bg-white rounded-xl shadow-2xl border border-gray-200 py-1 min-w-[130px] overflow-hidden"
+          :style="{ top: popoverY + 'px', left: popoverX + 'px' }"
+          @click.stop
+        >
+          <div
+            v-if="popoverMsg?.role === 'assistant' && popoverIndex === lastMsg"
+            @click="rewriteMsg(); closePopover()"
+            class="px-4 py-3 cursor-pointer hover:bg-gray-50 flex items-center gap-2.5 text-sm active:bg-gray-100 transition-colors"
+          >
+            <Replay class="w-3.5" /> 重写
+          </div>
+          <div
+            v-if="popoverMsg?.role === 'assistant'"
+            @click="starMsg(popoverMsg, popoverIndex); closePopover()"
+            class="px-4 py-3 cursor-pointer hover:bg-gray-50 flex items-center gap-2.5 text-sm active:bg-gray-100 transition-colors"
+          >
+            <Star v-if="!msgAlreadyStar(popoverMsg)" class="w-3.5" />
+            <StarFilled v-else class="w-3.5 text-[#ff6e65]" />
+            收藏
+          </div>
+          <div
+            @click="copyMsg(popoverMsg?.content); closePopover()"
+            class="px-4 py-3 cursor-pointer hover:bg-gray-50 flex items-center gap-2.5 text-sm active:bg-gray-100 transition-colors"
+          >
+            <Copy class="w-3.5" /> 复制
+          </div>
+          <div
+            @click="deleteMsg(popoverIndex); closePopover()"
+            class="px-4 py-3 cursor-pointer hover:bg-gray-50 flex items-center gap-2.5 text-sm text-gray-500 active:bg-gray-100 transition-colors border-t border-gray-100"
+          >
+            <Delete class="w-3.5" /> 删除
+          </div>
+        </div>
+      </div>
+    </teleport>
   </section>
 </template>
 <script setup lang="js">
@@ -317,8 +302,6 @@ import {
   Delete24Regular as Delete,
   Star24Regular as Star,
   Star24Filled as StarFilled,
-  MoreCircle32Regular as More,
-  MoreCircle32Filled as MoreFilled
 } from '@vicons/fluent'
 import { isWeixinBrowser, isAppleDevice } from '@/utils/operationEnv'
 import { useChatFirstLoadedStore } from '@/stores/chat-first-loaded.js'
@@ -454,10 +437,20 @@ const hasDialogContent = () => {
 // 不得将此移动到hasDialogContent前面，因为初始值调用了它
 let hasMsg = ref(true)
 
+const showTimeDivider = (index) => {
+  const curr = dialogContent.value[index]
+  if (!curr?.time) return false
+  if (index === 0) return true
+  const prev = dialogContent.value[index - 1]
+  if (!prev?.time) return true
+  return moment(curr.time).diff(moment(prev.time), 'minute') >= 5
+}
+
 const setDialogContent = () => {
   const dialog = store.dialogContent.filter((item) => item.uuid === store.selectedDialog.uuid)[0]
   dialogContent.value = dialog.delta ? dialog.delta : []
   lastMsg.value = Math.max(dialogContent.value.length - 1, 0)
+  requestAnimationFrame(autoScroll2Bottom)
 }
 
 const autoScroll2Bottom = () => {
@@ -480,7 +473,7 @@ const insuficientBalance = (error = '') => {
     title: '对话余额不足',
     message: '您当前对话余额不足，可以通过任务奖励领取余额或者前往充值。',
     confirmButtonText: '充值',
-    confirmButtonColor: '#ed776b'
+    confirmButtonColor: '#ff6e65'
   })
     .then(() => {
       // on confirm
@@ -631,6 +624,56 @@ const sendMessage = async (prompt, ownNotSendMsg = false) => {
   }, 800)
 }
 // ---------内容区域对话内容---------
+
+// ---------右键/长按 Popover---------
+const showPopover = ref(false)
+const popoverX = ref(0)
+const popoverY = ref(0)
+const popoverMsg = ref(null)
+const popoverIndex = ref(-1)
+let longPressTimer = null
+
+const openPopover = (e, item, index) => {
+  popoverMsg.value = item
+  popoverIndex.value = index
+  let x = e.clientX ?? e.touches?.[0]?.clientX ?? 0
+  let y = e.clientY ?? e.touches?.[0]?.clientY ?? 0
+  const w = 140
+  const h = (item.role === 'assistant' ? (index === lastMsg.value ? 3 : 2) : 1) * 44 + 8
+  if (x + w > window.innerWidth) x = window.innerWidth - w - 8
+  if (y + h > window.innerHeight) y = window.innerHeight - h - 8
+  popoverX.value = x
+  popoverY.value = y
+  showPopover.value = true
+}
+
+const closePopover = () => {
+  showPopover.value = false
+  popoverMsg.value = null
+  popoverIndex.value = -1
+}
+
+const onTouchStart = (e, item, index) => {
+  longPressTimer = setTimeout(() => {
+    openPopover(e, item, index)
+    longPressTimer = null
+  }, 500)
+}
+
+const onTouchEnd = () => {
+  if (longPressTimer) {
+    clearTimeout(longPressTimer)
+    longPressTimer = null
+  }
+}
+
+const onTouchMove = () => {
+  if (longPressTimer) {
+    clearTimeout(longPressTimer)
+    longPressTimer = null
+  }
+}
+// ---------右键/长按 Popover---------
 
 // ---------内容区域消息底部函数功能--------
 const copyMsg = (msg) => {

@@ -4,11 +4,11 @@
     <van-notice-bar scrollable color="#1989fa" background="#ecf9ff" left-icon="info-o">
       <span>
         累计邀请用户：
-        <span class="text-red-500">{{ invitee.length }}</span
+        <span class="text-gray-700">{{ invitee.length }}</span
         >人
       </span>
       <span class="ml-2">
-        赚取对话余额： <span class="text-red-500">{{ 50 * invitee.length }}</span
+        赚取对话余额： <span class="text-gray-700">{{ 50 * invitee.length }}</span
         >次
       </span>
       <span class="ml-2">每邀请成功一人即可赚取50次对话</span>

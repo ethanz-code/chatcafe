@@ -1,7 +1,7 @@
 <template>
   <section ref="content" class="h-full bg-white flex flex-col gap-16 relative">
     <div class="h-1/3 relative">
-      <img v-lazy="'/res/静谧的湖畔.png'" class="w-full h-full object-cover object-center" />
+      <img v-lazy="'/res/cafe-bg.jpg'" class="w-full h-full object-cover object-center" />
       <div class="custom-shape-divider-bottom-1711077015">
         <svg
           data-name="Layer 1"
@@ -45,7 +45,7 @@
         </van-cell-group>
         <div style="margin: 16px">
           <van-button
-            color="linear-gradient(to right, #ff6034, #ee0a24)"
+            color="linear-gradient(to right, #ff6034, #ff6e65)"
             round
             block
             type="primary"

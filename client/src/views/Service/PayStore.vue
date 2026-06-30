@@ -6,41 +6,46 @@
       <div
         v-for="item in goods"
         :key="item.id"
-        class="flex flex-col rounded-lg shadow-md overflow-hidden"
+        @click="goToPay(item.id)"
+        class="flex flex-col rounded-lg shadow-md overflow-hidden cursor-pointer active:opacity-80"
       >
-        <img
+        <div
           v-if="item.imgUrl"
-          :src="item.imgUrl"
-          class="h-[6.5rem] object-contain object-center"
-          style="background-image: linear-gradient(135deg, #43cbff 30%, #9708cc 100%)"
-        />
+          class="h-[6.5rem] flex items-center justify-center p-3"
+          style="background: linear-gradient(135deg, #ff6034 30%, #ff6e65 100%)"
+        >
+          <img
+            :src="item.imgUrl"
+            class="h-full w-full object-contain"
+          />
+        </div>
         <div
           v-else
           class="h-[6.5rem] flex items-center justify-center text-white text-2xl font-bold"
-          style="background-image: linear-gradient(135deg, #43cbff 30%, #9708cc 100%)"
+          style="background: linear-gradient(135deg, #ff6034 30%, #ff6e65 100%)"
         >
           {{ item.title?.charAt(0) || '?' }}
         </div>
-        <div class="p-2 pb-3 box-border">
-          <p class="text-xl text-red-500 font-medium">
+        <div class="p-3 pb-3 box-border">
+          <p class="text-xl text-[#ff6e65] font-medium">
             <span class="text-sm">¥</span>
-            <span>{{ item.price }}</span>
+            <span>{{ Number(item.price).toFixed(2) }}</span>
           </p>
-          <p class="text-[16px] font-medium mt-2">{{ item.title }}</p>
-          <p class="text-gray-500 text-xs mt-3">{{ item.description }}</p>
-          <p class="mt-3 text-gray-800">{{ `对话次数：${item.dialogueCount}` }}</p>
-          <p v-if="item.paintingCount > 0" class="mt-1 text-gray-800">{{ `绘画次数：${item.paintingCount}` }}</p>
-          <van-button
-            class="w-full mt-3 h-10"
-            round
-            @click="goToPay(item.id)"
-            color="linear-gradient(to right, #ff6034, #ee0a24)"
-          >
-            立即充值
-          </van-button>
+          <p class="text-[16px] font-medium mt-1.5">{{ item.title }}</p>
+          <div class="mt-3 pt-2.5 border-t border-gray-50 flex items-center justify-between">
+            <span class="text-xs text-gray-500">{{ `对话 ${item.dialogueCount} 次` }}</span>
+            <span v-if="item.paintingCount > 0" class="text-xs text-gray-500">{{ `绘画 ${item.paintingCount} 次` }}</span>
+          </div>
         </div>
       </div>
     </div>
+
+    <van-dialog v-model:show="showScanQr" title="微信扫码支付" confirm-button-text="已完成支付">
+      <div class="flex flex-col items-center py-4">
+        <img v-if="qrCodeUrl" :src="qrCodeUrl" class="w-48 h-48" alt="支付二维码" />
+        <p class="text-sm text-gray-500 mt-2">请使用微信扫码完成支付</p>
+      </div>
+    </van-dialog>
   </section>
 </template>
 <script setup lang="js">
@@ -52,28 +57,37 @@ import { isWeixinBrowser } from '@/utils/operationEnv'
 import { onUnmounted } from 'vue'
 import { PaymentStatusPoller } from '@/utils/paymentPoller'
 import { useUserCenterStore } from '@/stores/user-center'
+import { showLoadingToast, closeToast, showSuccessToast, showFailToast } from 'vant'
 
 const store = useUserCenterStore()
 const mask = ref(false)
-const isInWxEnv = () => {
-  if (isWeixinBrowser()) {
-    mask.value = true
-    document.body.classList.add('van-toast--unclickable')
-  }
-  else document.body.classList.remove('van-toast--unclickable')
+const showScanQr = ref(false)
+const qrCodeUrl = ref('')
+
+function isMobileDevice() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+}
+
+function getPayType() {
+  if (isWeixinBrowser()) return 'jsapi'
+  if (isMobileDevice()) return 'h5'
+  return 'scan'
 }
 
 const goods = ref([])
 
 const route = useRoute()
+
+let poller = null
+
 const goToPay = async (goodId) => {
-  // eslint-disable-next-line no-undef
-  showLoadingToast({
-    message: '加载中...',
-    forbidClick: true,
-    duration: 0
-  })
-  const payUrl = isWeixinBrowser() ? '/user/service/pay/wx/jsapi' : '/user/service/pay/wx'
+  showLoadingToast({ message: '加载中...', forbidClick: true, duration: 0 })
+  const payType = getPayType()
+  let payUrl = ''
+  if (payType === 'jsapi') payUrl = '/user/service/pay/wx/jsapi'
+  else if (payType === 'h5') payUrl = '/user/service/pay/wx'
+  else payUrl = '/user/service/pay/wx/scan'
+
   const response = await axios.request({
     url: payUrl,
     method: 'post',
@@ -85,15 +99,45 @@ const goToPay = async (goodId) => {
   if (response.status === 200) {
     const parsedData = response.data
     if (parsedData.status === -1) {
-      // eslint-disable-next-line no-undef
+      closeToast()
       showFailToast('创建订单失败')
     } else if (parsedData.status === 0) {
-      // eslint-disable-next-line no-undef
       closeToast()
       localStorage.setItem('payingOrderNo', parsedData.orderNo)
-      window.location.href = parsedData.data.data
+
+      if (payType === 'scan') {
+        qrCodeUrl.value = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(parsedData.data.codeUrl)}`
+        showScanQr.value = true
+        startPolling(parsedData.orderNo)
+      } else {
+        window.location.href = parsedData.data.data
+      }
     }
   }
+}
+
+function startPolling(orderNo) {
+  if (!orderNo) orderNo = localStorage.getItem('payingOrderNo')
+  if (!orderNo) return
+  showLoadingToast({ message: '支付验证中...', forbidClick: true, duration: 0 })
+  poller = new PaymentStatusPoller({
+    orderNo,
+    interval: 3000,
+    maxAttempts: 60,
+    onSuccess: () => {
+      localStorage.removeItem('payingOrderNo')
+      showScanQr.value = false
+      closeToast()
+      showSuccessToast('充值成功')
+      refreshUserProfile()
+    },
+    onTimeout: () => {
+      localStorage.removeItem('payingOrderNo')
+      closeToast()
+      showFailToast('支付确认超时，请联系客服')
+    }
+  })
+  poller.start()
 }
 
 function refreshUserProfile() {
@@ -111,37 +155,13 @@ function refreshUserProfile() {
   })
 }
 
-let poller = null
-
 onMounted(async () => {
   const orderNo = localStorage.getItem('payingOrderNo')
   if (route.query.state === 'success' && orderNo) {
-    // eslint-disable-next-line no-undef
     showLoadingToast({ message: '支付验证中...', forbidClick: true, duration: 0 })
-    poller = new PaymentStatusPoller({
-      orderNo,
-      interval: 3000,
-      maxAttempts: 60,
-      onSuccess: () => {
-        localStorage.removeItem('payingOrderNo')
-        // eslint-disable-next-line no-undef
-        closeToast()
-        // eslint-disable-next-line no-undef
-        showSuccessToast('充值成功')
-        refreshUserProfile()
-      },
-      onTimeout: () => {
-        localStorage.removeItem('payingOrderNo')
-        // eslint-disable-next-line no-undef
-        closeToast()
-        // eslint-disable-next-line no-undef
-        showFailToast('支付确认超时，请联系客服')
-      }
-    })
-    poller.start()
+    startPolling(orderNo)
   } else if (route.query.state === 'fail') {
     localStorage.removeItem('payingOrderNo')
-    // eslint-disable-next-line no-undef
     showFailToast('付款失敗')
   }
 
@@ -159,11 +179,17 @@ onMounted(async () => {
     }
   }
 
-  isInWxEnv()
+  if (isWeixinBrowser() && !route.query.state) {
+    mask.value = true
+    document.body.classList.add('van-toast--unclickable')
+  }
 })
 
 onUnmounted(() => {
-  if (poller) poller.stop()
+  if (poller) {
+    poller.stop()
+    poller = null
+  }
   document.body.classList.remove('van-toast--unclickable')
 })
 </script>

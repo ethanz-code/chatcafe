@@ -72,8 +72,7 @@ onUnmounted(() => {
 </script>
 <style scoped>
 .logo-gradient {
-  background-image: linear-gradient(135deg, #43cbff 0%, #9708cc 30%);
-  /* background-image: linear-gradient(135deg, #fdd819 0%, #e80505 30%); */
+  background-image: linear-gradient(135deg, #ff6034 0%, #ff6e65 100%);
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;

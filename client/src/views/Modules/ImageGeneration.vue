@@ -11,7 +11,7 @@
         class="mt-8"
         type="primary"
         round
-        color="linear-gradient(to right, #ff6034, #ee0a24)"
+        color="linear-gradient(to right, #ff6034, #ff6e65)"
         @click="router.push('/')"
       >
         去聊天

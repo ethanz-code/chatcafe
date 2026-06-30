@@ -31,7 +31,7 @@
       @click="onSubmit"
       class="w-full mt-10"
       round
-      color="linear-gradient(to right, #ff6034, #ee0a24)"
+      color="linear-gradient(to right, #ff6034, #ff6e65)"
     >
       立即提交
     </van-button>
