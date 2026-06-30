@@ -109,5 +109,11 @@
   "website": "https://admin.soybeanjs.cn",
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "vue-demi"
+    ]
+  }
 }

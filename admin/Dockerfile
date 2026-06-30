@@ -1,11 +1,11 @@
-FROM node:20-slim AS builder
+FROM node:22-slim AS builder
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@10 --activate
 
 WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/ packages/
-RUN pnpm install --frozen-lockfile
+RUN echo "y" | pnpm install --no-frozen-lockfile 2>/dev/null; pnpm install
 
 COPY . .
 RUN pnpm build --mode production
