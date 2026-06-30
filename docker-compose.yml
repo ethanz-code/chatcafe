@@ -51,7 +51,7 @@ services:
       - chatcafe
 
   gateway:
-    image: nginx:stable-alpine
+    image: ${IMAGE_REGISTRY}/gateway:${IMAGE_TAG}
     container_name: chatcafe-gateway
     restart: unless-stopped
     depends_on:
@@ -66,7 +66,6 @@ services:
     ports:
       - "${GATEWAY_PORT}:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - media_data:/usr/src/app/media:ro
     networks:
       - chatcafe
