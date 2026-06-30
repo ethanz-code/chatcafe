@@ -48,8 +48,8 @@ export function createThemeToken(colors: App.Theme.ThemeColor) {
   const darkThemeTokens: App.Theme.ThemeToken = {
     colors: {
       ...themeTokens.colors,
-      container: 'rgb(28, 28, 28)',
-      layout: 'rgb(18, 18, 18)',
+      container: 'rgb(24, 24, 28)',
+      layout: 'rgb(24, 24, 28)',
       base_text: 'rgb(224, 224, 224)'
     },
     boxShadow: {
@@ -151,6 +151,17 @@ export function addThemeVarsToHtml(tokens: App.Theme.BaseToken, darkTokens: App.
   style.textContent = css + darkCss;
 
   document.head.appendChild(style);
+
+  clearPreFlashInlineStyles();
+}
+
+function clearPreFlashInlineStyles() {
+  const el = document.documentElement;
+  el.style.removeProperty('--primary-color');
+  el.style.removeProperty('--container-bg-color');
+  el.style.removeProperty('--layout-bg-color');
+  el.style.removeProperty('--base-text-color');
+  el.style.backgroundColor = '';
 }
 
 /**
@@ -172,6 +183,8 @@ export function toggleCssDarkMode(darkMode = false) {
   } else {
     removeDarkClass();
   }
+
+  clearPreFlashInlineStyles();
 }
 
 type NaiveColorScene = '' | 'Suppl' | 'Hover' | 'Pressed' | 'Active';

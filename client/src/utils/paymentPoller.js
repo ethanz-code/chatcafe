@@ -1,12 +1,11 @@
 import axios from '@/utils/axios'
 
 export class PaymentStatusPoller {
-  constructor({ orderNo, interval = 3000, maxAttempts = 60, onSuccess, onFailed, onTimeout }) {
+  constructor({ orderNo, interval = 3000, maxAttempts = 60, onSuccess, onTimeout }) {
     this.orderNo = orderNo
     this.interval = interval
     this.maxAttempts = maxAttempts
     this.onSuccess = onSuccess
-    this.onFailed = onFailed
     this.onTimeout = onTimeout
     this.attempts = 0
     this.stopped = false

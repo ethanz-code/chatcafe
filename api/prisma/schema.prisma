@@ -160,15 +160,16 @@ model Goods {
 }
 
 model Order {
-  id            Int      @id @default(autoincrement()) // 订单ID
+  id            Int      @id @default(autoincrement())
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  orderNo       String // 订单号
-  status        String?  @default("未付款") // 订单状态， 未付款，已付款
-  transactionNo String? // ltzf 支付流水号
-  goodsId       Int // 商品ID
+  orderNo       String   @unique
+  status        String?  @default("未付款")
+  transactionNo String?
+  price         Float    @default(0)
+  goodsId       Int
   goods         Goods    @relation(fields: [goodsId], references: [id])
-  userId        Int // 用户ID
+  userId        Int
   user          User     @relation(fields: [userId], references: [id])
 }
 

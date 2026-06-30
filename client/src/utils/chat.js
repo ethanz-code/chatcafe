@@ -29,8 +29,15 @@ export const sendMessage = async (
 
   let msgList
   if (assistantDialogContent) msgList = assistantDialogContent.value
-  else
-    msgList = store.dialogContent.filter((val) => val.uuid === store.selectedDialog.uuid)[0].delta
+  else {
+    const target = store.dialogContent.filter((val) => val.uuid === store.selectedDialog.uuid)[0]
+    if (!target) {
+      msgList = []
+      store.dialogContent.push({ uuid: store.selectedDialog.uuid, delta: msgList })
+    } else {
+      msgList = target.delta
+    }
+  }
 
   const msgLength = msgList.length
   msgList.push({
@@ -48,7 +55,6 @@ export const sendMessage = async (
   // ------------------------------------
   let respString = ''
   const controller = new AbortController()
-  class FatalError extends Error {}
 
   // 撤销消息
   const popMsg = async () => {
@@ -69,20 +75,24 @@ export const sendMessage = async (
     msgList.pop()
   }
 
-  // 四十秒未成功连接自动断开
+  // 超时/重连保护
   let accepted = false
+  let aborted = false
+  let execOnClose = true
   const abort = () => {
+    if (aborted) return
+    aborted = true
+    execOnClose = false
     controller.abort()
     popMsg()
     // eslint-disable-next-line no-undef
     showFailToast('请求超时')
     after()
-    throw new FatalError('timeout')
   }
   const timer = setTimeout(() => {
     clearTimeout(timer)
     if (!accepted) abort()
-  }, 40000)
+  }, 120000)
   let loadFrameTimer = 0
 
   const sse = (path, bearer, postData, headers = {}) => {
@@ -130,7 +140,6 @@ export const sendMessage = async (
       after()
     }
 
-    let execOnClose = true
     let backupData = {}
     fetchEventSource(path, {
       method: 'POST',
@@ -175,15 +184,14 @@ export const sendMessage = async (
           msgList[msgLength].content = respString
           processing()
 
-          loadFrameTimer = setTimeout(abort, 20000)
+          loadFrameTimer = setTimeout(abort, 60000)
         }
 
         backupData = data
       },
-      async onerror(err) {
-        if (err instanceof FatalError) {
-          abort()
-        }
+      async onerror() {
+        abort()
+        throw new Error()
       },
       async onclose() {
         if (execOnClose) onclose()

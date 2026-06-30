@@ -71,8 +71,11 @@ pnpm dev
 
 种子数据中的 API Key 是占位符，需要：
 
-1. 在 `.env` 中配置 `OPENAI_API_KEY` 和 `OPENAI_BASE_URL`（默认 DeepSeek）
-2. 或在 ChatCafe 后台面板更新 `openai-api-key` 和 `openai-base-url`
+1. 启动后访问管理后台 → 语言模型管理
+2. 为 **DeepSeek V4 Flash** 填写你的 [DeepSeek API Key](https://platform.deepseek.com/api_keys)
+   - `apiKey`：你的 DeepSeek API Key
+   - `baseUrl`：`https://api.deepseek.com`
+   - `model`：`deepseek-v4-flash`
 
 ## Docker 部署
 

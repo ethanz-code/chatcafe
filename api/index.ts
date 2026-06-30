@@ -11,6 +11,7 @@ import { AssistantPlugin } from "./handler/assistant";
 import { AppCenterPlugin } from "./handler/app-center";
 import { CommunityPlugin } from "./handler/community";
 import { $AdminPlugin } from "./handler/$admin";
+import getSiteConfig from "./handler/config/getSiteConfig";
 
 import { cleanupOldData } from "./plugin/cleanup";
 import { initLtzf } from "./plugin/ltzf";
@@ -43,6 +44,7 @@ new Elysia({ adapter: node() })
   .use(AppCenterPlugin({ prefix: rootPrefix + "app-center" }))
   .use(CommunityPlugin({ prefix: rootPrefix + "community" }))
   .use($AdminPlugin({ prefix: rootPrefix + "admin" }))
+  .get(rootPrefix + "config/site", getSiteConfig)
   .use(
     cron({
       name: "cleanup-old-data",
@@ -50,7 +52,7 @@ new Elysia({ adapter: node() })
       run() {
         cleanupOldData();
       },
-    })
+    }),
   )
   .onError(({ code, error }) => {
     if (code === "NOT_FOUND") return "Route not found :(";

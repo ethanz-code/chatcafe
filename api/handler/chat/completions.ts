@@ -58,7 +58,9 @@ export default async ({
     const result = await calcBalance(payload, -modelResult.cost, "dialogue");
     if (result.status === -1)
       return new Stream((stream) => {
-        stream.send(JSON.stringify({ status: -1, error: "Insufficient balance" }));
+        stream.send(
+          JSON.stringify({ status: -1, error: "Insufficient balance" }),
+        );
         stream.close();
       });
   }
@@ -80,7 +82,9 @@ export default async ({
         },
       },
     });
-    const dialog = result?.allDialog.filter((item: any) => item.uuid === uuid)[0];
+    const dialog = result?.allDialog.filter(
+      (item: any) => item.uuid === uuid,
+    )[0];
     if (!dialog) {
       set.status = 404;
       return { error: "Dialog not found" };
@@ -98,9 +102,15 @@ export default async ({
         select: { content_zh_CN: true, content_en_US: true },
       });
       if (getAssistant?.content_zh_CN)
-        contents.unshift({ role: "system", content: getAssistant.content_zh_CN });
+        contents.unshift({
+          role: "system",
+          content: getAssistant.content_zh_CN,
+        });
       if (getAssistant?.content_en_US)
-        contents.unshift({ role: "system", content: getAssistant.content_en_US });
+        contents.unshift({
+          role: "system",
+          content: getAssistant.content_en_US,
+        });
     }
   }
 
@@ -131,7 +141,7 @@ export default async ({
   return new Stream(async (stream) => {
     try {
       const result = streamText({
-        model: openai(modelName),
+        model: openai.chat(modelName),
         messages: contents,
         maxOutputTokens: Number(chatMaxTokens),
       });
@@ -148,8 +158,14 @@ export default async ({
               object: "chat.completion.chunk",
               created,
               model: modelName,
-              choices: [{ index: 0, delta: { content: part.text }, finish_reason: null }],
-            })
+              choices: [
+                {
+                  index: 0,
+                  delta: { content: part.text },
+                  finish_reason: null,
+                },
+              ],
+            }),
           );
         } else if (part.type === "finish") {
           finished = true;
@@ -159,8 +175,14 @@ export default async ({
               object: "chat.completion.chunk",
               created,
               model: modelName,
-              choices: [{ index: 0, delta: {}, finish_reason: part.finishReason || "stop" }],
-            })
+              choices: [
+                {
+                  index: 0,
+                  delta: {},
+                  finish_reason: part.finishReason || "stop",
+                },
+              ],
+            }),
           );
         }
       }

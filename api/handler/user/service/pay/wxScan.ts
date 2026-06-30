@@ -33,25 +33,23 @@ export default async function ({ jwt, set, headers, body: { goodId } }: any) {
     },
   });
 
-  const result = await ltzf.h5JumpPay({
+  const result = await ltzf.scanPay({
     out_trade_no: outTradeNo,
     total_fee: String(goods.price),
     body: `ChatCafe-${goods.title}`,
-    quit_url: process.env.LTZF_QUIT_URL,
-    return_url: process.env.LTZF_RETURN_URL,
     notify_url: process.env.LTZF_NOTIFY_URL || "",
     timestamp: String(stamp),
     time_expire: "10m",
   });
 
-  if (result.code === 0) {
+  if (result.code === 0 && result.data?.code_url) {
     return {
       status: 0,
-      data: { data: result.data, payType: "h5" },
+      data: { codeUrl: result.data.code_url, payType: "scan" },
       orderNo: outTradeNo,
     };
   }
 
-  console.error("[PayH5] 创建支付失败", outTradeNo, result);
+  console.error("[PayScan] 创建扫码支付失败", outTradeNo, result);
   return { status: -1, data: result };
 }

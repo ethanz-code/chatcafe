@@ -81,7 +81,7 @@ export const useTaskRewardStore = defineStore(
         }
       })
       if (punchInDaysRes.status === 200) {
-        const parsedData = JSON.parse(punchInDaysRes.data)
+        const parsedData = punchInDaysRes.data
 
         if (parsedData.status === 0) {
           // 如果有数据检测第一条是否与当前时间相差不到1分钟

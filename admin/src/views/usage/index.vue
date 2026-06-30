@@ -102,76 +102,76 @@ onMounted(async () => {
     <NSpin :show="loading">
       <!-- 核心指标：今日 / 累计 -->
       <NGrid :cols="8" :x-gap="12" :y-gap="12" responsive="screen" item-responsive>
-        <NGi :span="4" :md="2" :l="1" :xl="1">
+        <NGi :span="2">
           <UsageStatCard
             label="今日调用"
             :value="overview.today.calls"
             icon="carbon:phone-incoming"
-            icon-bg="bg-#e8f3ff"
-            icon-color="text-#2080f0"
+            icon-bg="bg-#e8f3ff dark:bg-white/10"
+            icon-color="text-#2080f0 dark:text-#60a8ff"
           />
         </NGi>
-        <NGi :span="4" :md="2" :l="1" :xl="1">
+        <NGi :span="2">
           <UsageStatCard
             label="今日活跃"
             :value="overview.today.activeUsers"
             icon="carbon:user-multiple"
-            icon-bg="bg-#f0f9eb"
-            icon-color="text-#67c23a"
+            icon-bg="bg-#f0f9eb dark:bg-white/10"
+            icon-color="text-#67c23a dark:text-#67c23a"
           />
         </NGi>
-        <NGi :span="4" :md="2" :l="1" :xl="1">
+        <NGi :span="2">
           <UsageStatCard
             label="今日 Tokens"
             :value="overview.today.tokens"
             icon="carbon:data-volume"
-            icon-bg="bg-#fdf6ec"
-            icon-color="text-#e6a23c"
+            icon-bg="bg-#fdf6ec dark:bg-white/10"
+            icon-color="text-#e6a23c dark:text-#e6a23c"
           />
         </NGi>
-        <NGi :span="4" :md="2" :l="1" :xl="1">
+        <NGi :span="2">
           <UsageStatCard
             label="累计调用"
             :value="overview.total.calls"
-            icon="carbon:accumulator"
-            icon-bg="bg-#fef0f0"
-            icon-color="text-#f56c6c"
+            icon="carbon:summary-kpi"
+            icon-bg="bg-#fef0f0 dark:bg-white/10"
+            icon-color="text-#f56c6c dark:text-#f56c6c"
           />
         </NGi>
-        <NGi :span="4" :md="2" :l="1" :xl="1">
+        <NGi :span="2">
           <UsageStatCard
             label="累计 Tokens"
             :value="overview.total.tokens"
             icon="carbon:chart-bar"
-            icon-bg="bg-#f4ecfb"
-            icon-color="text-#9c27b0"
+            icon-bg="bg-#f4ecfb dark:bg-white/10"
+            icon-color="text-#9c27b0 dark:text-#ce93d8"
           />
         </NGi>
-        <NGi :span="4" :md="2" :l="1" :xl="1">
+        <NGi :span="2">
           <UsageStatCard
             label="累计费用"
             :value="overview.total.cost"
             icon="carbon:wallet"
-            icon-bg="bg-#fff7e6"
-            icon-color="text-#fa8c16"
+            icon-bg="bg-#fff7e6 dark:bg-white/10"
+            icon-color="text-#fa8c16 dark:text-#fa8c16"
           />
         </NGi>
-        <NGi :span="4" :md="2" :l="1" :xl="1">
+        <NGi :span="2">
           <UsageStatCard
             label="本周调用"
             :value="overview.week.calls"
             icon="carbon:calendar"
-            icon-bg="bg-#e6f7ff"
-            icon-color="text-#13c2c2"
+            icon-bg="bg-#e6f7ff dark:bg-white/10"
+            icon-color="text-#13c2c2 dark:text-#13c2c2"
           />
         </NGi>
-        <NGi :span="4" :md="2" :l="1" :xl="1">
+        <NGi :span="2">
           <UsageStatCard
             label="本月调用"
             :value="overview.month.calls"
-            icon="carbon:calendar--heat-map"
-            icon-bg="bg-#fff0f6"
-            icon-color="text-#eb2f96"
+            icon="carbon:calendar-heat-map"
+            icon-bg="bg-#fff0f6 dark:bg-white/10"
+            icon-color="text-#eb2f96 dark:text-#eb2f96"
           />
         </NGi>
       </NGrid>
@@ -181,20 +181,20 @@ onMounted(async () => {
         <NCard size="small" :bordered="true" class="lg:col-span-2" :content-style="{ padding: '12px 14px' }">
           <template #header>
             <div class="flex items-center justify-between">
-              <span class="text-14px font-600 text-#333">用量趋势</span>
-              <span class="text-12px text-#999">近 {{ trendDays }} 天</span>
+              <span class="text-14px font-600 text-base_text">用量趋势</span>
+              <span class="text-12px text-base_text/50">近 {{ trendDays }} 天</span>
             </div>
           </template>
-          <div class="h-360px">
+          <div class="h-260px">
             <UsageTrendChart :data="trendsData" :loading="loading" />
           </div>
         </NCard>
 
         <NCard size="small" :bordered="true" :content-style="{ padding: '12px 14px' }">
           <template #header>
-            <span class="text-14px font-600 text-#333">模型 Token 占比</span>
+            <span class="text-14px font-600 text-base_text">模型 Token 占比</span>
           </template>
-          <div class="h-360px">
+          <div class="h-260px">
             <ModelDonutChart :data="modelData" />
           </div>
         </NCard>
@@ -204,9 +204,9 @@ onMounted(async () => {
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 mt-3">
         <NCard size="small" :bordered="true" :content-style="{ padding: '12px 14px' }">
           <template #header>
-            <span class="text-14px font-600 text-#333">模型调用次数 Top</span>
+            <span class="text-14px font-600 text-base_text">模型调用次数 Top</span>
           </template>
-          <div class="h-360px">
+          <div class="h-420px">
             <ModelDistChart :data="modelData" />
           </div>
         </NCard>
@@ -214,19 +214,21 @@ onMounted(async () => {
         <NCard size="small" :bordered="true" class="lg:col-span-2" :content-style="{ padding: '12px 14px' }">
           <template #header>
             <div class="flex items-center justify-between">
-              <span class="text-14px font-600 text-#333">用户用量排行</span>
-              <span class="text-12px text-#999">近 30 天</span>
+              <span class="text-14px font-600 text-base_text">用户用量排行</span>
+              <span class="text-12px text-base_text/50">近 30 天</span>
             </div>
           </template>
-          <UserRankTable
-            :data="userData"
-            :total="userTotal"
-            :page="userPage"
-            :page-size="userPageSize"
-            :loading="userLoading"
-            @update:page="(p: number) => { userPage = p; loadUserData() }"
-            @update:page-size="(ps: number) => { userPageSize = ps; loadUserData() }"
-          />
+          <div class="h-420px flex flex-col">
+            <UserRankTable
+              :data="userData"
+              :total="userTotal"
+              :page="userPage"
+              :page-size="userPageSize"
+              :loading="userLoading"
+              @update:page="(p: number) => { userPage = p; loadUserData() }"
+              @update:page-size="(ps: number) => { userPageSize = ps; loadUserData() }"
+            />
+          </div>
         </NCard>
       </div>
     </NSpin>

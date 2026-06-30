@@ -19,7 +19,7 @@ withDefaults(defineProps<Props>(), {
     <RouterLink v-show="showTitle" to="/" class="w-full flex-center nowrap-hidden">
       <h2
         class="pl-8px text-24px transition duration-300 ease-in-out"
-        :class="[inverted ? 'text-white' : 'text-#333']"
+        :class="[inverted ? 'text-white' : 'text-base_text']"
         style="font-family: 'LogoBrush', cursive; white-space: nowrap;"
       >
         ChatCafe Admin

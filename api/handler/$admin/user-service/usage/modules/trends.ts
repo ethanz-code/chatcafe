@@ -1,11 +1,16 @@
 import prisma from "@/plugin/prismaClient";
 
-export default async function ({
-  query: { days },
-}: any) {
+function toLocalDateStr(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+export default async function ({ query: { days } }: any) {
   const dayCount = parseInt(days || "30");
   const since = new Date();
-  since.setDate(since.getDate() - dayCount);
+  since.setDate(since.getDate() - (dayCount - 1));
   since.setHours(0, 0, 0, 0);
 
   const logs = await prisma.usageLog.findMany({
@@ -14,17 +19,19 @@ export default async function ({
     orderBy: { createdAt: "asc" },
   });
 
-  const dailyMap = new Map<string, { calls: number; tokens: number; cost: number }>();
+  const dailyMap = new Map<
+    string,
+    { calls: number; tokens: number; cost: number }
+  >();
 
   for (let i = 0; i < dayCount; i++) {
     const d = new Date(since);
     d.setDate(d.getDate() + i);
-    const key = d.toISOString().split("T")[0];
-    dailyMap.set(key, { calls: 0, tokens: 0, cost: 0 });
+    dailyMap.set(toLocalDateStr(d), { calls: 0, tokens: 0, cost: 0 });
   }
 
   for (const log of logs) {
-    const key = log.createdAt.toISOString().split("T")[0];
+    const key = toLocalDateStr(log.createdAt);
     const entry = dailyMap.get(key);
     if (entry) {
       entry.calls++;

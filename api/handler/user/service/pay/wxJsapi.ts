@@ -27,6 +27,7 @@ export default async function ({ jwt, set, headers, body: { goodId } }: any) {
   await prisma.order.create({
     data: {
       orderNo: outTradeNo,
+      price: goods.price,
       goodsId: goods.id,
       userId: user.id,
     },
@@ -43,8 +44,13 @@ export default async function ({ jwt, set, headers, body: { goodId } }: any) {
   });
 
   if (result.code === 0) {
-    return { status: 0, data: { data: result.data.order_url }, orderNo: outTradeNo };
+    return {
+      status: 0,
+      data: { data: result.data.order_url, payType: "jsapi" },
+      orderNo: outTradeNo,
+    };
   }
 
+  console.error("[PayJsapi] 创建支付失败", outTradeNo, result);
   return { status: -1, data: result };
 }

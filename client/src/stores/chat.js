@@ -49,6 +49,8 @@ export const useChatStore = defineStore(
 
           if (allDialogNotSplit.value.length === 0) {
             await newDialog()
+          } else {
+            buildDialogFromNotSplit()
           }
         }
       }
@@ -100,16 +102,29 @@ export const useChatStore = defineStore(
               url: data.data.imgUrl,
               delta: data.data.delta
             })
+            dialogContent.value.unshift({
+              uuid: data.data.uuid,
+              delta: data.data.delta.map((item) => ({
+                ...item,
+                func_available: true,
+                collapse: item.role === 'user' ? false : true
+              }))
+            })
           }
         }
       } else {
         const time = moment().toISOString()
+        const newUuid = uuidv4()
         allDialogNotSplit.value.unshift({
           createdAt: time,
           updatedAt: time,
           title: '新的对话',
-          uuid: uuidv4(),
+          uuid: newUuid,
           url: '',
+          delta: []
+        })
+        dialogContent.value.unshift({
+          uuid: newUuid,
           delta: []
         })
       }
@@ -136,6 +151,10 @@ export const useChatStore = defineStore(
       const timer = setTimeout(async () => {
         if (allDialogNotSplit.value.length === 0) {
           await newDialog()
+          if (allDialogNotSplit.value.length > 0) {
+            selectedDialog.value.title = allDialogNotSplit.value[0].title
+            selectedDialog.value.uuid = allDialogNotSplit.value[0].uuid
+          }
         } else {
           selectedDialog.value.title = allDialogNotSplit.value[0].title
           selectedDialog.value.uuid = allDialogNotSplit.value[0].uuid
@@ -177,6 +196,8 @@ export const useChatStore = defineStore(
         ) {
           await newDialog()
         }
+        buildDialogFromNotSplit()
+      } else if (!selectedDialog.value.uuid) {
         buildDialogFromNotSplit()
       }
     }

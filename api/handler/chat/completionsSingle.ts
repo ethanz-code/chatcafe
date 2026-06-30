@@ -19,7 +19,12 @@ export default async function ({ body: { model, prompt, token } }: any) {
 
   if (!apiKey) {
     return new Stream((stream) => {
-      stream.send(JSON.stringify({ status: -1, error: `Model "${model}" API key is not configured. Please contact the administrator.` }));
+      stream.send(
+        JSON.stringify({
+          status: -1,
+          error: `Model "${model}" API key is not configured. Please contact the administrator.`,
+        }),
+      );
       stream.close();
     });
   }
@@ -29,7 +34,7 @@ export default async function ({ body: { model, prompt, token } }: any) {
   return new Stream(async (stream) => {
     try {
       const result = streamText({
-        model: openai(modelName),
+        model: openai.chat(modelName),
         messages: [{ role: "user", content: prompt }],
         maxOutputTokens: Number(token || chatMaxTokens),
       });
@@ -45,8 +50,14 @@ export default async function ({ body: { model, prompt, token } }: any) {
               object: "chat.completion.chunk",
               created,
               model: modelName,
-              choices: [{ index: 0, delta: { content: part.text }, finish_reason: null }],
-            })
+              choices: [
+                {
+                  index: 0,
+                  delta: { content: part.text },
+                  finish_reason: null,
+                },
+              ],
+            }),
           );
         } else if (part.type === "finish") {
           stream.send(
@@ -55,8 +66,14 @@ export default async function ({ body: { model, prompt, token } }: any) {
               object: "chat.completion.chunk",
               created,
               model: modelName,
-              choices: [{ index: 0, delta: {}, finish_reason: part.finishReason || "stop" }],
-            })
+              choices: [
+                {
+                  index: 0,
+                  delta: {},
+                  finish_reason: part.finishReason || "stop",
+                },
+              ],
+            }),
           );
         }
       }

@@ -48,7 +48,7 @@ const columns: DataTableColumn<UserUsage>[] = [
           style: { borderRadius: '50%', width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, fontSize: '11px' }
         }, () => badge.label)
       }
-      return h('span', { class: 'text-#999 text-12px' }, rank)
+      return h('span', { class: 'text-base_text/50 text-12px' }, rank)
     }
   },
   { title: '用户ID', key: 'userId', width: 70 },
@@ -79,13 +79,13 @@ const columns: DataTableColumn<UserUsage>[] = [
       const pct = Math.round((row.calls / maxCalls.value) * 100)
       const barColor = pct > 60 ? '#6366f1' : pct > 30 ? '#a5b4fc' : '#c7d2fe'
       return h('div', { class: 'flex items-center gap-2' }, [
-        h('div', { class: 'flex-1 h-2 bg-#f0f0f0 rounded-1 overflow-hidden' }, [
+        h('div', { class: 'flex-1 h-2 bg-#f0f0f0 dark:bg-#333 rounded-1 overflow-hidden' }, [
           h('div', {
             class: 'h-full rounded-1 transition-all duration-300',
             style: { width: pct + '%', background: barColor }
           })
         ]),
-        h('span', { class: 'text-10px text-#999 w-7 text-right' }, pct + '%')
+        h('span', { class: 'text-10px text-base_text/50 w-7 text-right' }, pct + '%')
       ])
     }
   },
@@ -100,25 +100,28 @@ const columns: DataTableColumn<UserUsage>[] = [
 </script>
 
 <template>
-  <NDataTable
-    :columns="columns"
-    :data="data"
-    :bordered="false"
-    :loading="loading"
-    size="small"
-    :scroll-x="780"
-    flex-height
-    :row-class="'cursor-default hover:bg-#f5f7fa'"
-  />
-  <div class="flex justify-end mt-2">
-    <NPagination
-      :page="page"
-      :page-size="pageSize"
-      :item-count="total"
-      show-size-picker
-      :page-sizes="[10, 20, 50]"
-      @update:page="(p: number) => emit('update:page', p)"
-      @update:page-size="(ps: number) => emit('update:pageSize', ps)"
+  <div class="flex flex-col h-full">
+    <NDataTable
+      :columns="columns"
+      :data="data"
+      :bordered="false"
+      :loading="loading"
+      size="small"
+      :scroll-x="780"
+      flex-height
+      class="flex-1"
+      :row-class="'cursor-default hover:bg-#f5f7fa dark:hover:bg-#ffffff0a'"
     />
+    <div class="flex justify-end mt-2 flex-shrink-0">
+      <NPagination
+        :page="page"
+        :page-size="pageSize"
+        :item-count="total"
+        show-size-picker
+        :page-sizes="[10, 20, 50]"
+        @update:page="(p: number) => emit('update:page', p)"
+        @update:page-size="(ps: number) => emit('update:pageSize', ps)"
+      />
+    </div>
   </div>
 </template>

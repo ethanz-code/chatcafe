@@ -1,7 +1,7 @@
 import prisma from "@/plugin/prismaClient";
 
 export default async function ({
-  body: { uuid, role, content, imgUrl = '', time },
+  body: { uuid, role, content, imgUrl = "", time },
   jwt,
   set,
   headers,
@@ -23,24 +23,31 @@ export default async function ({
   });
   if (!user) return { status: -1, error: "The user cannot be found" };
 
-  const result = await prisma.allDialog.update({
-    where: {
-      userId: user?.id,
-      uuid: uuid,
-    },
-    data: {
-      delta: {
-        create: {
-          role,
-          content,
-          imgUrl,
-          time,
-        },
+  const dialog = await prisma.allDialog.findFirst({
+    where: { userId: user.id, uuid },
+    select: { id: true },
+  });
+
+  if (!dialog) {
+    const newDialog = await prisma.allDialog.create({
+      data: {
+        uuid,
+        title: content.slice(0, 50) || "New Chat",
+        imgUrl: imgUrl || "",
+        userId: user.id,
+        delta: { create: { role, content, imgUrl, time } },
       },
+      include: { delta: true },
+    });
+    return { status: 0, data: newDialog.delta[newDialog.delta.length - 1] };
+  }
+
+  const result = await prisma.allDialog.update({
+    where: { id: dialog.id },
+    data: {
+      delta: { create: { role, content, imgUrl, time } },
     },
-    include: {
-      delta: true,
-    },
+    include: { delta: true },
   });
 
   return { status: 0, data: result.delta[result.delta.length - 1] };
