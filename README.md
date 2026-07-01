@@ -1,5 +1,9 @@
 # ChatCafe
 
+<p align="center">
+  <img src="docs/assets/banner.svg" alt="ChatCafe — ask. brew ideas." width="100%"/>
+</p>
+
 AIGC 智能对话应用，支持多模型聊天。
 
 ## 项目背景
@@ -14,110 +18,140 @@ AIGC 智能对话应用，支持多模型聊天。
 
 现在我决定重新操办起来，把他换一换上游对接（我不清楚之前对接的上游还活不活着），现在考虑对接 Deepseek Flash 那个模型了，让这个项目发挥余热用于过各种资质验证了，比如说支付进件的申请。
 
----
-
 ## 技术栈
 
-- **后端**：Node.js + Elysia + Prisma
-- **管理后台**：Vue3 + NaiveUI + Vite
-- **移动端**：Vue3 + Vant + Vite
-- **数据库**：PostgreSQL 16
-- **AI SDK**：Vercel AI SDK + OpenAI 兼容接口
-- **部署**：Docker Compose + Nginx
+| 层 | 技术 |
+| --- | --- |
+| 后端 | Node.js + Elysia + Prisma |
+| 管理后台 | Vue3 + NaiveUI + Vite |
+| 移动端 | Vue3 + Vant + Vite |
+| 数据库 | PostgreSQL 16 |
+| AI SDK | Vercel AI SDK + OpenAI 兼容接口 |
+| 部署 | Docker Compose + Nginx |
 
 ## 本地开发
 
-### 环境要求
+### 你需要装好
 
-- Node.js >= 18
-- pnpm
-- Node.js >= 18 + tsx（运行 API）
-- PostgreSQL 16
+- Node.js >= 18 + pnpm
+- Docker
 
-### 启动步骤
+### 跑起来
 
 ```bash
-# 1. 安装依赖
-pnpm install
-cd api && pnpm install && cd ..
-cd admin && pnpm install && cd ..
-cd client && pnpm install && cd ..
-
-# 2. 启动数据库
+# 1. 启动数据库（自动拉取 postgres:16-alpine）
 docker compose up -d postgres
 
-# 3. 修改数据库连接
-# 编辑 api/.env.development，改 DATABASE_URL
+# 2. 安装依赖
+pnpm install
 
-# 4. 初始化数据库
+# 3. 生成 Prisma Client（编译当前平台的查询引擎）
+cd api && pnpm exec prisma generate && cd ..
+
+# 4. 建表 + 种子数据
 cd api
-pnpm exec prisma generate
-pnpm exec dotenvx run -f .env .env.development -- pnpm exec prisma migrate deploy
-pnpm seed
+pnpm exec dotenvx run -f .env.development -- pnpm exec prisma db push
+pnpm exec tsx prisma/seed.ts
+cd ..
 
-# 5. 启动项目（根目录）
+# 5. 启动所有服务
 pnpm dev
 ```
 
-启动后访问：
-
-| 服务     | 地址                  |
-| -------- | --------------------- |
-| 移动端   | http://localhost:5173 |
+| 服务 | 地址 |
+| --- | --- |
+| 移动端 | http://localhost:5173 |
 | 管理后台 | http://localhost:8000 |
 | API 后端 | http://localhost:9091 |
 
+### 关于 Prisma binaryTargets
+
+不同操作系统需要不同的 Prisma 引擎二进制。`api/prisma/schema.prisma` 中已配置：
+
+```prisma
+binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+```
+
+- `native` → 你的本地电脑（macOS / Windows 自动适配）
+- `linux-musl-openssl-3.0.x` → Docker 部署（Alpine Linux）
+
+如果部署到其他 Linux（如 Ubuntu），添加 `linux-glibc-openssl-3.0.x`；ARM 架构添加 `linux-arm-*` 系列。
+
 ### 配置 AI
 
-种子数据中的 API Key 是占位符，需要：
+种子数据中的 API Key 是占位符，启动后访问管理后台 → 语言模型管理，填入你的 Key：
 
-1. 启动后访问管理后台 → 语言模型管理
-2. 为 **DeepSeek V4 Flash** 填写你的 [DeepSeek API Key](https://platform.deepseek.com/api_keys)
-   - `apiKey`：你的 DeepSeek API Key
-   - `baseUrl`：`https://api.deepseek.com`
-   - `model`：`deepseek-v4-flash`
+- `apiKey`：你的 DeepSeek / OpenAI API Key
+- `baseUrl`：如 `https://api.deepseek.com`
+- `model`：如 `deepseek-v4-flash`
 
 ## Docker 部署
 
-所有服务通过 Nginx 统一入口，域名 `cafe.htlabs.com.cn`：
-
-| 路径      | 服务     |
-| --------- | -------- |
-| `/`       | 移动端   |
-| `/admin/` | 管理后台 |
-| `/api/*`  | API 后端 |
-| `/media/*`| 媒体文件 |
-
-### 部署命令
+### 1. 构建镜像
 
 ```bash
-# 修改 .env（数据库密码、CORS 等）
-docker compose build
-docker compose up -d postgres && sleep 5
-docker compose run --rm chatcafe-api pnpm exec prisma migrate deploy
-docker compose run --rm chatcafe-api pnpm exec tsx prisma/seed.ts
+# 构建 4 个服务（api 暂缺 Dockerfile 需自行补上）
+docker build -t your-registry/chatcafe/api:latest api/
+docker build -t your-registry/chatcafe/admin:latest admin/
+docker build -t your-registry/chatcafe/client:latest client/
+docker build -t your-registry/chatcafe/gateway:latest gateway/
+
+# 推送到仓库
+docker push your-registry/chatcafe/api:latest
+docker push your-registry/chatcafe/admin:latest
+docker push your-registry/chatcafe/client:latest
+docker push your-registry/chatcafe/gateway:latest
+```
+
+### 2. 部署到服务器
+
+把 `docker-compose.yml` 和 `.env` 放到服务器上（或 1Panel Compose 管理），然后：
+
+```bash
+# 拉镜像 + 启动
+docker compose pull
 docker compose up -d
+
+# 建表 + 种子数据（首次部署）
+docker compose run --rm chatcafe-api pnpm exec prisma db push
+docker compose run --rm chatcafe-api pnpm exec tsx prisma/seed.ts
+```
+
+| 路径 | 服务 |
+| --- | --- |
+| `/` | 移动端 |
+| `/admin/` | 管理后台 |
+| `/api/*` | API 后端 |
+| `/media/*` | 媒体文件 |
+
+### 从本地推送数据库结构到生产库
+
+本地能连到生产库的话，也可以直接推：
+
+```bash
+cd api
+pnpm exec dotenvx run -f .env.production -- pnpm exec prisma db push
+pnpm exec tsx prisma/seed.ts
 ```
 
 ## 项目结构
 
 ```
 chatcafe/
-├── api/              # 后端 API
-├── admin/            # 管理后台
-├── client/           # 移动端
-├── nginx.conf        # 反向代理
-├── docker-compose.yml
-├── package.json      # 根目录 pnpm dev 一键启动
-└── .env              # Docker 部署配置（不进 git）
+├── api/                # 后端 API（Elysia + Prisma）
+├── admin/              # 管理后台（Vue3 + NaiveUI）
+├── client/             # 移动端（Vue3 + Vant）
+├── gateway/            # Nginx 反向代理
+├── docker-compose.yml  # 部署编排
+├── .env                # Docker 部署配置
+└── package.json        # 根目录 pnpm dev 一键启动
 ```
 
 ## 常用命令
 
 ```bash
-pnpm dev                              # 一键启动所有服务
-pnpm encrypt / pnpm decrypt           # 加密/解密 .env
-pnpm encrypt:dev / pnpm decrypt:dev   # 加密/解密 .env.development
-docker compose up -d                  # 启动所有容器
+pnpm dev                              # 一键启动所有开发服务
+docker compose up -d postgres         # 启动本地数据库
+docker compose up -d                  # 启动所有 Docker 容器
 docker compose logs -f chatcafe-api   # 查看 API 日志
 ```
