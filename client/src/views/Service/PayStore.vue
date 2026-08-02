@@ -27,7 +27,7 @@
         :class="selectedGoodId === item.id ? 'border-[#ff6034] bg-[#fff8f5] shadow-sm' : 'border-gray-200 bg-white'"
       >
         <div
-          v-if="item.imgUrl"
+          v-if="item.imgUrl && !failedImageIds.has(item.id)"
           class="h-[6.5rem] flex items-center justify-center p-3"
           style="background: linear-gradient(135deg, #ff6034 30%, #ff6e65 100%)"
         >
@@ -35,6 +35,7 @@
             :src="item.imgUrl"
             class="h-full w-full object-contain"
             :alt="`${item.title} 套餐图`"
+            @error="failedImageIds.add(item.id)"
           />
         </div>
         <div
@@ -100,6 +101,7 @@ const goods = ref([])
 const loading = ref(true)
 const loadFailed = ref(false)
 const selectedGoodId = ref(null)
+const failedImageIds = ref(new Set())
 
 const route = useRoute()
 
