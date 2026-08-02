@@ -231,12 +231,10 @@ const punchInDaysButtonClick = async () => {
       continuousPunch.value++
       showToast(`获得：${parsedData.punchInDaily.rewardDialogue}对话余额`)
     } else {
-      punchInToday.value = false
-      showToast('签到失败，请稍后重试')
+      showToast('签到状态确认失败，请刷新后重试')
     }
   } catch {
-    punchInToday.value = false
-    showToast('签到失败，请稍后重试')
+    showToast('签到状态确认失败，请刷新后重试')
   } finally {
     punchInPending.value = false
   }
