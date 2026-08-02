@@ -118,6 +118,8 @@ const goToPay = async (goodId) => {
   else if (payType === 'h5') payUrl = '/user/service/pay/wx'
   else payUrl = '/user/service/pay/wx/scan'
 
+  let scanPollingStarted = false
+
   try {
     const response = await axios.request({
       url: payUrl,
@@ -138,7 +140,7 @@ const goToPay = async (goodId) => {
     if (payType === 'scan') {
       qrCodeUrl.value = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(parsedData.data.codeUrl)}`
       showScanQr.value = true
-      startPolling(parsedData.orderNo)
+      scanPollingStarted = startPolling(parsedData.orderNo)
     } else {
       window.location.href = parsedData.data.data
     }
@@ -147,17 +149,18 @@ const goToPay = async (goodId) => {
     console.error('Failed to create payment order', error)
     showFailToast('创建订单失败，请稍后重试')
   } finally {
-    isPaying.value = false
+    if (!scanPollingStarted) isPaying.value = false
   }
 }
 
 function startPolling(orderNo) {
   if (!orderNo) orderNo = localStorage.getItem('payingOrderNo')
-  if (!orderNo) return
+  if (!orderNo) return false
   if (poller) {
     poller.stop()
     poller = null
   }
+  isPaying.value = true
   showLoadingToast({ message: '支付验证中...', forbidClick: true, duration: 0 })
   poller = new PaymentStatusPoller({
     orderNo,
@@ -167,16 +170,19 @@ function startPolling(orderNo) {
       localStorage.removeItem('payingOrderNo')
       showScanQr.value = false
       closeToast()
+      isPaying.value = false
       showSuccessToast('充值成功')
       refreshUserProfile()
     },
     onTimeout: () => {
       localStorage.removeItem('payingOrderNo')
       closeToast()
+      isPaying.value = false
       showFailToast('支付确认超时，请联系客服')
     }
   })
   poller.start()
+  return true
 }
 
 function refreshUserProfile() {
@@ -242,6 +248,7 @@ onUnmounted(() => {
     poller.stop()
     poller = null
   }
+  isPaying.value = false
   document.body.classList.remove('van-toast--unclickable')
 })
 </script>
