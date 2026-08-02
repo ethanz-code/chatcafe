@@ -1,15 +1,17 @@
 <template>
-  <div class="pt-3.5">
-    <van-form class="flex flex-col gap-1.5">
+  <div class="min-h-full bg-gray-50 px-3 pb-6 pt-4">
+    <van-form class="flex flex-col gap-4">
+      <section>
+        <p class="mb-2 px-1 text-xs font-medium text-gray-500">个人资料</p>
       <van-cell-group inset>
-        <div class="flex justify-center py-4">
-          <div @click="clickAvatar" class="relative cursor-pointer rounded-full">
+        <div class="flex justify-center py-5">
+          <button type="button" @click="clickAvatar" class="relative cursor-pointer rounded-full" aria-label="更换头像">
             <img
               v-lazy="userAvatar"
-              class="w-20 h-20 rounded-full shadow-md border-2 border-solid border-black"
+              class="h-20 w-20 rounded-full border-2 border-solid border-black shadow-md"
             />
             <AddCircle20Filled class="absolute -right-2 bottom-1 w-6 h-6" />
-          </div>
+          </button>
         </div>
         <van-field
           v-model="username"
@@ -20,6 +22,11 @@
           placeholder="用户名"
           @click="openModifyPopup"
         />
+      </van-cell-group>
+      </section>
+      <section>
+        <p class="mb-2 px-1 text-xs font-medium text-gray-500">账号信息</p>
+        <van-cell-group inset>
         <van-field
           v-model="store.userId"
           @click="
@@ -48,6 +55,9 @@
           placeholder="注册时间"
         />
       </van-cell-group>
+      </section>
+      <section>
+        <p class="mb-2 px-1 text-xs font-medium text-gray-500">安全设置</p>
       <van-cell-group inset>
         <van-field
           @click="loginPasswordShow = true"
@@ -57,9 +67,15 @@
           readonly
         />
       </van-cell-group>
+      </section>
+      <section>
+        <p class="mb-2 px-1 text-xs font-medium text-gray-500">账号操作</p>
       <van-cell-group inset>
-        <div @click="logout" class="cursor-pointer px-[10px] py-3 text-center">退出登录</div>
+        <button type="button" @click="logout" class="w-full cursor-pointer px-[10px] py-3 text-center text-red-500">
+          退出登录
+        </button>
       </van-cell-group>
+      </section>
     </van-form>
   </div>
   <!-- 圆角弹窗（居中）-- 昵称修改 -->

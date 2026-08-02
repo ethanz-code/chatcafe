@@ -1,11 +1,20 @@
 <template>
-  <section class="bg-white min-h-full">
-    <div v-if="allStar.length > 0" class="min-h-dvh p-4 box-border bg-gray-50">
-      <ul class="flex flex-col gap-4">
-        <li v-for="(item, index) in allStar" :key="item" class="bg-white p-3.5 relative">
+  <section class="min-h-full bg-gray-50">
+    <div v-if="isLoading" class="flex min-h-dvh items-center justify-center">
+      <van-loading size="24px">正在加载收藏</van-loading>
+    </div>
+    <div v-else-if="loadFailed" class="flex min-h-dvh items-center justify-center">
+      <van-empty image="error" description="收藏加载失败">
+        <van-button type="primary" size="small" @click="loadStars">重试</van-button>
+      </van-empty>
+    </div>
+    <div v-else-if="allStar.length > 0" class="min-h-dvh p-4 box-border">
+      <ul class="flex flex-col gap-3">
+        <li v-for="(item, index) in allStar" :key="item" class="bg-white px-4 py-3.5 shadow-sm">
           <div class="flex gap-2 items-start">
-            <div class="p-1 leading-3 bg-[#4073fa] text-white">问</div>
+            <span class="mt-1 shrink-0 bg-[#4073fa] px-1.5 py-0.5 text-xs leading-4 text-white">问</span>
             <MessageModule
+              class="min-w-0 flex-1"
               show-cursor="false"
               :text="item.userMsg"
               :item="{ role: 'user', disable: true }"
@@ -13,50 +22,50 @@
           </div>
           <div
             :class="[
-              'flex gap-2 items-start overflow-hidden text-gray-700',
+              'mt-3 flex gap-2.5 items-start overflow-hidden text-gray-700',
               readMore[index] ? '' : 'max-h-52'
             ]"
           >
-            <div class="p-1 leading-3 bg-[#ff6e65] text-white">答</div>
+            <span class="mt-1 shrink-0 bg-[#ff6e65] px-1.5 py-0.5 text-xs leading-4 text-white">答</span>
             <MessageModule
+              class="min-w-0 flex-1"
               show-cursor="false"
               :text="item.assistantMsg"
               :item="{ role: 'assistant', disable: true }"
             />
           </div>
-          <div
+          <button
+            type="button"
+            class="mt-2 flex w-full items-center justify-center gap-1 py-2 text-sm text-blue-500"
+            :aria-expanded="readMore[index]"
             @click="readMore[index] = !readMore[index]"
-            :style="{
-              background: readMore[index]
-                ? ''
-                : 'linear-gradient(to top, rgba(255, 255, 255, 1) 20%, rgba(255, 255, 255, 0))'
-            }"
-            class="absolute pt-16 pl-4 bottom-9 inset-x-0 text-blue-500"
           >
-            <div v-if="!readMore[index]" class="flex gap-1 justify-center items-center">
+            <template v-if="!readMore[index]">
               展开阅读全文
               <DownFilled class="w-4" />
-            </div>
-            <div v-else class="flex gap-1 justify-center items-center">
+            </template>
+            <template v-else>
               收起
               <UpFilled class="w-4" />
-            </div>
-          </div>
-          <div class="flex justify-between mt-5 pl-8 pr-3 text-gray-500">
-            <div @click="copyMsg(item.assistantMsg)" class="cursor-pointer">复制</div>
-            <div @click="starMsg(item, index)" class="cursor-pointer">
-              <div class="flex items-center gap-1" v-if="hasStar[index]">
+            </template>
+          </button>
+          <div class="mt-1 flex border-t border-gray-100 pt-2 text-sm text-gray-500">
+            <button type="button" class="flex flex-1 items-center justify-center py-2" @click="copyMsg(item.assistantMsg)">
+              复制回答
+            </button>
+            <button type="button" class="flex flex-1 items-center justify-center py-2" @click="starMsg(item, index)">
+              <span v-if="hasStar[index]" class="flex items-center gap-1">
                 <StarFilled class="w-5 text-[#ff6e65]" /> 取消收藏
-              </div>
-              <div class="flex items-center gap-1" v-else><Star class="w-5" /> 收藏</div>
-            </div>
+              </span>
+              <span v-else class="flex items-center gap-1"><Star class="w-5" /> 收藏</span>
+            </button>
           </div>
         </li>
       </ul>
       <van-divider>没有更多了</van-divider>
     </div>
-    <div v-else>
-      <van-empty description="无任何收藏" />
+    <div v-else class="flex min-h-dvh items-center justify-center">
+      <van-empty description="暂无收藏内容" />
     </div>
   </section>
 </template>
@@ -71,7 +80,7 @@ import {
   ChevronUp24Filled as UpFilled
 } from '@vicons/fluent'
 import copy from '@/utils/copyInformation'
-import { showSuccessToast } from 'vant'
+import { showFailToast, showSuccessToast } from 'vant'
 
 const copyMsg = (msg) => {
   copy(msg, () => {
@@ -82,6 +91,8 @@ const copyMsg = (msg) => {
 const allStar = ref([])
 const hasStar = ref([])
 const readMore = ref([])
+const isLoading = ref(true)
+const loadFailed = ref(false)
 const starMsg = async (item, index) => {
   const formData = {
     dialogUUID: item.dialogUUID,
@@ -114,30 +125,31 @@ const starMsg = async (item, index) => {
     }
   }
 }
-onMounted(async () => {
-  const res = await axios.request({
-    url: '/user/service/star/getAllStar',
-    method: 'get',
-    headers: {
-      Authorization: 'Bearer ' + localStorage.getItem('token')
-    }
-  })
-  if (res.status === 200) {
+const loadStars = async () => {
+  isLoading.value = true
+  loadFailed.value = false
+
+  try {
+    const res = await axios.request({
+      url: '/user/service/star/getAllStar',
+      method: 'get',
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem('token')
+      }
+    })
     const parsedData = res.data
-    if (parsedData.status === 0) {
-      allStar.value = parsedData.data
-      // 循环为hasStar push布尔值true,
-      // 用于处理收藏逻辑，当用户取消收藏后不立马消失，而是显示已取消收藏的提示，刷新后才消失
-      for (let i = 0; i < allStar.value.length; i++) {
-        hasStar.value.push(true)
-      }
-      // 循环push布尔值false到readMore
-      // 用于处理展开阅读全文逻辑，当用户点击展开阅读全文时，将readMore的值改为true，
-      // 这样当用户点击展开阅读全文时，readMore的值就为true，从而实现展开阅读全文的逻辑
-      for (let i = 0; i < allStar.value.length; i++) {
-        readMore.value.push(false)
-      }
-    }
+    if (res.status !== 200 || parsedData.status !== 0) throw new Error('Unable to load favorites')
+
+    allStar.value = parsedData.data || []
+    // Keep unstarred cards visible until the next fetch, matching the existing favorite flow.
+    hasStar.value = allStar.value.map(() => true)
+    readMore.value = allStar.value.map(() => false)
+  } catch {
+    loadFailed.value = true
+  } finally {
+    isLoading.value = false
   }
-})
+}
+
+onMounted(loadStars)
 </script>
