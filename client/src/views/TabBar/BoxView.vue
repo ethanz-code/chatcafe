@@ -95,8 +95,11 @@ onMounted(() => {
 
 <style scoped>
 .tab-page-content {
+  display: flex;
+  height: calc(100% - 50px);
   min-width: 0;
-  overflow-x: clip;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .tab-forward-enter-active,
