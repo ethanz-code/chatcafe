@@ -7,3 +7,4 @@ dist
 *.timestamp-*.mjs
 docs/plans/
 .serena/
+.worktrees/
