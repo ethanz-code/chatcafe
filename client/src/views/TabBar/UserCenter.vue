@@ -102,7 +102,7 @@
       <!-- 更多服务 -->
       <div class="bg-white mx-3 mt-3 rounded-xl px-3 py-4">
         <div class="text-sm font-medium mb-3 px-1">更多服务</div>
-        <div class="grid grid-cols-4 gap-y-5">
+        <div class="grid grid-cols-4 gap-y-5 pb-2">
           <van-badge
             v-for="item in otherServices"
             :key="item.title"
@@ -110,12 +110,13 @@
             :offset="[6, -4]"
             :show-zero="false"
             :content="item.point || 0"
+            class="min-w-0"
           >
-            <div class="cursor-pointer flex flex-col items-center gap-1">
-              <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+            <div class="w-full min-w-0 h-16 cursor-pointer flex flex-col items-center gap-1">
+              <div class="w-10 h-10 shrink-0 rounded-full bg-gray-100 flex items-center justify-center">
                 <van-icon :name="item.icon" size="20" color="#ff6e65" />
               </div>
-              <span class="text-xs text-gray-500 text-center">{{ item.title }}</span>
+              <span class="max-w-full truncate text-xs leading-4 text-gray-500 text-center">{{ item.title }}</span>
             </div>
           </van-badge>
         </div>
@@ -168,7 +169,9 @@ const serviceList = ref([
   { title: '联系客服', path: 'concat', exist: true, icon: 'service' },
   { title: '关于我们', path: 'about', exist: true, icon: 'info' },
   { title: '最新课程', path: 'course', exist: false, icon: 'fire' },
-  { title: '辅导培训', path: 'training', exist: false, icon: 'notes' }
+  { title: '辅导培训', path: 'training', exist: false, icon: 'notes' },
+  { title: '应用中心', to: '/pages/app-center', exist: true, icon: 'app-center' },
+  { title: '作品广场', to: '/pages/image-community', exist: true, icon: 'community' }
 ])
 
 const quickActionPaths = ['task-reward', 'pay', 'star-msg', 'concat', 'feedback']
@@ -213,7 +216,8 @@ const clickServiceFunc = (item) => {
 
   if (!store.isLogin) router.push('/modules/login')
   else {
-    if (item.exist) router.push('/service/' + item.path)
+    if (item.to) router.push(item.to)
+    else if (item.exist) router.push('/service/' + item.path)
     else showFailToast('功能建设中，敬请期待')
   }
 }
