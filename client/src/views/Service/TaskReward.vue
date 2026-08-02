@@ -39,7 +39,13 @@
           type="primary"
           @click="punchInDaysButtonClick"
         >
-          {{ punchInToday ? `已连续签到${continuousPunch}天` : '点击签到' }}
+          {{
+            punchInConfirmationPending
+              ? '签到状态待确认，请刷新'
+              : punchInToday
+                ? `已连续签到${continuousPunch}天`
+                : '点击签到'
+          }}
         </van-button>
       </section>
 
@@ -207,6 +213,7 @@ const punchInDaysOverview = () => {
 // 今日已打卡
 const punchInToday = ref(false)
 const punchInPending = ref(false)
+const punchInConfirmationPending = ref(false)
 // 禁用打卡按钮
 const disablePunchInDaysButton = () => {
   punchInToday.value = true
@@ -231,9 +238,11 @@ const punchInDaysButtonClick = async () => {
       continuousPunch.value++
       showToast(`获得：${parsedData.punchInDaily.rewardDialogue}对话余额`)
     } else {
+      punchInConfirmationPending.value = true
       showToast('签到状态确认失败，请刷新后重试')
     }
   } catch {
+    punchInConfirmationPending.value = true
     showToast('签到状态确认失败，请刷新后重试')
   } finally {
     punchInPending.value = false
