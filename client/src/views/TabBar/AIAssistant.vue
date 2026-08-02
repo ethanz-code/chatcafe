@@ -2,7 +2,7 @@
   <section class="flex flex-col h-full touch-none">
     <div class="flex-1 bg-[#f5f5f5] flex flex-col">
       <!--  搜索栏  -->
-      <form class="bg-white fixed top-0 inset-x-0 z-10" action="/">
+      <form class="bg-white fixed top-0 inset-x-0 z-10 mx-auto box-border max-w-[var(--app-content-width)]" action="/">
         <van-search
           v-model="searchValue"
           show-action
@@ -30,7 +30,7 @@
         </van-sidebar>
 
         <!--  内容区域  -->
-        <div class="w-2/3 p-3 h-full overflow-y-auto">
+        <div class="w-2/3 p-3 h-full overflow-y-auto box-border">
           <div
             v-if="assistants.length !== 0"
             class="flex flex-col sm:flex-row sm:flex-wrap sm:place-content-start sm:items-start gap-2.5"
@@ -60,7 +60,7 @@
     </div>
 
     <!--  顶部界限，当内容超出时直接隐藏  -->
-    <div class="h-1 w-full fixed top-0"></div>
+    <div class="h-1 w-full fixed top-0 left-0 right-0 mx-auto max-w-[var(--app-content-width)]"></div>
 
     <!--  最底部导航栏区域空缺出来  -->
     <div class="h-[50px]"></div>

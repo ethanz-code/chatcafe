@@ -21,7 +21,53 @@
 }
 
 .van-sidebar {
-  width: 26% !important;
-  max-width: 150px;
+  width: 33.333% !important;
+  max-width: none;
+}
+
+/* ---- PC 端居中显示：固定定位组件限制在中间内容宽度内 ---- */
+:root {
+  --app-content-width: 430px;
+}
+
+/* 最外层背景使用浏览器默认画布色，跟随系统亮暗主题；应用内部保持浅色 */
+body {
+  color-scheme: light dark;
+  background-color: Canvas;
+}
+#app {
+  color-scheme: light;
+}
+
+@media (min-width: 430px) {
+  .van-overlay,
+  .van-tabbar--fixed,
+  .van-nav-bar--fixed,
+  .van-floating-panel,
+  .van-popup--bottom,
+  .van-popup--center {
+    max-width: var(--app-content-width) !important;
+  }
+
+  .van-overlay,
+  .van-tabbar--fixed,
+  .van-nav-bar--fixed,
+  .van-floating-panel,
+  .van-popup--bottom {
+    right: 0 !important;
+    left: 0 !important;
+    margin-inline: auto !important;
+  }
+
+  .van-popup--left {
+    left: calc(50% - min(50vw, calc(var(--app-content-width) / 2))) !important;
+  }
+
+  /* PC 端侧边栏与内容区对齐，避免互相重叠/贴死（fixed 元素百分比宽度相对视口，需固定像素） */
+  .van-sidebar {
+    width: calc(var(--app-content-width) / 3) !important;
+    max-width: none !important;
+    left: calc(50% - min(50vw, calc(var(--app-content-width) / 2))) !important;
+  }
 }
 

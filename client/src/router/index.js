@@ -1,6 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Box from '@/views/TabBar/BoxView.vue'
 import AIChat from '@/views/TabBar/AIChat.vue'
+import AIAssistant from '@/views/TabBar/AIAssistant.vue'
+import AppCenter from '@/views/TabBar/AppCenter.vue'
+import UserCenter from '@/views/TabBar/UserCenter.vue'
+import ImageCommunity from '@/views/TabBar/ImageCommunity.vue'
 import { showFailToast } from 'vant'
 import { useUserCenterStore } from '@/stores/user-center'
 
@@ -20,22 +24,22 @@ const router = createRouter({
         {
           path: 'ai-assistant',
           name: 'AIAssistant',
-          component: () => import('@/views/TabBar/AIAssistant.vue')
+          component: AIAssistant
         },
         {
           path: 'app-center',
           name: 'AppCenter',
-          component: () => import('@/views/TabBar/AppCenter.vue')
+          component: AppCenter
         },
         {
           path: 'user-center',
           name: 'UserCenter',
-          component: () => import('@/views/TabBar/UserCenter.vue')
+          component: UserCenter
         },
         {
           path: 'image-community',
           name: 'ImageCommunity',
-          component: () => import('@/views/TabBar/ImageCommunity.vue')
+          component: ImageCommunity
         }
       ]
     },
@@ -144,6 +148,11 @@ const router = createRouter({
           component: () => import('@/views/Service/TaskReward.vue')
         }
       ]
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'NotFound',
+      component: () => import('@/views/Service/NotFound.vue')
     }
   ]
 })

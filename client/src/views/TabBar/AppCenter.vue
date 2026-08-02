@@ -2,7 +2,21 @@
   <section ref="content" class="flex flex-col p-3 box-border h-full">
     <div class="flex-1 pb-16">
       <div class="text-xl font-medium logo-gradient">全部应用</div>
+
+      <div v-if="loading" class="flex justify-center py-16">
+        <van-loading size="24">加载中...</van-loading>
+      </div>
+
       <div
+        v-else-if="store.allApp.length === 0"
+        class="flex flex-col items-center justify-center mt-16 text-gray-400"
+      >
+        <van-icon name="apps-o" size="64" />
+        <p class="mt-4 text-sm">暂无应用</p>
+      </div>
+
+      <div
+        v-else
         class="mt-2 grid grid-cols-2 sm:grid-cols-none sm:flex sm:flex-row sm:flex-wrap sm:place-content-start sm:items-start gap-3"
       >
         <div
@@ -46,6 +60,7 @@ const historyStore = useFloatingFunction()
 const route = useRoute()
 const router = useRouter()
 const content = ref()
+const loading = ref(true)
 let timer = 0
 
 const clickApp = (item) => {
@@ -63,7 +78,9 @@ onMounted(() => {
     WhetherToDisableTheEffect(content.value)
   }, 1000)
 
-  store.getAllApplication(true)
+  store.getAllApplication(true).finally(() => {
+    loading.value = false
+  })
 })
 
 onUnmounted(() => {

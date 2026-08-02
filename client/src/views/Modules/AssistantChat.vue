@@ -179,7 +179,7 @@
     <div
       ref="bottomFunctionRef"
       style="border-top: 1px solid #f4f5f7"
-      class="bg-white p-3 bottom-0 fixed right-0 left-0"
+      class="bg-white p-3 bottom-0 fixed right-0 left-0 mx-auto box-border max-w-[var(--app-content-width)]"
     >
       <!--  选择LLM  -->
       <div

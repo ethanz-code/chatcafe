@@ -17,6 +17,13 @@ import { initLtzf } from "./plugin/ltzf";
 
 const jwtSecret = process.env.JWT_SECRET;
 
+for (const signal of ["SIGINT", "SIGTERM"] as const) {
+  process.on(signal, () => {
+    console.log(`[chatcafe-api] received ${signal}, shutting down`);
+    process.exit(128 + (signal === "SIGINT" ? 2 : 15));
+  });
+}
+
 if (!jwtSecret) {
   console.error(
     "[chatcafe-api] FATAL: JWT_SECRET is not set. Please configure it in .env.production before starting the service.",

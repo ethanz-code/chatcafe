@@ -5,8 +5,7 @@
     transition="slider"
     class="px-3 pt-3 max-w-[300px]"
     :style="{ width: '75%', height: '100%' }"
-  >
-    <div class="flex flex-col h-full">
+  >    <div class="flex flex-col h-full">
       <div class="flex justify-between items-center">
         <span class="text-lg font-medium logo-gradient">ChatCafe</span>
         <HamburgerMenuIcon class="cursor-pointer h-5 w-5" @click="store.sidebarShowLeft = false" />

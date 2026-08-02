@@ -4,7 +4,7 @@
 
     <!--  顶部功能栏目  -->
     <div
-      class="bg-gray-900 text-white h-12 px-3 flex justify-between items-center fixed top-0 inset-x-0 z-50"
+      class="bg-gray-900 text-white h-12 px-3 flex justify-between items-center fixed top-0 inset-x-0 z-50 mx-auto box-border max-w-[var(--app-content-width)]"
     >
       <div class="flex items-center gap-3">
         <HamburgerMenuIcon class="cursor-pointer h-5 w-5" @click="store.sidebarShowLeft = true" />
@@ -24,7 +24,7 @@
       v-show="!hasMsg"
       ref="contentTopWarning"
       :class="[
-        'fixed bg-gray-100 p-5 mt-12  transition-opacity duration-100 ease-linear',
+        'fixed bg-gray-100 p-5 mt-12 left-0 right-0 mx-auto box-border max-w-[var(--app-content-width)] transition-opacity duration-100 ease-linear',
         contentCanShow ? 'opacity-100' : 'opacity-0'
       ]"
     >
@@ -184,7 +184,7 @@
     <div
       ref="bottomFunctionRef"
       style="border-top: 1px solid #f4f5f7"
-      class="bg-white p-3 fixed right-0 left-0 bottom-0"
+      class="bg-white p-3 fixed right-0 left-0 bottom-0 mx-auto box-border max-w-[var(--app-content-width)]"
     >
       <!--  选择LLM  -->
       <div

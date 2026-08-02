@@ -3,8 +3,8 @@
   "type": "module",
   "scripts": {
     "format": "prettier --write .",
-    "dev": "dotenvx run -f .env.development -- nodemon --exec tsx index.ts",
-    "prod": "dotenvx run -f .env.production --overload -- tsx watch index.ts",
+    "dev": "dotenvx run -f .env.development -- node --watch --import tsx/esm index.ts",
+    "prod": "dotenvx run -f .env.production --overload -- node --import tsx/esm index.ts",
     "encrypt:dev": "dotenvx encrypt -f .env.development",
     "encrypt:prod": "dotenvx encrypt -f .env.production",
     "decrypt:dev": "dotenvx decrypt -f .env.development",
@@ -15,7 +15,6 @@
     "@types/uuid": "^9.0.8",
     "exact-mirror": "0.2.7",
     "lint-staged": "^15.2.2",
-    "nodemon": "^3.1.14",
     "prettier": "3.2.5",
     "prisma": "^5.13.0",
     "tsx": "^4.22.4"

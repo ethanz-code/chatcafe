@@ -20,7 +20,6 @@ app.use(router)
 app.use(autoAnimatePlugin)
 
 app.use(lazyPlugin, {
-  loading: '/res/loading.gif',
   error: '/res/error.png'
 })
 

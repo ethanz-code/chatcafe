@@ -143,7 +143,7 @@ import copy from '@/utils/copyInformation'
 
 import { useRouter, useRoute } from 'vue-router'
 import { computed } from 'vue'
-import { showSuccessToast } from 'vant'
+import { showSuccessToast, showFailToast } from 'vant'
 import axios from '@/utils/axios'
 
 import { useTaskRewardStore } from '@/stores/task-reward'
@@ -214,7 +214,7 @@ const clickServiceFunc = (item) => {
   if (!store.isLogin) router.push('/modules/login')
   else {
     if (item.exist) router.push('/service/' + item.path)
-    else router.push('/service/not-found')
+    else showFailToast('功能建设中，敬请期待')
   }
 }
 
