@@ -43,6 +43,20 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true
         }
       }
+    },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vue: ['vue', 'vue-router', 'pinia'],
+            vant: ['vant'],
+            markdown: ['marked', 'marked-highlight', 'highlight.js', 'dompurify'],
+            crypto: ['crypto-js'],
+            axios: ['axios']
+          }
+        }
+      },
+      chunkSizeWarningLimit: 600
     }
   }
 })

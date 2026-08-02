@@ -1,5 +1,7 @@
 import prisma from "@/plugin/prismaClient";
 import { verifyCodeBuffer } from "@/plugin/verifyCode";
+import { hashPassword } from "@/plugin/password";
+import { getClientIp, rateLimit } from "@/plugin/rateLimit";
 import CryptoJS from "crypto-js";
 import moment from "moment";
 import { getNewInviteCode } from "@/plugin/userInvite";
@@ -7,7 +9,15 @@ import { calcBalance } from "@/plugin/balance";
 
 export default async function ({
   body: { verifyCode, password, inviteCode },
+  set,
+  headers,
 }: any) {
+  const ip = getClientIp(headers);
+  if (!rateLimit(ip, 10, 60_000)) {
+    set.status = 429;
+    return { status: -1, error: "请求过于频繁，请稍后再试" };
+  }
+
   // 检测verifyCode是否在verifyCodeBuffer中
   if (!verifyCodeBuffer.has(verifyCode)) {
     return {
@@ -40,7 +50,7 @@ export default async function ({
     // 删除verifyCodeBuffer中的verifyCode
     verifyCodeBuffer.delete(verifyCode);
 
-    // 前端将密码加密，后端需解密后再存入数据库
+    // 前端将密码加密，后端需解密后再哈希存储
     const decodedPassword = CryptoJS.AES.decrypt(password, "ydai").toString(
       CryptoJS.enc.Utf8,
     );
@@ -49,7 +59,7 @@ export default async function ({
     const newUser = await prisma.user.create({
       data: {
         phoneNumber: verifyCodeValue,
-        password: decodedPassword,
+        password: hashPassword(decodedPassword),
         inviteCode: getNewInviteCode(),
       },
     });
@@ -64,7 +74,6 @@ export default async function ({
         select: {
           id: true,
           phoneNumber: true,
-          password: true,
         },
       });
 

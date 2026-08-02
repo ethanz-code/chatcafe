@@ -1,11 +1,26 @@
 import prisma from "@/plugin/prismaClient";
+import { getClientIp, rateLimit } from "@/plugin/rateLimit";
 import CryptoJS from "crypto-js";
 
-const verifyPassword = process.env.ACTIVATION_CODE_PASSWORD || "admin123";
+const verifyPassword = process.env.ACTIVATION_CODE_PASSWORD;
 
 export default async function ({
   body: { password, dialogueCount, paintingCount },
+  set,
+  headers,
 }: any) {
+  // 未配置口令时直接拒绝，避免使用内置默认口令
+  if (!verifyPassword) {
+    console.error("[activationCode] ACTIVATION_CODE_PASSWORD is not set");
+    return { status: -1, error: "验证卡密生成功能未配置" };
+  }
+
+  const ip = getClientIp(headers);
+  if (!rateLimit(ip, 5, 60_000)) {
+    set.status = 429;
+    return { status: -1, error: "请求过于频繁，请稍后再试" };
+  }
+
   // 验证密码
   if (password !== verifyPassword)
     return { status: -1, error: "验证卡密生成密码错误" };

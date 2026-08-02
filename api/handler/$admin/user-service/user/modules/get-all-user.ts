@@ -5,7 +5,6 @@ export default async function ({}: any) {
     select: {
       id: true,
       phoneNumber: true,
-      password: true,
       updatedAt: true,
       name: true,
       avatar: true,

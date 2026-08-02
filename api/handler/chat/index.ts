@@ -2,7 +2,6 @@ import { Elysia, t } from "elysia";
 import completions from "./completions";
 import { hotIssues } from "./hotIssues";
 import { llmList } from "./llmList";
-import completionsSingle from "./completionsSingle";
 import { DialogPlugin } from "./dialog";
 
 interface Config {
@@ -26,11 +25,4 @@ export const ChatPlugin = (config: Config) =>
       }),
     })
     .get(`${config.prefix}/hotIssues`, hotIssues)
-    .get(`${config.prefix}/llmList`, llmList)
-    .post(`${config.prefix}/completionsSingle`, completionsSingle, {
-      body: t.Object({
-        prompt: t.String(),
-        model: t.Optional(t.String()),
-        token: t.Optional(t.String()),
-      }),
-    });
+    .get(`${config.prefix}/llmList`, llmList);

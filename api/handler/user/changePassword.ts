@@ -1,4 +1,6 @@
 import prisma from "@/plugin/prismaClient";
+import { hashPassword, verifyPassword } from "@/plugin/password";
+import { getClientIp, rateLimit } from "@/plugin/rateLimit";
 import CryptoJS from "crypto-js";
 
 export default async function ({
@@ -7,10 +9,16 @@ export default async function ({
   set,
   headers,
 }: any) {
+  const ip = getClientIp(headers);
+  if (!rateLimit(ip, 10, 60_000)) {
+    set.status = 429;
+    return { status: -1, error: "请求过于频繁，请稍后再试" };
+  }
+
   const payload = await jwt.verify(headers["authorization"].split(" ")[1]);
   if (!payload) {
     set.status = 401;
-    return { error: "Unauthorized" };
+    return { status: -1, error: "Unauthorized" };
   }
 
   // 先获取数据库中的密码
@@ -30,8 +38,8 @@ export default async function ({
   );
 
   // 比对原密码是否正确
-  const diffPassword = decodedOriginPassword === dbUser.password;
-  if (!diffPassword) return { status: -1, message: "原密码错误" };
+  if (!verifyPassword(decodedOriginPassword, dbUser.password))
+    return { status: -1, message: "原密码错误" };
 
   // 修改数据库中用户密码
   await prisma.user.update({
@@ -39,7 +47,7 @@ export default async function ({
       id: payload.id,
     },
     data: {
-      password: decodedPassword,
+      password: hashPassword(decodedPassword),
     },
   });
 

@@ -1,6 +1,7 @@
 import { fetchEventSource } from '@microsoft/fetch-event-source'
 import { useChatStore } from '@/stores/chat'
 import { useUserCenterStore } from '@/stores/user-center'
+import handleUnauthorized from '@/utils/handleUnauthorized'
 import axios from './axios'
 import moment from 'moment'
 
@@ -149,13 +150,22 @@ export const sendMessage = async (
         ...headers
       },
       body: postData,
+      async onopen(response) {
+        // token 失效时后端返回 401，清理登录信息并跳转登录页
+        if (response.status === 401) {
+          clearTimeout(timer)
+          aborted = true
+          execOnClose = false
+          handleUnauthorized()
+          throw new Error('Unauthorized')
+        }
+      },
       async onmessage(event) {
         // 表示整体结束
         if (event.data === '[DONE]') {
           // 检测回答内容是否真正完成，因为token限制结束不算
           if (backupData.finish_reason === null || backupData.finish_reason === 'length') {
             notFinished()
-          } else if (backupData.finish_reason === 'stop') {
           }
           // onclose()
           return
@@ -164,11 +174,15 @@ export const sendMessage = async (
         if (event.data === null || event.data === undefined || event.data.length === 0) return
         const parsed = JSON.parse(event.data)
 
-        // 检测错误（余额不足 / API Key 未配置等）
+        // 检测错误（token 失效 / 余额不足 / API Key 未配置等）
         if (parsed.status && parsed.status === -1) {
           execOnClose = false
           accepted = true
-          insufficientBalance(parsed.error || '')
+          if (parsed.error === 'Unauthorized') {
+            handleUnauthorized()
+          } else {
+            insufficientBalance(parsed.error || '')
+          }
           popMsg()
           after()
           return

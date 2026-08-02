@@ -4,12 +4,33 @@ import { resolve } from "path";
 import { unlink, writeFile as writeFilePromise } from "node:fs/promises";
 import { setUserTaskValue } from "@/plugin/taskReward";
 
+const MAX_AVATAR_SIZE = 5 * 1024 * 1024;
+
 export default async function ({ jwt, set, headers, body: { blob } }: any) {
   // 验证token
   const payload = await jwt.verify(headers["authorization"].split(" ")[1]);
   if (!payload) {
     set.status = 401;
     return { status: -1, error: "Unauthorized" };
+  }
+
+  // 校验上传内容：非空、大小限制、图片魔数（webp/png/jpeg）
+  if (!blob || Buffer.byteLength(blob) === 0) {
+    set.status = 400;
+    return { status: -1, error: "Empty image" };
+  }
+  if (Buffer.byteLength(blob) > MAX_AVATAR_SIZE) {
+    set.status = 400;
+    return { status: -1, error: "Image is too large (max 5MB)" };
+  }
+  const head = Buffer.from(blob).subarray(0, 12);
+  const isImage =
+    head.toString("ascii", 0, 4).includes("RIFF") || // webp
+    head.toString("ascii", 1, 4) === "PNG" ||
+    (head[0] === 0xff && head[1] === 0xd8); // jpeg
+  if (!isImage) {
+    set.status = 400;
+    return { status: -1, error: "Invalid image format" };
   }
 
   // 查找数据库中的头像是否在本地就保存，有的话先将保存的图片删除，最大节省磁盘空间

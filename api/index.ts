@@ -17,6 +17,13 @@ import { initLtzf } from "./plugin/ltzf";
 
 const jwtSecret = process.env.JWT_SECRET;
 
+if (!jwtSecret) {
+  console.error(
+    "[chatcafe-api] FATAL: JWT_SECRET is not set. Please configure it in .env.production before starting the service.",
+  );
+  process.exit(1);
+}
+
 initLtzf();
 
 const rootPrefix = process.env.ROOT_PREFIX || "/";
@@ -30,7 +37,7 @@ new Elysia({ adapter: node() })
   .use(
     jwt({
       name: "jwt",
-      secret: jwtSecret!,
+      secret: jwtSecret,
       exp: "3d",
     }),
   )
@@ -52,8 +59,17 @@ new Elysia({ adapter: node() })
       },
     }),
   )
-  .onError(({ code, error }) => {
-    if (code === "NOT_FOUND") return "Route not found :(";
-    return new Response(error.toString());
+  .onError(({ code, error, set }) => {
+    if (code === "NOT_FOUND") {
+      set.status = 404;
+      return { status: -1, error: "Not found" };
+    }
+    if (code === "VALIDATION") {
+      set.status = 400;
+      return { status: -1, error: "Invalid request parameters" };
+    }
+    console.error(`[chatcafe-api] unhandled error (${code}):`, error);
+    set.status = 500;
+    return { status: -1, error: "Internal server error" };
   })
   .listen(9091);

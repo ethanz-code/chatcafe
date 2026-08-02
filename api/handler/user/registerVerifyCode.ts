@@ -2,6 +2,7 @@ import { verifyCodeBuffer } from "@/plugin/verifyCode";
 import moment from "moment";
 import prisma from "@/plugin/prismaClient";
 import { sendSmsWithOptions } from "@/plugin/dysmsapi2024";
+import { getClientIp, rateLimit } from "@/plugin/rateLimit";
 
 // 写一个递归生成随机6位验证码的函数，如果生成的验证码已经存在，则递归调用该函数，直到生成一个不重复的验证码
 const generateVerifyCode = (): number => {
@@ -12,7 +13,14 @@ const generateVerifyCode = (): number => {
   return code;
 };
 
-export default async function ({ body: { phoneNumber } }: any) {
+export default async function ({ body: { phoneNumber }, set, headers }: any) {
+  // 限流：防止短信轰炸（同一 IP 每分钟最多 3 条验证码）
+  const ip = getClientIp(headers);
+  if (!rateLimit(ip, 3, 60_000)) {
+    set.status = 429;
+    return { status: -1, error: "请求过于频繁，请稍后再试" };
+  }
+
   // 先检测数据表中是否存在该用户
   const getUser = await prisma.user.findUnique({
     where: {
