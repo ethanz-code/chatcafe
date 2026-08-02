@@ -134,15 +134,26 @@ const goToPay = async (goodId) => {
     }
 
     const parsedData = response.data
+    const orderNo = typeof parsedData.orderNo === 'string' ? parsedData.orderNo.trim() : ''
+    const codeUrl = typeof parsedData.data?.codeUrl === 'string' ? parsedData.data.codeUrl.trim() : ''
+    const redirectUrl = typeof parsedData.data?.data === 'string' ? parsedData.data.data.trim() : ''
+
+    if (!orderNo || (payType === 'scan' && !codeUrl) || (payType !== 'scan' && !redirectUrl)) {
+      closeToast()
+      isPaying.value = false
+      showFailToast('创建订单失败，请稍后重试')
+      return
+    }
+
     closeToast()
-    localStorage.setItem('payingOrderNo', parsedData.orderNo)
+    localStorage.setItem('payingOrderNo', orderNo)
 
     if (payType === 'scan') {
-      qrCodeUrl.value = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(parsedData.data.codeUrl)}`
+      qrCodeUrl.value = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(codeUrl)}`
       showScanQr.value = true
-      scanPollingStarted = startPolling(parsedData.orderNo)
+      scanPollingStarted = startPolling(orderNo)
     } else {
-      window.location.href = parsedData.data.data
+      window.location.href = redirectUrl
     }
   } catch (error) {
     closeToast()
