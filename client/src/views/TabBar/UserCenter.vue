@@ -114,7 +114,7 @@
           >
             <div class="w-full min-w-0 h-16 cursor-pointer flex flex-col items-center gap-1">
               <div class="w-10 h-10 shrink-0 rounded-full bg-gray-100 flex items-center justify-center">
-                <van-icon :name="item.icon" size="20" color="#ff6e65" />
+                <van-icon :name="item.icon" :class-prefix="item.iconPrefix" size="20" color="#ff6e65" />
               </div>
               <span class="max-w-full truncate text-xs leading-4 text-gray-500 text-center">{{ item.title }}</span>
             </div>
@@ -170,8 +170,8 @@ const serviceList = ref([
   { title: '关于我们', path: 'about', exist: true, icon: 'info' },
   { title: '最新课程', path: 'course', exist: false, icon: 'fire' },
   { title: '辅导培训', path: 'training', exist: false, icon: 'notes' },
-  { title: '应用中心', to: '/pages/app-center', exist: true, icon: 'app-center' },
-  { title: '作品广场', to: '/pages/image-community', exist: true, icon: 'community' }
+  { title: '应用中心', to: '/pages/app-center', exist: true, icon: 'app-center', iconPrefix: 'iconfont-ydai' },
+  { title: '作品广场', to: '/pages/image-community', exist: true, icon: 'community', iconPrefix: 'iconfont-ydai' }
 ])
 
 const quickActionPaths = ['task-reward', 'pay', 'star-msg', 'concat', 'feedback']
