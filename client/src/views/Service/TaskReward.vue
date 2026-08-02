@@ -215,6 +215,7 @@ const disablePunchInDaysButton = () => {
 const punchInDaysButtonClick = async () => {
   if (punchInToday.value || punchInPending.value) return
   punchInPending.value = true
+  disablePunchInDaysButton()
   try {
     const response = await axios.request({
       url: '/user/service/task/punchDaily',
@@ -223,17 +224,18 @@ const punchInDaysButtonClick = async () => {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     })
-    if (response.status === 200) {
-      const parsedData = response.data
-      if (parsedData.status === 0) {
-        disablePunchInDaysButton()
-        punchInDaysOverviewActive.value++
-        punchInDaysData.value.unshift(parsedData.punchInDaily)
-        continuousPunch.value++
-        showToast(`获得：${parsedData.punchInDaily.rewardDialogue}对话余额`)
-      }
+    const parsedData = response.data
+    if (response.status === 200 && parsedData.status === 0) {
+      punchInDaysOverviewActive.value++
+      punchInDaysData.value.unshift(parsedData.punchInDaily)
+      continuousPunch.value++
+      showToast(`获得：${parsedData.punchInDaily.rewardDialogue}对话余额`)
+    } else {
+      punchInToday.value = false
+      showToast('签到失败，请稍后重试')
     }
   } catch {
+    punchInToday.value = false
     showToast('签到失败，请稍后重试')
   } finally {
     punchInPending.value = false
@@ -254,7 +256,7 @@ const receiveReward = async (item) => {
   rewardPendingTaskNames.value = new Set(rewardPendingTaskNames.value).add(item.name)
   const formData = { taskName: item.name }
   try {
-    await axios.request({
+    const response = await axios.request({
       url: '/user/service/task/receiveAReward',
       method: 'post',
       headers: {
@@ -262,10 +264,14 @@ const receiveReward = async (item) => {
       },
       data: formData
     })
-    item.status = 'finished'
-    showSuccessToast('领取成功')
-    // 将status为finished的item排序到taskList的底部
-    taskRewardStore.taskQuickSort()
+    if (response.status === 200 && response.data.status === 0) {
+      item.status = 'finished'
+      showSuccessToast('领取成功')
+      // 将status为finished的item排序到taskList的底部
+      taskRewardStore.taskQuickSort()
+    } else {
+      showToast('领取失败，请稍后重试')
+    }
   } catch {
     showToast('领取失败，请稍后重试')
   } finally {
