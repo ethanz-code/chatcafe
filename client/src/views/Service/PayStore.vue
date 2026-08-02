@@ -20,11 +20,11 @@
         v-for="item in goods"
         :key="item.id"
         type="button"
-        :aria-pressed="selectedGoodId === item.id"
-        :aria-label="`选择${item.title}，价格${Number(item.price).toFixed(2)}元`"
-        @click="selectedGoodId = item.id; goToPay(item.id)"
-        class="flex min-w-0 flex-col overflow-hidden rounded-lg border text-left transition-colors active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6034]"
-        :class="selectedGoodId === item.id ? 'border-[#ff6034] bg-[#fff8f5] shadow-sm' : 'border-gray-200 bg-white'"
+        :disabled="isPaying"
+        :aria-busy="isPaying"
+        :aria-label="isPaying ? '正在创建订单' : `购买${item.title}，价格${Number(item.price).toFixed(2)}元`"
+        @click="goToPay(item.id)"
+        class="flex min-w-0 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white text-left transition-colors active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6034] disabled:cursor-wait disabled:opacity-60"
       >
         <div
           v-if="item.imgUrl && !failedImageIds.has(item.id)"
@@ -55,8 +55,8 @@
             <span class="text-gray-500">对话 <strong class="font-semibold text-gray-800">{{ item.dialogueCount }}</strong></span>
             <span class="text-gray-500">绘画 <strong class="font-semibold text-gray-800">{{ item.paintingCount || 0 }}</strong></span>
           </div>
-          <div class="mt-3 flex items-center justify-between text-xs font-medium" :class="selectedGoodId === item.id ? 'text-[#e8502a]' : 'text-gray-500'">
-            <span>{{ selectedGoodId === item.id ? '已选择' : '选择套餐' }}</span>
+          <div class="mt-3 flex items-center justify-between text-xs font-medium text-[#e8502a]">
+            <span>{{ isPaying ? '正在创建订单' : '立即购买' }}</span>
             <span aria-hidden="true" class="text-base leading-none">›</span>
           </div>
         </div>
@@ -100,7 +100,7 @@ function getPayType() {
 const goods = ref([])
 const loading = ref(true)
 const loadFailed = ref(false)
-const selectedGoodId = ref(null)
+const isPaying = ref(false)
 const failedImageIds = ref(new Set())
 
 const route = useRoute()
@@ -108,6 +108,9 @@ const route = useRoute()
 let poller = null
 
 const goToPay = async (goodId) => {
+  if (isPaying.value) return
+
+  isPaying.value = true
   showLoadingToast({ message: '加载中...', forbidClick: true, duration: 0 })
   const payType = getPayType()
   let payUrl = ''
@@ -115,37 +118,46 @@ const goToPay = async (goodId) => {
   else if (payType === 'h5') payUrl = '/user/service/pay/wx'
   else payUrl = '/user/service/pay/wx/scan'
 
-  const response = await axios.request({
-    url: payUrl,
-    method: 'post',
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('token')}`
-    },
-    data: { goodId }
-  })
-  if (response.status === 200) {
-    const parsedData = response.data
-    if (parsedData.status === -1) {
-      closeToast()
-      showFailToast('创建订单失败')
-    } else if (parsedData.status === 0) {
-      closeToast()
-      localStorage.setItem('payingOrderNo', parsedData.orderNo)
-
-      if (payType === 'scan') {
-        qrCodeUrl.value = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(parsedData.data.codeUrl)}`
-        showScanQr.value = true
-        startPolling(parsedData.orderNo)
-      } else {
-        window.location.href = parsedData.data.data
-      }
+  try {
+    const response = await axios.request({
+      url: payUrl,
+      method: 'post',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      },
+      data: { goodId }
+    })
+    if (response.status !== 200 || response.data?.status !== 0) {
+      throw new Error('Failed to create payment order')
     }
+
+    const parsedData = response.data
+    closeToast()
+    localStorage.setItem('payingOrderNo', parsedData.orderNo)
+
+    if (payType === 'scan') {
+      qrCodeUrl.value = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(parsedData.data.codeUrl)}`
+      showScanQr.value = true
+      startPolling(parsedData.orderNo)
+    } else {
+      window.location.href = parsedData.data.data
+    }
+  } catch (error) {
+    closeToast()
+    console.error('Failed to create payment order', error)
+    showFailToast('创建订单失败，请稍后重试')
+  } finally {
+    isPaying.value = false
   }
 }
 
 function startPolling(orderNo) {
   if (!orderNo) orderNo = localStorage.getItem('payingOrderNo')
   if (!orderNo) return
+  if (poller) {
+    poller.stop()
+    poller = null
+  }
   showLoadingToast({ message: '支付验证中...', forbidClick: true, duration: 0 })
   poller = new PaymentStatusPoller({
     orderNo,
