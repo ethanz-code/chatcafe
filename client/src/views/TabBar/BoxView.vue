@@ -2,7 +2,7 @@
   <main class="tab-page-content">
     <router-view v-slot="{ Component, route: currentRoute }">
       <transition
-        v-if="isPrimaryRoute(currentRoute.path)"
+        v-if="isPrimaryRoute(currentRoute.path) && tabTransitionName"
         :name="tabTransitionName"
         mode="out-in"
       >
@@ -35,7 +35,8 @@ const userCenterStore = useUserCenterStore()
 const taskRewardStore = useTaskRewardStore()
 const userCenterPoints = ref(0)
 const primaryPaths = ['/', '/pages/ai-assistant', '/pages/user-center']
-const tabTransitionName = ref('tab-forward')
+const tabTransitionName = ref('')
+const pendingTabNavigation = ref(null)
 const tabs = [
   { path: '/', label: 'AI问答', icon: 'chat' },
   { path: '/pages/ai-assistant', label: '专业助理', icon: 'assistant' },
@@ -47,12 +48,19 @@ const isPrimaryRoute = (path) => primaryPaths.includes(path)
 watch(
   () => route.path,
   (to, from) => {
-    const toIndex = primaryPaths.indexOf(to)
-    const fromIndex = primaryPaths.indexOf(from)
+    const pendingNavigation = pendingTabNavigation.value
+    tabTransitionName.value = ''
 
-    if (toIndex === -1 || fromIndex === -1) return
+    if (pendingNavigation?.path !== to) {
+      pendingTabNavigation.value = null
+      return
+    }
 
-    tabTransitionName.value = toIndex > fromIndex ? 'tab-forward' : 'tab-back'
+    pendingTabNavigation.value = null
+
+    if (!isPrimaryRoute(to) || !isPrimaryRoute(from)) return
+
+    tabTransitionName.value = pendingNavigation.direction
   },
   { flush: 'sync' }
 )
@@ -72,8 +80,26 @@ const verify = async () => {
 }
 
 const navigate = (path) => {
+  const fromIndex = primaryPaths.indexOf(route.path)
+  const toIndex = primaryPaths.indexOf(path)
+  const navigation =
+    fromIndex === -1 || toIndex === -1 || fromIndex === toIndex
+      ? null
+      : {
+          path,
+          direction: toIndex > fromIndex ? 'tab-forward' : 'tab-back',
+        }
+
+  pendingTabNavigation.value = navigation
   verify()
-  router.replace(path)
+  void router.replace(path).then(
+    () => {
+      if (pendingTabNavigation.value === navigation) pendingTabNavigation.value = null
+    },
+    () => {
+      if (pendingTabNavigation.value === navigation) pendingTabNavigation.value = null
+    }
+  )
 }
 
 // 尝试读取本地秘钥看是否存在
