@@ -1,57 +1,33 @@
 <template>
   <router-view></router-view>
-  <!--  #b5b5b5  -->
-  <van-tabbar route active-color="#ff6e65" inactive-color="#b5b5b5" @change="verify">
-    <van-tabbar-item replace to="/">
-      <span>AI问答</span>
-      <template #icon>
-        <van-icon class-prefix="iconfont-ydai" name="chat" size="22" />
-      </template>
-    </van-tabbar-item>
-    <van-tabbar-item replace to="/pages/ai-assistant">
-      <span>专业助理</span>
-      <template #icon>
-        <van-icon class-prefix="iconfont-ydai" name="assistant" size="22" />
-      </template>
-    </van-tabbar-item>
-    <van-tabbar-item replace to="/pages/app-center">
-      <span>应用中心</span>
-      <template #icon>
-        <van-icon class-prefix="iconfont-ydai" name="app-center" size="22" />
-      </template>
-    </van-tabbar-item>
-    <van-tabbar-item replace to="/pages/image-community">
-      <span>作品广场</span>
-      <template #icon>
-        <van-icon class-prefix="iconfont-ydai" name="community" size="22" />
-      </template>
-    </van-tabbar-item>
-    <van-tabbar-item
-      replace
-      to="/pages/user-center"
-      :badge="userCenterPoints === 0 ? '' : userCenterPoints"
-    >
-      <span>个人中心</span>
-      <template #icon>
-        <van-icon class-prefix="iconfont-ydai" name="user" size="22" />
-      </template>
-    </van-tabbar-item>
-  </van-tabbar>
+  <FluidTabBar
+    :tabs="tabs"
+    :active-path="route.path"
+    :badge="{ '/pages/user-center': userCenterPoints === 0 ? '' : userCenterPoints }"
+    @navigate="navigate"
+  />
 </template>
 <script setup>
+import FluidTabBar from '@/components/TabBar/FluidTabBar.vue'
 import loginVerify from '@/utils/loginVerify'
 import { useUserCenterStore } from '@/stores/user-center'
 import { onMounted, ref } from 'vue'
 import { autoClear } from '@/utils/clearLocalStorage'
 
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useTaskRewardStore } from '@/stores/task-reward'
 
 const route = useRoute()
+const router = useRouter()
 const userCenterStore = useUserCenterStore()
 
 const taskRewardStore = useTaskRewardStore()
 const userCenterPoints = ref(0)
+const tabs = [
+  { path: '/', label: 'AI问答', icon: 'chat' },
+  { path: '/pages/ai-assistant', label: '专业助理', icon: 'assistant' },
+  { path: '/pages/user-center', label: '个人中心', icon: 'user' },
+]
 
 // 每次切换底部标签或页面加载都会验证用户登录状态
 const verify = async () => {
@@ -65,6 +41,11 @@ const verify = async () => {
       userCenterPoints.value = await taskRewardStore.getPoints()
     }
   })
+}
+
+const navigate = (path) => {
+  verify()
+  router.replace(path)
 }
 
 // 尝试读取本地秘钥看是否存在
