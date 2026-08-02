@@ -1,54 +1,53 @@
 <template>
-  <section class="min-h-full bg-gray-100">
-    <div>
+  <section class="min-h-full bg-gray-100 pb-4">
+    <div class="bg-white">
       <img src="/res/service/task.png" class="w-full h-56 object-cover object-top" alt="" />
     </div>
-    <div class="relative h-44">
-      <div
-        class="h-52 px-4 bg-white rounded-lg overflow-y-scroll absolute -top-10 left-3.5 right-3.5"
-      >
-        <van-tabs v-model:active="punchInActive">
-          <van-tab title="总览">
-            <div class="mt-4">
-              <p class="font-bold">签到打卡</p>
-              <van-steps
-                :active="punchInDaysOverviewActive"
-                active-icon="success"
-                active-color="#ff6e65"
-              >
-                <van-step v-for="item in punchInDaysOverviewData" :key="item">
-                  <template v-slot:inactive-icon>
-                    <div class="w-full h-full flex justify-center items-center">
-                      <InActiveIcon class="w-5 text-[#ff9f99]" />
-                    </div>
-                  </template>
-                  <template v-slot:active-icon>
-                    <div class="w-full h-full flex justify-center items-center">
-                      <ActiveIcon class="w-5 text-[#ff6e65]" />
-                    </div>
-                  </template>
-                  <template v-slot:finish-icon>
-                    <div class="w-full h-full flex justify-center items-center">
-                      <ActiveIcon class="w-5 text-gray-400" />
-                    </div>
-                  </template>
-                  {{ `${item}天` }}
-                </van-step>
-              </van-steps>
-              <div
-                @click="punchInDaysButtonClick"
-                :class="[
-                  'cursor-pointer text-center py-3 rounded-md',
-                  punchInToday ? 'bg-gray-100 text-gray-400' : 'bg-[#ff6e65] text-white'
-                ]"
-              >
-                {{ `${punchInToday ? `已连续签到${continuousPunch}天` : '点击签到'}` }}
+    <div class="px-3.5 pt-3 space-y-3">
+      <section class="bg-white rounded-lg p-4" aria-labelledby="check-in-heading">
+        <div class="flex items-center justify-between mb-3">
+          <p id="check-in-heading" class="font-bold">签到打卡</p>
+          <span class="text-xs text-gray-500">连续签到 {{ continuousPunch }} 天</span>
+        </div>
+        <van-steps :active="punchInDaysOverviewActive" active-icon="success" active-color="#ff6e65">
+          <van-step v-for="item in punchInDaysOverviewData" :key="item">
+            <template v-slot:inactive-icon>
+              <div class="w-full h-full flex justify-center items-center">
+                <InActiveIcon class="w-5 text-[#ff9f99]" />
               </div>
-            </div>
-          </van-tab>
+            </template>
+            <template v-slot:active-icon>
+              <div class="w-full h-full flex justify-center items-center">
+                <ActiveIcon class="w-5 text-[#ff6e65]" />
+              </div>
+            </template>
+            <template v-slot:finish-icon>
+              <div class="w-full h-full flex justify-center items-center">
+                <ActiveIcon class="w-5 text-gray-400" />
+              </div>
+            </template>
+            {{ `${item}天` }}
+          </van-step>
+        </van-steps>
+        <van-button
+          block
+          class="mt-4 h-11 border-0"
+          :class="punchInToday ? 'bg-gray-100 text-gray-400' : 'bg-[#ff6e65] text-white'"
+          :disabled="punchInToday || punchInPending"
+          :loading="punchInPending"
+          loading-text="签到中"
+          type="primary"
+          @click="punchInDaysButtonClick"
+        >
+          {{ punchInToday ? `已连续签到${continuousPunch}天` : '点击签到' }}
+        </van-button>
+      </section>
+
+      <section class="bg-white rounded-lg px-4" aria-label="签到规则和获取明细">
+        <van-tabs v-model:active="punchInActive">
           <van-tab title="规则">
-            <div class="mt-4">
-              <p class="font-bold mb-1.5">规则描述</p>
+            <div class="py-4 text-sm leading-6 text-gray-700">
+              <p class="font-bold mb-1.5 text-gray-900">规则描述</p>
               <p class="indent-4">
                 每日签到可获得<span class="text-[#ff6e65] font-bold">10</span> ~
                 <span class="text-[#ff6e65] font-bold">30</span
@@ -59,33 +58,34 @@
             </div>
           </van-tab>
           <van-tab title="获取明细">
-            <van-steps direction="vertical" :active="0">
-              <van-step v-for="item in punchInDaysData" :key="item">
-                <p>
-                  {{
-                    `【签到】${taskRewardStore.englishToChineseWeekday[moment(item.createdAt).format('dddd')]}您领取了${item.rewardDialogue}对话余额`
-                  }}
-                </p>
-                <p>{{ moment(item.createdAt).format('YYYY-MM-DD HH:mm:ss') }}</p>
-              </van-step>
-            </van-steps>
-            <van-empty v-if="punchInDaysData.length === 0" description="暂无统计数据" />
+            <div class="py-3">
+              <van-steps direction="vertical" :active="0">
+                <van-step v-for="item in punchInDaysData" :key="item">
+                  <p>
+                    {{
+                      `【签到】${taskRewardStore.englishToChineseWeekday[moment(item.createdAt).format('dddd')]}您领取了${item.rewardDialogue}对话余额`
+                    }}
+                  </p>
+                  <p class="text-xs text-gray-500">
+                    {{ moment(item.createdAt).format('YYYY-MM-DD HH:mm:ss') }}
+                  </p>
+                </van-step>
+              </van-steps>
+              <van-empty v-if="punchInDaysData.length === 0" description="暂无统计数据" />
+            </div>
           </van-tab>
         </van-tabs>
-      </div>
-    </div>
-    <div class="mx-3.5 p-4 bg-white rounded-lg overflow-hidden">
-      <p class="font-bold mb-3">任务列表</p>
-      <ul class="flex flex-col gap-6">
-        <li
-          v-for="item in taskRewardStore.taskList"
-          :key="item"
-          class="flex items-center justify-between"
-        >
-          <div class="mr-3">
+      </section>
+      <section class="bg-white rounded-lg p-4" aria-labelledby="task-list-heading">
+        <p id="task-list-heading" class="font-bold mb-4">任务列表</p>
+        <ul class="flex flex-col divide-y divide-gray-100">
+          <li
+            v-for="item in taskRewardStore.taskList"
+            :key="item"
+            class="grid grid-cols-[2.25rem_minmax(0,1fr)_5.5rem] items-start gap-3 py-4 first:pt-0 last:pb-0"
+          >
             <div
-              class="flex items-center justify-center rounded-lg w-9 h-9 text-white text-sm font-bold"
-              style="background: linear-gradient(135deg, #ff8a84, #ff6e65)"
+              class="flex items-center justify-center rounded-lg w-9 h-9 bg-[#ff6e65] text-white text-sm font-bold"
             >
               <component
                 v-if="item.fluentIconName && taskComponentsRemap[item.fluentIconName]"
@@ -94,53 +94,57 @@
               ></component>
               <span v-else class="text-white text-sm font-bold">{{ item.title?.charAt(0) }}</span>
             </div>
-          </div>
-          <div class="w-full flex flex-col justify-start">
-            <p>{{ item.title }}</p>
-            <div class="flex items-center text-xs text-gray-600">
-              <div v-if="item.dialogue !== 0">
-                对话余额+<span class="text-[#ff6e65] font-bold">{{ item.dialogue }}</span>
-              </div>
-              <div v-if="item.dialogue !== 0 && item.painting !== 0">,&nbsp;</div>
-              <div v-if="item.painting !== 0">
-                绘画余额+<span class="text-[#ff6e65] font-bold">
-                  {{ item.painting }}
+            <div class="min-w-0 flex flex-col gap-1">
+              <p class="break-words leading-5 text-gray-900">{{ item.title }}</p>
+              <div class="flex flex-wrap items-center gap-x-1 text-xs leading-5 text-gray-600">
+                <span v-if="item.dialogue !== 0">
+                  对话余额+<span class="text-[#ff6e65] font-bold">{{ item.dialogue }}</span>
+                </span>
+                <span v-if="item.painting !== 0">
+                  绘画余额+<span class="text-[#ff6e65] font-bold">
+                    {{ item.painting }}
+                  </span>
                 </span>
               </div>
             </div>
-          </div>
-          <div class="w-24 h-full flex items-start justify-end">
-            <van-button
-              v-if="item.status === 'available reward'"
-              @click="receiveReward(item)"
-              class="w-14 h-6 bg-[#ff6e65]"
-              round
-              type="primary"
-            >
-              <Checkmark24Filled class="w-5 h-5" />
-            </van-button>
-            <van-button
-              v-if="item.status === 'finished'"
-              class="w-14 h-6 bg-gray-100 text-gray-400 border-0"
-              round
-              type="primary"
-            >
-              1/1
-            </van-button>
-            <van-button
-              v-if="item.status === 'in progress'"
-              class="w-14 h-6 border-gray-300 text-gray-500"
-              plain
-              round
-              type="default"
-            >
-              0/1
-            </van-button>
-          </div>
-        </li>
-      </ul>
+            <div class="flex min-h-9 items-center justify-end">
+              <van-button
+                v-if="item.status === 'available reward'"
+                :aria-label="`领取${item.title}奖励`"
+                :disabled="isRewardPending(item)"
+                :loading="isRewardPending(item)"
+                loading-text="领取中"
+                @click="receiveReward(item)"
+                class="h-9 min-w-20 border-0 bg-[#ff6e65]"
+                type="primary"
+              >
+                <span v-if="!isRewardPending(item)" class="inline-flex items-center gap-1">
+                  <Checkmark24Filled class="w-4 h-4" />
+                  领取
+                </span>
+              </van-button>
+              <van-button
+                v-if="item.status === 'finished'"
+                disabled
+                class="h-9 min-w-20 border-0 bg-gray-100 text-gray-400"
+                type="primary"
+              >
+                已领取
+              </van-button>
+              <van-button
+                v-if="item.status === 'in progress'"
+                disabled
+                class="h-9 min-w-20 border-gray-300 text-gray-500"
+                plain
+                type="default"
+              >
+                未完成
+              </van-button>
+            </div>
+          </li>
+        </ul>
+      </section>
     </div>
-    <div class="h-4"></div>
   </section>
 </template>
 <script setup lang="js">
@@ -202,29 +206,37 @@ const punchInDaysOverview = () => {
 }
 // 今日已打卡
 const punchInToday = ref(false)
+const punchInPending = ref(false)
 // 禁用打卡按钮
 const disablePunchInDaysButton = () => {
   punchInToday.value = true
 }
 // 点击每日打卡按钮
 const punchInDaysButtonClick = async () => {
-  if (punchInToday.value) return
-  disablePunchInDaysButton()
-  punchInDaysOverviewActive.value++
-  const response = await axios.request({
-    url: '/user/service/task/punchDaily',
-    method: 'get',
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('token')}`
+  if (punchInToday.value || punchInPending.value) return
+  punchInPending.value = true
+  try {
+    const response = await axios.request({
+      url: '/user/service/task/punchDaily',
+      method: 'get',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    })
+    if (response.status === 200) {
+      const parsedData = response.data
+      if (parsedData.status === 0) {
+        disablePunchInDaysButton()
+        punchInDaysOverviewActive.value++
+        punchInDaysData.value.unshift(parsedData.punchInDaily)
+        continuousPunch.value++
+        showToast(`获得：${parsedData.punchInDaily.rewardDialogue}对话余额`)
+      }
     }
-  })
-  if (response.status === 200) {
-    const parsedData = response.data
-    if (parsedData.status === 0) {
-      punchInDaysData.value.unshift(parsedData.punchInDaily)
-      continuousPunch.value++
-      showToast(`获得：${parsedData.punchInDaily.rewardDialogue}对话余额`)
-    }
+  } catch {
+    showToast('签到失败，请稍后重试')
+  } finally {
+    punchInPending.value = false
   }
 }
 // 连续打卡数据
@@ -232,12 +244,17 @@ const punchInDaysData = ref([])
 // 连续打卡天数
 const continuousPunch = ref(0)
 
+const rewardPendingTaskNames = ref(new Set())
+
+const isRewardPending = (item) => rewardPendingTaskNames.value.has(item.name)
+
 // 领取奖励值
-const receiveReward = (item) => {
-  // if (item.status !== 'available reward') return
+const receiveReward = async (item) => {
+  if (item.status !== 'available reward' || isRewardPending(item)) return
+  rewardPendingTaskNames.value = new Set(rewardPendingTaskNames.value).add(item.name)
   const formData = { taskName: item.name }
-  axios
-    .request({
+  try {
+    await axios.request({
       url: '/user/service/task/receiveAReward',
       method: 'post',
       headers: {
@@ -245,12 +262,17 @@ const receiveReward = (item) => {
       },
       data: formData
     })
-    .then(() => {
-      item.status = 'finished'
-      showSuccessToast('领取成功')
-      // 将status为finished的item排序到taskList的底部
-      taskRewardStore.taskQuickSort()
-    })
+    item.status = 'finished'
+    showSuccessToast('领取成功')
+    // 将status为finished的item排序到taskList的底部
+    taskRewardStore.taskQuickSort()
+  } catch {
+    showToast('领取失败，请稍后重试')
+  } finally {
+    const pendingTasks = new Set(rewardPendingTaskNames.value)
+    pendingTasks.delete(item.name)
+    rewardPendingTaskNames.value = pendingTasks
+  }
 }
 
 onMounted(async () => {
@@ -268,5 +290,4 @@ onMounted(async () => {
   await taskRewardStore.getNetworkTaskList()
 })
 </script>
-<style scoped>
-</style>
+<style scoped></style>
