@@ -99,7 +99,8 @@ onMounted(() => {
   height: calc(100% - 50px);
   min-width: 0;
   min-height: 0;
-  overflow: hidden;
+  overflow-x: clip;
+  overflow-y: auto;
 }
 
 .tab-forward-enter-active,
