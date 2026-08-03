@@ -1,8 +1,8 @@
-import { request } from '@/service/request';
+import { request } from "@/service/request";
 
 export function fetchGetAllModel() {
   return request<Api.Core.Chat.Language.Model[]>({
-    url: '/chat/language/getAllModel'
+    url: "/chat/language/getAllModel",
   });
 }
 
@@ -17,11 +17,11 @@ export interface PostModelParams {
 }
 export function fetchPostModel(d: PostModelParams) {
   return request({
-    url: '/chat/language/postModel',
-    method: 'POST',
+    url: "/chat/language/postModel",
+    method: "POST",
     data: {
-      ...d
-    }
+      ...d,
+    },
   });
 }
 
@@ -34,12 +34,33 @@ export interface CreateModelParams {
   apiKey?: string;
   baseUrl?: string;
 }
+
+export interface TestModelConnectionParams {
+  model: string;
+  apiKey: string;
+  baseUrl: string;
+}
+
+export interface TestModelConnectionResult {
+  connected: boolean;
+  durationMs: number;
+  message?: string;
+}
+
+export function fetchTestModelConnection(data: TestModelConnectionParams) {
+  return request<TestModelConnectionResult>({
+    url: "/chat/language/testModelConnection",
+    method: "POST",
+    data,
+  });
+}
+
 export function fetchCreateModel(d: CreateModelParams) {
   return request({
-    url: '/chat/language/createModel',
-    method: 'POST',
+    url: "/chat/language/createModel",
+    method: "POST",
     data: {
-      ...d
-    }
+      ...d,
+    },
   });
 }

@@ -32,6 +32,9 @@ importers:
       '@vueuse/core':
         specifier: 10.9.0
         version: 10.9.0(vue@3.4.25(typescript@5.4.5))
+      axios:
+        specifier: 1.6.8
+        version: 1.6.8
       clipboard:
         specifier: 2.0.11
         version: 2.0.11
@@ -240,7 +243,11 @@ importers:
         specifier: 5.0.5
         version: 5.0.5
 
-  packages/uno-preset: {}
+  packages/uno-preset:
+    dependencies:
+      '@unocss/core':
+        specifier: 0.59.4
+        version: 0.59.4
 
   packages/utils:
     dependencies:

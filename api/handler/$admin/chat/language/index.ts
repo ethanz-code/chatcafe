@@ -3,6 +3,7 @@ import { Elysia, t } from "elysia";
 import getAllModel from "./modules/getAllModel";
 import postModel from "./modules/postModel";
 import createModel from "./modules/createModel";
+import testModelConnection from "./modules/testModelConnection";
 import getAllHotIssues from "./modules/getAllHotIssues";
 import createHotIssue from "./modules/createHotIssue";
 import deleteHotIssue from "./modules/deleteHotIssue";
@@ -30,6 +31,13 @@ export const LanguagePlugin = ({ prefix }: IAuthPluginParams) =>
         cost: t.Number(),
         relatedUrl: t.Optional(t.String()),
         imgUrl: t.Optional(t.String()),
+        apiKey: t.Optional(t.String()),
+        baseUrl: t.Optional(t.String()),
+      }),
+    })
+    .post(`${prefix}/testModelConnection`, testModelConnection, {
+      body: t.Object({
+        model: t.Optional(t.String()),
         apiKey: t.Optional(t.String()),
         baseUrl: t.Optional(t.String()),
       }),

@@ -1,4 +1,3 @@
-import path from 'node:path';
 import { readFileSync } from 'node:fs';
 import { prompt } from 'enquirer';
 import { bgRed, green, red, yellow } from 'kolorist';
@@ -68,9 +67,7 @@ export async function gitCommit(
 
 /** Git commit message verify */
 export async function gitCommitVerify() {
-  const gitPath = await execCommand('git', ['rev-parse', '--show-toplevel']);
-
-  const gitMsgPath = path.join(gitPath, '.git', 'COMMIT_EDITMSG');
+  const gitMsgPath = await execCommand('git', ['rev-parse', '--git-path', 'COMMIT_EDITMSG']);
 
   const commitMsg = readFileSync(gitMsgPath, 'utf8').trim();
 
