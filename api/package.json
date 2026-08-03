@@ -3,6 +3,7 @@
   "type": "module",
   "scripts": {
     "format": "prettier --write .",
+    "test": "node --import tsx/esm --test",
     "dev": "dotenvx run -f .env.development -- node --watch --import tsx/esm index.ts",
     "prod": "dotenvx run -f .env.production --overload -- node --import tsx/esm index.ts",
     "encrypt:dev": "dotenvx encrypt -f .env.development",

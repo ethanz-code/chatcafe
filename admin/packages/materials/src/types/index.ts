@@ -241,7 +241,7 @@ type Prefix = '--soy-';
 
 export type LayoutCssVarsProps = Pick<
   AdminLayoutProps,
-  'headerHeight' | 'tabHeight' | 'siderWidth' | 'siderCollapsedWidth' | 'footerHeight'
+  'headerHeight' | 'tabHeight' | 'siderWidth' | 'siderCollapsedWidth' | 'bannerHeight' | 'footerHeight'
 > & {
   headerZIndex?: number;
   tabZIndex?: number;
