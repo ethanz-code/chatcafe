@@ -1,15 +1,15 @@
 <template>
-  <section class="flex flex-col h-full bg-[#f5f5f5]">
-    <div ref="content" class="flex-1 overflow-y-auto">
+  <section class="flex min-h-full flex-col bg-[var(--app-bg)]">
+    <div ref="content" class="flex-1 min-h-0">
 
       <!-- 用户信息卡片 -->
       <div class="bg-white mx-3 mt-3 rounded-xl px-4 py-4">
-        <div v-if="store.isLogin" class="flex items-center gap-3">
-          <img
-            v-lazy="store.avatar"
-            @click="getProfile"
-            class="rounded-full h-12 w-12 cursor-pointer"
-            alt="avatar"
+        <button v-if="store.isLogin" type="button" @click="getProfile" class="flex items-center gap-3 w-full box-border bg-transparent border-0 p-0 text-left">
+          <SkeletonImage
+            :src="store.avatar"
+            :alt="store.name"
+            custom-class="h-12 w-12 rounded-full shrink-0"
+            rounded="rounded-full"
           />
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2">
@@ -33,9 +33,9 @@
               >复制</span>
             </div>
           </div>
-          <van-icon name="arrow" class="text-gray-300" />
-        </div>
-        <div v-else @click="getProfile" class="flex items-center gap-3 cursor-pointer">
+          <van-icon name="arrow" class="text-gray-300 ml-auto shrink-0" />
+        </button>
+        <button v-else type="button" @click="getProfile" class="flex items-center gap-3 cursor-pointer w-full box-border bg-transparent border-0 p-0 text-left">
           <img
             src="/res/avatar-not-login.png"
             class="rounded-full h-12 w-12"
@@ -43,11 +43,12 @@
           />
           <span class="text-base text-gray-400">点击登录</span>
           <van-icon name="arrow" class="text-gray-300 ml-auto" />
-        </div>
-        <div
+        </button>
+        <button
           v-if="store.isLogin"
+          type="button"
           @click="goToPay"
-          class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between cursor-pointer"
+          class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between cursor-pointer w-full bg-transparent border-0 p-0 text-left"
         >
           <div class="flex items-center gap-6">
             <div>
@@ -60,14 +61,15 @@
             </div>
           </div>
           <van-icon name="arrow" class="text-gray-300" />
-        </div>
+        </button>
       </div>
 
       <!-- 每日签到 -->
-      <div
+      <button
         v-if="canPunchInRef"
+        type="button"
         @click="clickServiceFunc(serviceList.filter((t) => t.path === 'task-reward')[0])"
-        class="bg-white mx-3 mt-3 rounded-xl px-4 py-3 flex items-center justify-between cursor-pointer"
+        class="bg-white w-[calc(100%-24px)] mx-auto mt-3 rounded-xl px-4 py-3 flex items-center justify-between cursor-pointer box-border border-0 text-left"
       >
         <div class="flex items-center gap-2.5">
           <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
@@ -79,23 +81,24 @@
           </div>
         </div>
         <div class="text-xs text-[#ff6e65] font-medium">去签到</div>
-      </div>
+      </button>
 
       <!-- 快捷功能 -->
       <div class="bg-white mx-3 mt-3 rounded-xl px-4 py-4">
         <div class="text-sm font-medium mb-3">快捷功能</div>
         <div class="flex justify-around">
-          <div
+          <button
             v-for="item in quickActions"
             :key="item.title"
+            type="button"
             @click="clickServiceFunc(item)"
-            class="cursor-pointer flex flex-col items-center gap-1.5"
+            class="cursor-pointer flex flex-col items-center gap-1.5 bg-transparent border-0 p-0 min-w-0 max-w-full"
           >
-            <div class="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
+            <span class="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
               <van-icon :name="item.icon" size="24" color="#ff6e65" />
-            </div>
+            </span>
             <span class="text-xs text-gray-600">{{ item.title }}</span>
-          </div>
+          </button>
         </div>
       </div>
 
@@ -106,18 +109,21 @@
           <van-badge
             v-for="item in otherServices"
             :key="item.title"
-            @click="clickServiceFunc(item)"
             :offset="[6, -4]"
             :show-zero="false"
             :content="item.point || 0"
             class="min-w-0"
           >
-            <div class="w-full min-w-0 h-16 cursor-pointer flex flex-col items-center gap-1">
-              <div class="w-10 h-10 shrink-0 rounded-full bg-gray-100 flex items-center justify-center">
+            <button
+              type="button"
+              @click="clickServiceFunc(item)"
+              class="w-full min-w-0 h-16 cursor-pointer flex flex-col items-center gap-1 bg-transparent border-0 p-0"
+            >
+              <span class="w-10 h-10 shrink-0 rounded-full bg-gray-100 flex items-center justify-center">
                 <van-icon :name="item.icon" :class-prefix="item.iconPrefix" size="20" color="#ff6e65" />
-              </div>
+              </span>
               <span class="max-w-full truncate text-xs leading-4 text-gray-500 text-center">{{ item.title }}</span>
-            </div>
+            </button>
           </van-badge>
         </div>
       </div>
@@ -132,7 +138,6 @@
       </div>
     </div>
 
-    <div class="h-[50px] shrink-0"></div>
   </section>
 </template>
 <script setup lang="js">
@@ -141,6 +146,7 @@ import { useUserCenterStore } from '@/stores/user-center'
 import { useFloatingFunction } from '@/stores/floating-function'
 import { WhetherToDisableTheEffect } from '@/utils/fixedRubberBandEffect.js'
 import copy from '@/utils/copyInformation'
+import SkeletonImage from '@/components/Common/SkeletonImage.vue'
 
 import { useRouter, useRoute } from 'vue-router'
 import { computed } from 'vue'
@@ -158,23 +164,21 @@ const route = useRoute()
 
 // 我的服务功能列表
 const serviceList = ref([
-  { title: '任务奖励', path: 'task-reward', exist: true, icon: 'point-gift', point: 0 },
+  { title: '任务奖励', path: 'task', exist: true, icon: 'point-gift', point: 0 },
   { title: '充值中心', path: 'pay', exist: true, icon: 'shop' },
-  { title: '分销推广', path: 'distributionPromotion', exist: true, icon: 'cluster' },
-  { title: '卡密兑换', path: 'activationCode', exist: true, icon: 'card' },
-  { title: '邀请海报', path: 'invitePoster', exist: true, icon: 'photo' },
-  { title: '文章资讯', path: '', exist: false, icon: 'description' },
-  { title: '我的收藏', path: 'star-msg', exist: true, icon: 'star' },
+  { title: '分销推广', path: 'promote', exist: true, icon: 'cluster' },
+  { title: '卡密兑换', path: 'code', exist: true, icon: 'card' },
+  { title: '邀请海报', path: 'poster', exist: true, icon: 'photo' },
+  { title: '我的收藏', path: 'star', exist: true, icon: 'star' },
   { title: '意见反馈', path: 'feedback', exist: true, icon: 'comment' },
   { title: '联系客服', path: 'concat', exist: true, icon: 'service' },
   { title: '关于我们', path: 'about', exist: true, icon: 'info' },
-  { title: '最新课程', path: 'course', exist: false, icon: 'fire' },
   { title: '辅导培训', path: 'training', exist: false, icon: 'notes' },
   { title: '应用中心', to: '/pages/app-center', exist: true, icon: 'app-center', iconPrefix: 'iconfont-ydai' },
   { title: '作品广场', to: '/pages/image-community', exist: true, icon: 'community', iconPrefix: 'iconfont-ydai' }
 ])
 
-const quickActionPaths = ['task-reward', 'pay', 'star-msg', 'concat', 'feedback']
+const quickActionPaths = ['task', 'pay', 'star', 'concat', 'feedback']
 
 const quickActions = computed(() =>
   serviceList.value.filter((item) => quickActionPaths.includes(item.path))
@@ -217,14 +221,14 @@ const clickServiceFunc = (item) => {
   if (!store.isLogin) router.push('/modules/login')
   else {
     if (item.to) router.push(item.to)
-    else if (item.exist) router.push('/service/' + item.path)
+    else if (item.exist) router.push('/s/' + item.path)
     else showFailToast('功能建设中，敬请期待')
   }
 }
 
 const goToPay = () => {
   historyStore.lastPagePath.push(route.fullPath)
-  router.push('/service/pay')
+  router.push('/s/pay')
 }
 
 const canPunchInRef = ref(false)
@@ -236,8 +240,6 @@ onMounted(async () => {
       recordNumber.value = res.data.data.recordNumber || ''
     }
   })
-  const prefix = import.meta.env.VITE_TITLE_PREFIX
-  document.title = `${prefix}用户中心`
   WhetherToDisableTheEffect(content.value)
 
   if (store.isLogin) {
@@ -263,7 +265,7 @@ onMounted(async () => {
       })
 
     // 用户可以打卡时在任务奖励图标右上方添加红点
-    const taskRewardService = serviceList.value.filter((item) => item.path === 'task-reward')[0]
+    const taskRewardService = serviceList.value.filter((item) => item.path === 'task')[0]
     const { canPunchIn } = await taskRewardStore.checkIfYouCanPunchIn()
     // 设置可以打卡ref，用来控制用户中心打卡板块的交互逻辑
     canPunchInRef.value = canPunchIn

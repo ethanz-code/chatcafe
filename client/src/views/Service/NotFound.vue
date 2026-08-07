@@ -24,5 +24,5 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const isNotFound = computed(() => route.name === 'NotFound' && route.path !== '/service/not-found')
+const isNotFound = computed(() => route.name === 'NotFound' && route.path !== '/s/not-found')
 </script>

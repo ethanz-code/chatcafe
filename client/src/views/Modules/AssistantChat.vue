@@ -1,17 +1,16 @@
 <template>
-  <section class="flex flex-col h-full bg-white">
+  <section class="relative flex h-full min-h-0 flex-col overflow-hidden bg-white">
     <!--  顶部功能栏目  -->
     <van-nav-bar
-      class="h-12 shadow-sm"
+      class="h-12 shrink-0 shadow-sm"
       :title="assistantInfo.name"
       left-text="返回"
       left-arrow
-      fixed
       @click-left="backLastPage"
     />
 
     <!--  内容区域  -->
-    <div ref="contentRef" class="flex-1 flex flex-col items-center overflow-y-auto bg-white mt-12">
+    <div ref="contentRef" class="flex min-h-0 flex-1 flex-col items-center overflow-y-auto bg-white">
       <div
         v-show="!hasMsg"
         aria-label="default"
@@ -26,7 +25,7 @@
               <!-- 助理头像区域 -->
               <div
                 v-if="item.role === 'assistant'"
-                class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                class="w-10 h-10 rounded-full bg-gradient-to-br from-[#ffa08e] to-[#ff6e65] flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
               >
                 AI
               </div>
@@ -117,8 +116,8 @@
       <div
         v-if="canContinueControl"
         :class="[
-          'fixed transition-all duration-300 ease-linear',
-          canContinue ? 'opacity-100 bottom-48' : 'opacity-0 bottom-44'
+          'flex w-full justify-center pt-4 transition-all duration-300 ease-linear',
+          canContinue ? 'opacity-100' : 'opacity-0'
         ]"
       >
         <div
@@ -153,7 +152,7 @@
           >
             <div class="flex items-center">
               <img v-if="item.imgUrl" :src="item.imgUrl" class="w-10 h-10 rounded-full object-cover flex-shrink-0" />
-              <div v-else class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+              <div v-else class="w-10 h-10 rounded-full bg-gradient-to-br from-[#ffa08e] to-[#ff6e65] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                 AI
               </div>
               <div class="flex flex-col ml-2">
@@ -177,9 +176,8 @@
 
     <!--  底部发送信息栏目  -->
     <div
-      ref="bottomFunctionRef"
       style="border-top: 1px solid #f4f5f7"
-      class="bg-white p-3 bottom-0 fixed right-0 left-0 mx-auto box-border max-w-[var(--app-content-width)]"
+      class="shrink-0 bg-white p-3"
     >
       <!--  选择LLM  -->
       <div
@@ -209,13 +207,14 @@
             ref="messageRef"
             @input="checkMessageHeight"
             rows="1"
-            class="leading-8 py-0 w-full border-0 bg-gray-50 rounded-lg pl-3 resize-none h-8"
+            class="h-8 max-h-32 w-full resize-none overflow-y-auto rounded-lg border-0 bg-gray-50 py-0 pl-3 leading-8"
             type="text"
             placeholder="请输入内容"
             :disabled="replying"
           ></textarea>
         </div>
         <van-button
+          ref="sendMsgButtonRef"
           id="sendMsgButton"
           v-show="message.length > 0"
           class="self-start mr-2"
@@ -267,12 +266,12 @@ const route = useRoute()
 
 // -----文本区域高度自适应------
 const messageRef = ref(null)
+const sendMsgButtonRef = ref(null)
 const message = ref('')
 const checkMessageHeight = () => {
   const obj = messageRef.value
   obj.style.height = '32px'
   obj.style.height = obj.scrollHeight + 'px'
-  calculateContentMarginBottom()
 }
 // -----文本区域高度自适应------
 
@@ -311,15 +310,7 @@ watch(height, async (newHeight) => {
 })
 // ------选择大语言模型--------
 
-// --------Content顶部，底部外边距自动计算-----------
 const contentRef = ref()
-const bottomFunctionRef = ref()
-const calculateContentMarginBottom = () => {
-  const content = contentRef.value
-  const marginBottom = bottomFunctionRef.value.offsetHeight + 1
-  content.style.marginBottom = `${marginBottom}px`
-}
-// --------Content顶部，底部外边距自动计算-----------
 
 // ---------内容区域对话内容---------
 let dialogContent = ref([])
@@ -362,7 +353,7 @@ const insuficientBalance = (error = '') => {
     .then(() => {
       // on confirm
       const timer = setTimeout(() => {
-        router.push('/service/pay')
+        router.push('/s/pay')
         clearTimeout(timer)
       }, 300)
     })
@@ -576,9 +567,8 @@ const continueSendMsg = () => {
   canContinue.value = false
   canContinueControl.value = false
   message.value = '继续'
-  const sendMsgButton = document.querySelector('#sendMsgButton')
   const timer = setTimeout(() => {
-    sendMsgButton.click()
+    sendMsgButtonRef.value?.$el?.click?.()
     clearTimeout(timer)
   }, 500)
 }
@@ -597,10 +587,7 @@ const backLastPage = () => {
 // ---------Assistant区域---------
 
 onMounted(() => {
-  document.title = '助理-聊天'
-
   const timer = setTimeout(() => {
-    calculateContentMarginBottom()
     autoScroll2Bottom()
     clearTimeout(timer)
   }, 150)

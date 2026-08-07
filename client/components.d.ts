@@ -7,11 +7,16 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    AppShell: typeof import('./src/components/AppShell/AppShell.vue')['default']
+    FluidTabBar: typeof import('./src/components/TabBar/FluidTabBar.vue')['default']
     MessageModule: typeof import('./src/components/TabBar/AIChat/MessageModule.vue')['default']
+    PageViewport: typeof import('./src/components/AppShell/PageViewport.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SidebarDialog: typeof import('./src/components/TabBar/AIChat/SidebarDialog.vue')['default']
     SidebarItem: typeof import('./src/components/TabBar/AIChat/SidebarItem.vue')['default']
+    SkeletonImage: typeof import('./src/components/Common/SkeletonImage.vue')['default']
+    SubpageShell: typeof import('./src/components/AppShell/SubpageShell.vue')['default']
     VanActionSheet: typeof import('vant/es')['ActionSheet']
     VanBadge: typeof import('vant/es')['Badge']
     VanButton: typeof import('vant/es')['Button']
@@ -36,8 +41,6 @@ declare module 'vue' {
     VanStep: typeof import('vant/es')['Step']
     VanSteps: typeof import('vant/es')['Steps']
     VanTab: typeof import('vant/es')['Tab']
-    VanTabbar: typeof import('vant/es')['Tabbar']
-    VanTabbarItem: typeof import('vant/es')['TabbarItem']
     VanTabs: typeof import('vant/es')['Tabs']
     VanTag: typeof import('vant/es')['Tag']
     WXTipsMask: typeof import('./src/components/Common/WXTipsMask.vue')['default']

@@ -1,16 +1,16 @@
 <template>
+  <div class="user-profile-root">
   <div class="min-h-full bg-gray-50 px-3 pb-6 pt-4">
     <van-form class="flex flex-col gap-4">
       <section>
-        <p class="mb-2 px-1 text-xs font-medium text-gray-500">个人资料</p>
       <van-cell-group inset>
         <div class="flex justify-center py-5">
           <button type="button" @click="clickAvatar" class="relative cursor-pointer rounded-full" aria-label="更换头像">
             <img
               v-lazy="userAvatar"
-              class="h-20 w-20 rounded-full border-2 border-solid border-black shadow-md"
+              class="h-20 w-20 rounded-full border-2 border-solid border-[var(--coral-100)] shadow-sm"
             />
-            <AddCircle20Filled class="absolute -right-2 bottom-1 w-6 h-6" />
+            <AddCircle20Filled class="absolute -right-2 bottom-1 h-6 w-6 text-[var(--coral-600)]" />
           </button>
         </div>
         <van-field
@@ -71,7 +71,7 @@
       <section>
         <p class="mb-2 px-1 text-xs font-medium text-gray-500">账号操作</p>
       <van-cell-group inset>
-        <button type="button" @click="logout" class="w-full cursor-pointer px-[10px] py-3 text-center text-red-500">
+        <button type="button" @click="logout" class="w-full cursor-pointer rounded-xl border-0 bg-[var(--coral-50)] px-[10px] py-3 text-center font-medium text-[var(--coral-700)]">
           退出登录
         </button>
       </van-cell-group>
@@ -121,6 +121,7 @@
   <div class="cropper">
     <!-- 这里可以放一个input，用来选择图片，也可以放一个按钮，点击后弹出选择图片的弹窗 -->
     <H5Cropper ref="h5Cropper" :option="option" @getblobData="getblobData" />
+  </div>
   </div>
 </template>
 <script setup lang="js">
@@ -269,6 +270,11 @@ onMounted(() => {
 })
 </script>
 <style>
+.user-profile-root {
+  min-width: 0;
+  overflow-x: hidden;
+}
+
 .cropper {
   width: 0;
   height: 0;

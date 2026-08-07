@@ -6,6 +6,7 @@ import Components from 'unplugin-vue-components/vite'
 import { VantResolver } from '@vant/auto-import-resolver'
 
 // https://vitejs.dev/config/
+// eslint-disable-next-line no-unused-vars
 export default defineConfig(({ mode }) => {
   // 根据当前工作目录中的 `mode` 加载 .env 文件
   // 设置第三个参数为 '' 来加载所有环境变量，而不管是否有 `VITE_` 前缀。
@@ -31,7 +32,6 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       host: '0.0.0.0',
-      open: true,
       proxy: {
         '/api': {
           target: 'http://localhost:9091',

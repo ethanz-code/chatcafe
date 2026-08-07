@@ -45,7 +45,7 @@ new Elysia({ adapter: node() })
     jwt({
       name: "jwt",
       secret: jwtSecret,
-      exp: "3d",
+      exp: "7d",
     }),
   )
   .use(corsConfig)

@@ -1,8 +1,8 @@
 <template>
-  <section class="flex flex-col h-full touch-none">
-    <div class="flex-1 bg-[#f5f5f5] flex flex-col">
+  <section class="flex flex-col h-full min-h-0">
+    <div class="flex-1 bg-[var(--app-bg)] flex flex-col min-h-0">
       <!--  搜索栏  -->
-      <form class="bg-white fixed top-0 inset-x-0 z-10 mx-auto box-border max-w-[var(--app-content-width)]" action="/">
+      <form class="bg-white shrink-0 z-10" action="/">
         <van-search
           v-model="searchValue"
           show-action
@@ -14,12 +14,13 @@
         />
       </form>
 
-      <div class="flex flex-1 justify-end relative my-[50px]">
+      <!-- Content is contained by the shell instead of the browser viewport. -->
+      <div class="flex flex-1 min-h-0 overflow-hidden">
         <!--  侧边栏  -->
         <van-sidebar
           v-model="active"
           @change="onSidebarChange"
-          class="fixed left-0 h-full w-1/3 bg-[#f7f8fa]"
+          class="h-full w-1/3 shrink-0 bg-[#f7f8fa]"
         >
           <van-sidebar-item title="所有" />
           <van-sidebar-item
@@ -30,26 +31,33 @@
         </van-sidebar>
 
         <!--  内容区域  -->
-        <div class="w-2/3 p-3 h-full overflow-y-auto box-border">
+        <div class="flex-1 min-w-0 p-3 h-full overflow-y-auto box-border">
           <div
             v-if="assistants.length !== 0"
             class="flex flex-col sm:flex-row sm:flex-wrap sm:place-content-start sm:items-start gap-2.5"
           >
-            <div
+            <button
               :key="item"
               v-for="item in assistants"
+              type="button"
               @click="enterAssistantChat(item)"
-              class="bg-white p-3 rounded-md flex gap-3 items-center cursor-pointer min-h-16 box-border"
+              class="bg-white p-3 rounded-md flex gap-3 items-center cursor-pointer min-h-16 box-border border-0 text-left w-full"
             >
-              <img v-if="item.imgUrl" v-lazy="item.imgUrl" class="w-10 rounded-md object-center" alt="assistant" />
-              <div v-else class="w-10 h-10 rounded-md bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+              <SkeletonImage
+                v-if="item.imgUrl"
+                :src="item.imgUrl"
+                :alt="item.name"
+                custom-class="w-10 h-10 rounded-md shrink-0"
+                rounded="rounded-md"
+              />
+              <div v-else class="w-10 h-10 rounded-md bg-gradient-to-br from-[#ffa08e] to-[#ff6e65] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                 {{ item.name?.charAt(0) || 'A' }}
               </div>
               <div class="flex flex-col gap-0.5 overflow-hidden">
                 <span class="w-full font-medium truncate">{{ item.name }}</span>
                 <span class="w-full text-xs truncate text-gray-500">{{ item.description }}</span>
               </div>
-            </div>
+            </button>
           </div>
           <div v-else>
             <!-- 搜索提示 -->
@@ -58,18 +66,13 @@
         </div>
       </div>
     </div>
-
-    <!--  顶部界限，当内容超出时直接隐藏  -->
-    <div class="h-1 w-full fixed top-0 left-0 right-0 mx-auto max-w-[var(--app-content-width)]"></div>
-
-    <!--  最底部导航栏区域空缺出来  -->
-    <div class="h-[50px]"></div>
   </section>
 </template>
 <script setup lang="js">
 import { onMounted, ref } from 'vue'
 import { useAssistantStore } from '@/stores/assistant.js'
 import { watch } from 'vue'
+import SkeletonImage from '@/components/Common/SkeletonImage.vue'
 import { useFloatingFunction } from '@/stores/floating-function'
 import { useRoute, useRouter } from 'vue-router'
 import axios from '@/utils/axios'
@@ -152,8 +155,6 @@ const enterAssistantChat = (item) => {
 }
 
 onMounted(() => {
-  const prefix = import.meta.env.VITE_TITLE_PREFIX
-  document.title = `${prefix}助理`
   store.getAssistantCategory().then(() => {
     assistants.value = getAssistants()
   })

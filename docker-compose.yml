@@ -30,6 +30,8 @@ services:
       postgres:
         condition: service_healthy
     environment:
+      # Runtime-only secret, supplied by the deployment host's ignored .env file.
+      DOTENV_PRIVATE_KEY_PRODUCTION: ${DOTENV_PRIVATE_KEY_PRODUCTION:?DOTENV_PRIVATE_KEY_PRODUCTION must be set}
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
     volumes:
       - media_data:/app/media

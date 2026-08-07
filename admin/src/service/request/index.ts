@@ -98,7 +98,15 @@ export const request = createFlatRequest<App.Service.Response, InstanceState>(
     transformBackendResponse(response) {
       return response.data.data;
     },
-    onError(error) {
+    async onError(error) {
+      const authStore = useAuthStore();
+
+      // token expired or invalid: clear login state and redirect to login page
+      if (error.response?.status === 401) {
+        await authStore.resetStore();
+        return;
+      }
+
       // when the request is fail, you can show error message
 
       let message = error.message;

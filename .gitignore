@@ -3,7 +3,7 @@ dist
 .DS_Store
 *.local
 /.env
-.env.keys
+**/.env.keys
 *.timestamp-*.mjs
 docs/plans/
 .serena/

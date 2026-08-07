@@ -8,11 +8,5 @@
   </section>
 </template>
 <script setup lang="js">
-import { onMounted } from 'vue'
 import { isWeixinBrowser } from '@/utils/operationEnv'
-
-onMounted(() => {
-  const prefix = import.meta.env.VITE_TITLE_PREFIX
-  document.title = `${prefix}社区`
-})
 </script>

@@ -1,28 +1,35 @@
 <template>
-  <main class="tab-page-content">
+  <div class="tab-page-shell">
     <router-view v-slot="{ Component, route: currentRoute }">
-      <transition
-        v-if="isPrimaryRoute(currentRoute.path) && tabTransitionName"
-        :name="tabTransitionName"
-        mode="out-in"
-      >
-        <component :is="Component" :key="currentRoute.path" />
-      </transition>
-      <component v-else :is="Component" :key="currentRoute.path" />
+      <PageViewport :mode="currentRoute.meta.viewport">
+        <template #content>
+          <div class="tab-page-view">
+            <transition :name="isPrimaryRoute(currentRoute.path) ? tabTransitionName : ''">
+              <KeepAlive v-if="currentRoute.meta.keepAlive">
+                <TabRoute :component="Component" :key="currentRoute.path" />
+              </KeepAlive>
+              <TabRoute v-else :component="Component" :key="currentRoute.path" />
+            </transition>
+          </div>
+        </template>
+      </PageViewport>
     </router-view>
-  </main>
-  <FluidTabBar
-    :tabs="tabs"
-    :active-path="route.path"
-    :badge="{ '/pages/user-center': userCenterPoints === 0 ? '' : userCenterPoints }"
-    @navigate="navigate"
-  />
+    <teleport to="#app-shell-navigation">
+      <FluidTabBar
+        :tabs="tabs"
+        :active-path="route.path"
+        :badge="{ '/pages/user-center': userCenterPoints === 0 ? '' : userCenterPoints }"
+        @navigate="navigate"
+      />
+    </teleport>
+  </div>
 </template>
 <script setup>
+import PageViewport from '@/components/AppShell/PageViewport.vue'
 import FluidTabBar from '@/components/TabBar/FluidTabBar.vue'
 import loginVerify from '@/utils/loginVerify'
 import { useUserCenterStore } from '@/stores/user-center'
-import { onMounted, ref, watch } from 'vue'
+import { defineComponent, h, onMounted, ref, watch } from 'vue'
 import { autoClear } from '@/utils/clearLocalStorage'
 
 import { useRoute, useRouter } from 'vue-router'
@@ -42,6 +49,19 @@ const tabs = [
   { path: '/pages/ai-assistant', label: '专业助理', icon: 'assistant' },
   { path: '/pages/user-center', label: '个人中心', icon: 'user' },
 ]
+
+const TabRoute = defineComponent({
+  name: 'TabRoute',
+  props: {
+    component: {
+      type: [Object, Function],
+      required: true,
+    },
+  },
+  setup(props) {
+    return () => h('div', { class: 'tab-page-route' }, [h(props.component)])
+  },
+})
 
 const isPrimaryRoute = (path) => primaryPaths.includes(path)
 
@@ -120,19 +140,39 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.tab-page-content {
-  display: flex;
-  height: calc(100% - 50px);
+.tab-page-shell {
+  height: 100%;
   min-width: 0;
   min-height: 0;
-  overflow-x: clip;
-  overflow-y: auto;
+}
+
+.tab-page-view {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.tab-page-route {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .tab-forward-enter-active,
 .tab-forward-leave-active,
 .tab-back-enter-active,
 .tab-back-leave-active {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   transition:
     opacity 180ms ease,
     transform 180ms ease;

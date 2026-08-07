@@ -1,21 +1,22 @@
 <template>
   <nav
     class="fluid-tab-bar"
-    :style="{ '--active-index': activeIndex }"
+    :style="{ '--tab-count': Math.max(tabs.length, 1), '--active-index': activeIndex }"
     aria-label="主导航"
   >
-    <span v-if="activeIndex >= 0" class="fluid-tab-bar__indicator" aria-hidden="true"></span>
+    <span class="fluid-tab-bar__track" aria-hidden="true"></span>
+    <span v-if="hasActiveTab" class="fluid-tab-bar__bubble" aria-hidden="true"></span>
     <button
       v-for="tab in tabs"
       :key="tab.path"
       class="fluid-tab-bar__item"
-      :class="{ 'fluid-tab-bar__item--active': tab.path === activePath }"
+      :class="{ 'fluid-tab-bar__item--active': hasActiveTab && tab.path === activePath }"
       type="button"
       :aria-label="tabAriaLabel(tab)"
-      :aria-current="tab.path === activePath ? 'page' : undefined"
+      :aria-current="hasActiveTab && tab.path === activePath ? 'page' : undefined"
       @click="$emit('navigate', tab.path)"
     >
-      <span class="fluid-tab-bar__icon-wrap">
+      <span class="fluid-tab-bar__disc">
         <i
           class="iconfont-ydai fluid-tab-bar__icon"
           :class="`iconfont-ydai-${tab.icon}`"
@@ -50,9 +51,13 @@ const props = defineProps({
 
 defineEmits(['navigate'])
 
-const activeIndex = computed(() => props.tabs.findIndex((tab) => tab.path === props.activePath))
-
 const badgeValue = (path) => props.badge[path]
+
+const activeIndex = computed(() => {
+  return props.tabs.findIndex((tab) => tab.path === props.activePath)
+})
+
+const hasActiveTab = computed(() => activeIndex.value >= 0)
 
 const tabAriaLabel = (tab) => {
   const value = badgeValue(tab.path)
@@ -62,104 +67,146 @@ const tabAriaLabel = (tab) => {
 
 <style scoped>
 .fluid-tab-bar {
-  --tab-height: 50px;
-  position: fixed;
+  position: relative;
   z-index: 100;
-  bottom: 0;
-  left: 50%;
   display: grid;
-  width: min(100%, var(--app-content-width));
-  max-width: var(--app-content-width);
-  height: var(--tab-height);
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  transform: translateX(-50%);
-  border-top: 1px solid rgba(20, 24, 35, 0.1);
-  background: rgba(255, 255, 255, 0.97);
+  width: 100%;
+  box-sizing: border-box;
+  height: calc(var(--app-tab-bar-height) + var(--app-safe-bottom));
+  padding: 0 0 var(--app-safe-bottom);
+  align-items: stretch;
+  grid-template-columns: repeat(var(--tab-count), minmax(0, 1fr));
+  background: #fff;
+  overflow: visible;
 }
 
-.fluid-tab-bar__indicator {
+/* 顶部贯穿平滑细线 */
+.fluid-tab-bar__track {
   position: absolute;
-  z-index: 0;
-  top: 4px;
+  top: 0;
   left: 0;
-  width: calc(100% / 3);
-  height: 42px;
-  border-radius: 8px;
-  background: rgba(255, 110, 101, 0.11);
+  right: 0;
+  height: 1px;
+  background: rgba(28, 32, 46, 0.08);
+  pointer-events: none;
+}
+
+/* 白色流体气泡：跟随激活项平滑滑动 + 放大上浮，与底栏白底融为一体 */
+.fluid-tab-bar__bubble {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: calc(100% / var(--tab-count));
+  opacity: 1;
+  pointer-events: none;
   transform: translateX(calc(var(--active-index) * 100%));
-  transition: transform 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition:
+    transform 300ms cubic-bezier(0.34, 1.3, 0.64, 1),
+    opacity 200ms ease;
+}
+
+.fluid-tab-bar__bubble::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  transform: translate(-50%, -50%) translateY(-12px) scale(1.28);
+  content: '';
 }
 
 .fluid-tab-bar__item {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   min-width: 0;
-  height: var(--tab-height);
+  height: 100%;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1px;
   border: 0;
   background: transparent;
-  color: #8a8f99;
+  color: #9197a3;
   font: inherit;
-  font-size: 11px;
-  line-height: 16px;
-  transition: color 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  line-height: 1;
+  transition: color 200ms ease;
 }
 
-.fluid-tab-bar__item:focus-visible {
-  outline: 2px solid #ff6e65;
-  outline-offset: -3px;
-}
-
-.fluid-tab-bar__icon-wrap {
+.fluid-tab-bar__disc {
   position: relative;
   display: grid;
-  width: 22px;
-  height: 22px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
   place-items: center;
-  transform: scale(0.9);
-  transition: transform 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-
-.fluid-tab-bar__icon {
-  font-size: 22px;
-  line-height: 22px;
+  background: #fff;
+  transition: transform 300ms cubic-bezier(0.34, 1.3, 0.64, 1);
 }
 
 .fluid-tab-bar__label {
+  position: absolute;
+  right: 4px;
+  bottom: 3px;
+  left: 4px;
   overflow: hidden;
-  max-width: 100%;
+  color: currentColor;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 14px;
+  text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
-  transform: scale(0.94);
-  transition: transform 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.fluid-tab-bar__item:hover:not(.fluid-tab-bar__item--active) {
+  color: #414650;
+}
+
+.fluid-tab-bar__item:focus-visible {
+  outline: 2px solid #c7433d;
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+
+.fluid-tab-bar__icon {
+  font-size: 27px;
+  line-height: 27px;
 }
 
 .fluid-tab-bar__item--active {
-  color: #ff6e65;
+  color: #c7433d;
 }
 
-.fluid-tab-bar__item--active .fluid-tab-bar__icon-wrap {
-  transform: translateY(-3px) scale(1.05);
+.fluid-tab-bar__item--active .fluid-tab-bar__disc {
+  transform: translateY(-14px) scale(1.35);
+}
+
+.fluid-tab-bar__item--active .fluid-tab-bar__icon {
+  color: #ff6034;
 }
 
 .fluid-tab-bar__item--active .fluid-tab-bar__label {
-  transform: translateY(-2px) scale(1);
+  font-weight: 600;
+}
+
+.fluid-tab-bar__item--active .fluid-tab-bar__badge {
+  border-color: #fff;
+  background: #fff;
+  color: #c7433d;
 }
 
 .fluid-tab-bar__badge {
   position: absolute;
-  top: -4px;
-  left: 16px;
-  min-width: 14px;
-  height: 14px;
-  padding: 0 3px;
-  border: 1px solid #fff;
-  border-radius: 7px;
-  background: #ee4d4d;
+  top: -2px;
+  right: -3px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 4px;
+  border: 1.5px solid #fff;
+  border-radius: 8px;
+  background: #c7433d;
   color: #fff;
   font-size: 9px;
   font-weight: 600;
@@ -168,10 +215,8 @@ const tabAriaLabel = (tab) => {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .fluid-tab-bar__indicator,
-  .fluid-tab-bar__item,
-  .fluid-tab-bar__icon-wrap,
-  .fluid-tab-bar__label {
+  .fluid-tab-bar__bubble,
+  .fluid-tab-bar__disc {
     transition: none;
   }
 }

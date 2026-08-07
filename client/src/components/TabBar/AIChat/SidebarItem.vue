@@ -32,7 +32,7 @@
         @click="selectDialog(item)"
       >
         <div class="flex items-center gap-2">
-          <div class="w-6 h-6 rounded-lg bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-[8px] font-bold flex-shrink-0">
+          <div class="w-6 h-6 rounded-lg bg-gradient-to-br from-[#ffa08e] to-[#ff6e65] flex items-center justify-center text-white text-[8px] font-bold flex-shrink-0">
             AI
           </div>
           <span v-if="!curNodeEdit(index)">{{ item.title }}</span>

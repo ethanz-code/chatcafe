@@ -1,13 +1,30 @@
 :root:root {
+  /* ---- 品牌色板（珊瑚系）---- */
+  --coral-50: #fff1ef;
+  --coral-100: #ffe6e2;
+  --coral-400: #ff9a90;
+  --coral-500: #ff6e65;
+  --coral-600: #ff6034;
+  --coral-700: #c7433d;
+  --coral-800: #9c302d;
+
+  --ink-900: #1c202e;
+  --ink-700: #414650;
+  --ink-500: #686d78;
+  --ink-400: #9197a3;
+
+  --app-bg: #f5f5f7;
+  --app-surface: #ffffff;
+
   --van-search-input-height: 34px !important;
   /*--van-sidebar-width: 110px !important;*/
   --van-sidebar-padding: 20px 15px;
 
-  --van-primary-color: #ff6e65;
+  --van-primary-color: var(--coral-500);
 
   --van-uploader-size: 100px;
 
-  --van-step-line-color: #ff9f99;
+  --van-step-line-color: var(--coral-400);
 }
 
 .van-search__content {
@@ -25,21 +42,61 @@
   max-width: none;
 }
 
-/* ---- PC 端居中显示：固定定位组件限制在中间内容宽度内 ---- */
+/* ---- 应用宽度：手机全宽，平板与桌面居中 ---- */
 :root {
-  --app-content-width: 430px;
+  --app-content-width: 100%;
+}
+
+/* Wider screens use a centered phone canvas; 768px and below stay full-width. */
+@media (min-width: 769px) {
+  :root {
+    --app-content-width: 430px;
+  }
+}
+
+/* Keep the document from becoming a second scroll container around the app shell. */
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  overflow: hidden;
 }
 
 /* 最外层背景使用浏览器默认画布色，跟随系统亮暗主题；应用内部保持浅色 */
 body {
+  margin: 0;
   color-scheme: light dark;
   background-color: Canvas;
 }
 #app {
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
   color-scheme: light;
 }
 
-@media (min-width: 430px) {
+/* Every app surface participates in the same horizontal containment rule. */
+#app,
+#app * {
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+#app img,
+#app video,
+#app canvas,
+#app svg {
+  max-width: 100%;
+}
+
+#app .van-floating-panel,
+#app .van-floating-panel__content {
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+/* Center viewport-fixed Vant components inside the phone canvas. */
+@media (min-width: 769px) {
   .van-overlay,
   .van-tabbar--fixed,
   .van-nav-bar--fixed,
@@ -70,4 +127,3 @@ body {
     left: calc(50% - min(50vw, calc(var(--app-content-width) / 2))) !important;
   }
 }
-

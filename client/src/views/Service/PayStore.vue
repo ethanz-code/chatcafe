@@ -1,81 +1,90 @@
 <template>
-  <WXTipsMask v-if="mask" />
-  <section class="bg-white p-4 box-border min-h-full">
-    <p class="font-medium text-lg">充值套餐</p>
-    <div v-if="loading" class="mt-3 flex min-h-48 flex-col items-center justify-center gap-3 text-sm text-gray-500" role="status">
-      <van-loading size="24px" color="#ff6034" />
-      <span>正在加载套餐</span>
+  <section class="pay-store">
+    <div class="pay-store__content">
+      <div v-if="loading" class="pay-store__state" role="status">
+        <van-loading size="24px" color="var(--coral-600)" />
+        <span>正在加载套餐</span>
+      </div>
+      <div v-else-if="loadFailed" class="pay-store__state" role="alert">
+        <p>套餐加载失败，请检查网络后重试</p>
+        <van-button type="primary" round native-type="button" @click="fetchGoods">重新加载</van-button>
+      </div>
+      <div v-else-if="listedGoods.length" class="pay-store__card">
+        <p class="pay-store__card-title">选择充值套餐</p>
+        <div class="pay-store__plan-list" role="group" aria-label="可选充值套餐">
+          <button
+            v-for="item in listedGoods"
+            :key="item.id"
+            type="button"
+            :disabled="isPaying"
+            :aria-busy="isPaying"
+            :aria-pressed="selectedGoodId === item.id"
+            :aria-label="packageLabel(item)"
+            class="pay-store__plan"
+            :class="{ 'pay-store__plan--active': selectedGoodId === item.id }"
+            @click="selectGood(item.id)"
+          >
+            <span class="pay-store__plan-icon">
+              <img
+                v-if="item.imgUrl && !failedImageIds.has(item.id)"
+                :src="item.imgUrl"
+                :alt="`${item.title} 套餐图`"
+                @error="failedImageIds.add(item.id)"
+              />
+              <van-icon v-else name="gem-o" size="20" aria-hidden="true" />
+            </span>
+            <span class="pay-store__plan-copy">
+              <strong class="pay-store__plan-title">{{ item.title }}</strong>
+              <span class="pay-store__plan-benefits">
+                <span>对话 {{ item.dialogueCount }} 次</span>
+                <span v-if="item.paintingCount">绘画 {{ item.paintingCount }} 次</span>
+              </span>
+            </span>
+            <span class="pay-store__plan-right">
+              <strong class="pay-store__plan-price">¥{{ formatPrice(item.price) }}</strong>
+              <van-icon
+                :name="selectedGoodId === item.id ? 'checked' : 'circle'"
+                :class="selectedGoodId === item.id ? 'pay-store__check--active' : 'pay-store__check'"
+                size="18"
+                aria-hidden="true"
+              />
+            </span>
+          </button>
+        </div>
+      </div>
+      <div v-else class="pay-store__state" role="status">暂无可购买套餐</div>
     </div>
-    <div v-else-if="loadFailed" class="mt-3 flex min-h-48 flex-col items-center justify-center gap-3 text-center" role="alert">
-      <p class="text-sm text-gray-600">套餐加载失败，请检查网络后重试</p>
-      <button type="button" class="rounded-md border border-[#ff6034] px-4 py-2 text-sm font-medium text-[#e8502a] active:bg-[#fff3ef] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6034]" @click="fetchGoods">
-        重新加载
-      </button>
-    </div>
-    <div v-else-if="goods.length === 0" class="mt-3 flex min-h-48 items-center justify-center text-sm text-gray-500" role="status">
-      暂无可购买套餐
-    </div>
-    <div v-else class="grid grid-cols-2 gap-3 mt-3">
+
+    <div v-if="listedGoods.length" class="pay-store__footer">
+      <div class="pay-store__footer-total">
+        <span>合计</span>
+        <strong>¥{{ formatPrice(selectedGood?.price) }}</strong>
+      </div>
       <button
-        v-for="item in goods"
-        :key="item.id"
         type="button"
-        :disabled="isPaying"
+        class="pay-store__pay-btn"
+        :class="{ 'pay-store__pay-btn--active': !!selectedGoodId && !isPaying }"
+        :disabled="!selectedGoodId || isPaying"
         :aria-busy="isPaying"
-        :aria-label="isPaying ? '正在创建订单' : `购买${item.title}，价格${Number(item.price).toFixed(2)}元`"
-        @click="goToPay(item.id)"
-        class="flex min-w-0 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white text-left transition-colors active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6034] disabled:cursor-wait disabled:opacity-60"
+        @click="confirmPay"
       >
-        <div
-          v-if="item.imgUrl && !failedImageIds.has(item.id)"
-          class="h-[6.5rem] flex items-center justify-center p-3"
-          style="background: linear-gradient(135deg, #ff6034 30%, #ff6e65 100%)"
-        >
-          <img
-            :src="item.imgUrl"
-            class="h-full w-full object-contain"
-            :alt="`${item.title} 套餐图`"
-            @error="failedImageIds.add(item.id)"
-          />
-        </div>
-        <div
-          v-else
-          class="h-[6.5rem] flex items-center justify-center text-white text-2xl font-bold"
-          style="background: linear-gradient(135deg, #ff6034 30%, #ff6e65 100%)"
-        >
-          {{ item.title?.charAt(0) || '?' }}
-        </div>
-        <div class="flex flex-1 flex-col p-3 box-border">
-          <p class="text-xl leading-none text-[#e8502a] font-semibold">
-            <span class="text-sm">¥</span>
-            <span>{{ Number(item.price).toFixed(2) }}</span>
-          </p>
-          <p class="mt-2 truncate text-[16px] font-medium text-gray-900">{{ item.title }}</p>
-          <div class="mt-3 grid grid-cols-2 gap-2 border-t border-gray-100 pt-2.5 text-xs">
-            <span class="text-gray-500">对话 <strong class="font-semibold text-gray-800">{{ item.dialogueCount }}</strong></span>
-            <span class="text-gray-500">绘画 <strong class="font-semibold text-gray-800">{{ item.paintingCount || 0 }}</strong></span>
-          </div>
-          <div class="mt-3 flex items-center justify-between text-xs font-medium text-[#e8502a]">
-            <span>{{ isPaying ? '正在创建订单' : '立即购买' }}</span>
-            <span aria-hidden="true" class="text-base leading-none">›</span>
-          </div>
-        </div>
+        <van-loading v-if="isPaying" size="16px" color="#fff" aria-hidden="true" />
+        <span>{{ isPaying ? '正在创建订单' : '立即支付' }}</span>
       </button>
     </div>
 
-    <van-dialog v-model:show="showScanQr" title="微信扫码支付" confirm-button-text="已完成支付">
+    <van-dialog v-model:show="showScanQr" title="微信扫码支付" confirm-button-text="已完成支付" class-name="pay-store__qr-dialog" overlay-class="pay-store__qr-overlay">
       <div class="flex flex-col items-center py-4">
-        <img v-if="qrCodeUrl" :src="qrCodeUrl" class="w-48 h-48" alt="支付二维码" />
-        <p class="text-sm text-gray-500 mt-2">请使用微信扫码完成支付</p>
+        <img v-if="qrCodeUrl" :src="qrCodeUrl" class="h-48 w-48" alt="支付二维码" />
+        <p class="mt-2 text-sm text-gray-500">请使用微信扫码完成支付</p>
       </div>
     </van-dialog>
   </section>
 </template>
 <script setup lang="js">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from '@/utils/axios'
-import WXTipsMask from '@/components/Common/WXTipsMask.vue'
 import { isWeixinBrowser } from '@/utils/operationEnv'
 import { onUnmounted } from 'vue'
 import { PaymentStatusPoller } from '@/utils/paymentPoller'
@@ -83,7 +92,9 @@ import { useUserCenterStore } from '@/stores/user-center'
 import { showLoadingToast, closeToast, showSuccessToast, showFailToast } from 'vant'
 
 const store = useUserCenterStore()
-const mask = ref(false)
+const route = useRoute()
+let poller = null
+let balanceRefreshVersion = 0
 const showScanQr = ref(false)
 const qrCodeUrl = ref('')
 
@@ -102,16 +113,54 @@ const loading = ref(true)
 const loadFailed = ref(false)
 const isPaying = ref(false)
 const failedImageIds = ref(new Set())
+const selectedGoodId = ref(null)
+const listedGoods = computed(() => {
+  const trial = goods.value.find((good) => /体验/.test(good.title))
+  return trial ? [trial, ...goods.value.filter((good) => good.id !== trial.id)] : goods.value
+})
+const selectedGood = computed(() => goods.value.find((good) => good.id === selectedGoodId.value) || null)
 
-const route = useRoute()
+const formatPrice = (price) => Number.isFinite(price) ? price.toFixed(2) : '--'
 
-let poller = null
+const normalizeCount = (value) => {
+  if (typeof value === 'number') return Number.isSafeInteger(value) && value >= 0 ? value : 0
+  if (typeof value !== 'string' || !/^\d+$/.test(value.trim())) return 0
+
+  const count = Number(value.trim())
+  return Number.isSafeInteger(count) ? count : 0
+}
+
+const normalizeGood = (good) => {
+  if (!good || typeof good !== 'object' || (typeof good.id !== 'string' && typeof good.id !== 'number')) return null
+
+  const price = Number(good.price)
+  if (!Number.isFinite(price) || price < 0) return null
+
+  return {
+    ...good,
+    title: typeof good.title === 'string' && good.title.trim() ? good.title.trim() : '未命名套餐',
+    imgUrl: typeof good.imgUrl === 'string' ? good.imgUrl : '',
+    price,
+    dialogueCount: normalizeCount(good.dialogueCount),
+    paintingCount: normalizeCount(good.paintingCount)
+  }
+}
+
+const packageLabel = (good) => `选择${good.title}，${formatPrice(good.price)}元，对话${good.dialogueCount}次，绘画${good.paintingCount}次`
+
+const selectGood = (id) => {
+  selectedGoodId.value = selectedGoodId.value === id ? null : id
+}
+
+const confirmPay = () => {
+  if (selectedGoodId.value && !isPaying.value) void goToPay(selectedGoodId.value)
+}
 
 const goToPay = async (goodId) => {
   if (isPaying.value) return
 
   isPaying.value = true
-  showLoadingToast({ message: '加载中...', forbidClick: true, duration: 0 })
+  showLoadingToast({ message: '加载中...', forbidClick: true, duration: 0, className: 'pay-store__toast' })
   const payType = getPayType()
   let payUrl = ''
   if (payType === 'jsapi') payUrl = '/user/service/pay/wx/jsapi'
@@ -141,7 +190,7 @@ const goToPay = async (goodId) => {
     if (!orderNo || (payType === 'scan' && !codeUrl) || (payType !== 'scan' && !redirectUrl)) {
       closeToast()
       isPaying.value = false
-      showFailToast('创建订单失败，请稍后重试')
+      showFailToast({ message: '创建订单失败，请稍后重试', className: 'pay-store__toast' })
       return
     }
 
@@ -158,7 +207,7 @@ const goToPay = async (goodId) => {
   } catch (error) {
     closeToast()
     console.error('Failed to create payment order', error)
-    showFailToast('创建订单失败，请稍后重试')
+    showFailToast({ message: '创建订单失败，请稍后重试', className: 'pay-store__toast' })
   } finally {
     if (!scanPollingStarted) isPaying.value = false
   }
@@ -172,7 +221,7 @@ function startPolling(orderNo) {
     poller = null
   }
   isPaying.value = true
-  showLoadingToast({ message: '支付验证中...', forbidClick: true, duration: 0 })
+  showLoadingToast({ message: '支付验证中...', forbidClick: true, duration: 0, className: 'pay-store__toast' })
   poller = new PaymentStatusPoller({
     orderNo,
     interval: 3000,
@@ -182,33 +231,42 @@ function startPolling(orderNo) {
       showScanQr.value = false
       closeToast()
       isPaying.value = false
-      showSuccessToast('充值成功')
-      refreshUserProfile()
+      showSuccessToast({ message: '充值成功', className: 'pay-store__toast' })
+      void refreshUserProfile()
     },
     onTimeout: () => {
       localStorage.removeItem('payingOrderNo')
       closeToast()
       isPaying.value = false
-      showFailToast('支付确认超时，请联系客服')
+      showFailToast({ message: '支付确认超时，请联系客服', className: 'pay-store__toast' })
     }
   })
   poller.start()
   return true
 }
 
-function refreshUserProfile() {
-  axios.get('/user/profile', {
-    headers: { Authorization: 'Bearer ' + localStorage.getItem('token') }
-  }).then((res) => {
-    if (res.status !== 200) return
-    const parsedData = res.data
-    store.userId = parsedData.data.id
-    store.phoneNumber = parsedData.data.phoneNumber
-    store.dialogueBalance = parsedData.data.dialogueBalance
-    store.paintingBalance = parsedData.data.paintingBalance
-    store.vip = parsedData.data.vip
-    if (parsedData.data.name) store.name = parsedData.data.name
-  })
+async function refreshUserProfile() {
+  const refreshVersion = ++balanceRefreshVersion
+
+  try {
+    const res = await axios.get('/user/profile', {
+      headers: { Authorization: 'Bearer ' + localStorage.getItem('token') }
+    })
+    const profile = res.data?.data
+    if (res.status !== 200 || !profile || typeof profile !== 'object') throw new Error('Failed to refresh user profile')
+    if (refreshVersion !== balanceRefreshVersion) return false
+
+    store.userId = profile.id
+    store.phoneNumber = profile.phoneNumber
+    store.dialogueBalance = normalizeCount(profile.dialogueBalance)
+    store.paintingBalance = normalizeCount(profile.paintingBalance)
+    store.vip = profile.vip
+    if (profile.name) store.name = profile.name
+    return true
+  } catch (error) {
+    console.error('Failed to refresh user profile', error)
+    return false
+  }
 }
 
 async function fetchGoods() {
@@ -226,7 +284,7 @@ async function fetchGoods() {
     if (response.status !== 200 || response.data?.status !== 0 || !Array.isArray(response.data.data)) {
       throw new Error('Failed to load payment goods')
     }
-    goods.value = response.data.data
+    goods.value = response.data.data.map(normalizeGood).filter(Boolean)
   } catch (error) {
     goods.value = []
     loadFailed.value = true
@@ -237,21 +295,18 @@ async function fetchGoods() {
 }
 
 onMounted(async () => {
+  void refreshUserProfile()
+
   const orderNo = localStorage.getItem('payingOrderNo')
   if (route.query.state === 'success' && orderNo) {
-    showLoadingToast({ message: '支付验证中...', forbidClick: true, duration: 0 })
+    showLoadingToast({ message: '支付验证中...', forbidClick: true, duration: 0, className: 'pay-store__toast' })
     startPolling(orderNo)
   } else if (route.query.state === 'fail') {
     localStorage.removeItem('payingOrderNo')
-    showFailToast('付款失敗')
+    showFailToast({ message: '付款失敗', className: 'pay-store__toast' })
   }
 
   await fetchGoods()
-
-  if (isWeixinBrowser() && !route.query.state) {
-    mask.value = true
-    document.body.classList.add('van-toast--unclickable')
-  }
 })
 
 onUnmounted(() => {
@@ -260,6 +315,278 @@ onUnmounted(() => {
     poller = null
   }
   isPaying.value = false
-  document.body.classList.remove('van-toast--unclickable')
 })
 </script>
+
+<style scoped>
+.pay-store {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  background: var(--app-bg);
+}
+
+.pay-store__content {
+  padding: 12px 12px 96px;
+}
+
+.pay-store__card {
+  padding: 6px 4px 4px;
+  border-radius: 12px;
+  background: var(--app-surface);
+}
+
+.pay-store__card-title {
+  margin: 0;
+  padding: 12px 12px 2px;
+  color: var(--ink-900);
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.pay-store__state {
+  display: flex;
+  min-height: 188px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-radius: 12px;
+  background: var(--app-surface);
+  color: var(--ink-500);
+  font-size: 14px;
+  text-align: center;
+}
+
+.pay-store__state p {
+  margin: 0;
+}
+
+.pay-store__plan-list {
+  display: grid;
+}
+
+.pay-store__plan {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 0;
+  border-bottom: 1px solid rgba(28, 32, 46, 0.06);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ink-900);
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.pay-store__plan:last-child {
+  border-bottom: 0;
+}
+
+.pay-store__plan:hover:not(:disabled) {
+  background: var(--coral-50);
+}
+
+.pay-store__plan--active {
+  color: var(--coral-700);
+}
+
+.pay-store__plan--active:hover:not(:disabled) {
+  background: var(--coral-50);
+}
+
+.pay-store__plan:active:not(:disabled) {
+  transform: scale(0.99);
+}
+
+.pay-store__plan:focus-visible {
+  outline: 2px solid var(--coral-500);
+  outline-offset: -2px;
+}
+
+.pay-store__plan:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.pay-store__plan-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--coral-500), var(--coral-600));
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(255, 96, 52, 0.28);
+}
+
+.pay-store__plan-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.pay-store__plan-copy {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.pay-store__plan-title {
+  overflow: hidden;
+  color: var(--ink-900);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pay-store__plan--active .pay-store__plan-title {
+  color: var(--coral-700);
+}
+
+.pay-store__plan-benefits {
+  display: flex;
+  min-width: 0;
+  gap: 8px;
+  color: var(--ink-500);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.pay-store__plan-benefits span {
+  white-space: nowrap;
+}
+
+.pay-store__plan-right {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.pay-store__plan-price {
+  color: var(--ink-900);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+.pay-store__plan--active .pay-store__plan-price {
+  color: var(--coral-600);
+}
+
+.pay-store__check {
+  color: #d8dadd;
+}
+
+.pay-store__check--active {
+  color: var(--coral-500);
+}
+
+.pay-store__footer {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(28, 32, 46, 0.08);
+  background: color-mix(in srgb, var(--app-surface) 96%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.pay-store__footer-total {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 6px;
+  color: var(--ink-500);
+  font-size: 12px;
+}
+
+.pay-store__footer-total strong {
+  overflow: hidden;
+  max-width: 100%;
+  color: var(--coral-600);
+  font-size: 18px;
+  font-weight: 750;
+  text-overflow: ellipsis;
+}
+
+.pay-store__pay-btn {
+  display: inline-flex;
+  height: 44px;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 0;
+  border-radius: 22px;
+  background: var(--coral-100);
+  color: var(--coral-400);
+  cursor: not-allowed;
+  font-size: 15px;
+  font-weight: 650;
+  transition: background-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.pay-store__pay-btn--active {
+  background: linear-gradient(135deg, var(--coral-600), var(--coral-500));
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(255, 96, 52, 0.32);
+}
+
+.pay-store__pay-btn:disabled {
+  cursor: not-allowed;
+}
+
+.pay-store__pay-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.pay-store__pay-btn:focus-visible {
+  outline: 2px solid var(--coral-500);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pay-store button,
+  .pay-store__plan {
+    transition: none;
+  }
+
+  .pay-store :deep(.van-loading__spinner),
+  .pay-store :deep(.van-loading__circular circle) {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+</style>
+
+<style>
+@media (prefers-reduced-motion: reduce) {
+  .pay-store__qr-dialog.van-dialog,
+  .pay-store__qr-overlay.van-overlay,
+  .pay-store__toast.van-toast,
+  .pay-store__toast .van-loading__spinner,
+  .pay-store__toast .van-loading__circular circle {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+</style>

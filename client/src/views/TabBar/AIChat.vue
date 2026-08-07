@@ -1,30 +1,43 @@
 <template>
-  <section class="flex flex-col h-full bg-white">
+  <section class="relative flex h-full min-h-0 flex-col overflow-hidden bg-white">
     <SidebarDialog @new-dialog="newDialog" />
 
     <!--  顶部功能栏目  -->
     <div
-      class="bg-gray-900 text-white h-12 px-3 flex justify-between items-center fixed top-0 inset-x-0 z-50 mx-auto box-border max-w-[var(--app-content-width)]"
+      class="z-50 flex h-12 shrink-0 items-center justify-between border-b border-[rgba(28,32,46,0.08)] bg-white px-3 text-[var(--ink-900)]"
     >
-      <div class="flex items-center gap-3">
-        <HamburgerMenuIcon class="cursor-pointer h-5 w-5" @click="store.sidebarShowLeft = true" />
-        <span>{{ store.selectedDialog.title }}</span>
+      <div class="flex items-center gap-3 min-w-0">
+        <HamburgerMenuIcon
+          class="cursor-pointer h-5 w-5 shrink-0"
+          @click="store.sidebarShowLeft = true"
+        />
+        <span class="truncate">{{ store.selectedDialog.title }}</span>
       </div>
-      <div class="flex items-center gap-2">
-        <van-icon @click="goToPay" class="cursor-pointer" name="gem-o" size="20" color="#eab308" />
-        <div class="flex items-center gap-1 cursor-pointer" @click="newDialog">
+      <div class="flex items-center gap-2 shrink-0">
+        <button
+          type="button"
+          @click="goToPay"
+          class="cursor-pointer bg-transparent border-0 p-0"
+          aria-label="前往充值"
+        >
+          <van-icon name="gem-o" size="24" color="var(--coral-600)" />
+        </button>
+        <button
+          type="button"
+          @click="newDialog"
+          class="flex items-center gap-1 cursor-pointer bg-transparent border-0 p-0"
+        >
           <van-icon name="add-o" size="19" />
           <span>新建</span>
-        </div>
+        </button>
       </div>
     </div>
 
     <!--  警告信息，当当前对话有内容时隐藏  -->
     <div
       v-show="!hasMsg"
-      ref="contentTopWarning"
       :class="[
-        'fixed bg-gray-100 p-5 mt-12 left-0 right-0 mx-auto box-border max-w-[var(--app-content-width)] transition-opacity duration-100 ease-linear',
+        'shrink-0 bg-[var(--coral-50)] p-5 transition-opacity duration-100 ease-linear',
         contentCanShow ? 'opacity-100' : 'opacity-0'
       ]"
     >
@@ -35,7 +48,7 @@
     <div
       ref="contentRef"
       :class="[
-        'flex-1 flex flex-col items-center overflow-y-auto bg-white transition-opacity duration-100 ease-linear',
+        'flex min-h-0 flex-1 flex-col items-center overflow-y-auto bg-white transition-opacity duration-100 ease-linear',
         contentCanShow ? 'opacity-100' : 'opacity-0'
       ]"
     >
@@ -89,7 +102,7 @@
                   class="relative select-none"
                   style="max-width: calc(100% - 15px)"
                   @contextmenu.prevent="openPopover($event, item, index)"
-                  @touchstart.prevent="onTouchStart($event, item, index)"
+                  @touchstart="onTouchStart($event, item, index)"
                   @touchend="onTouchEnd"
                   @touchmove="onTouchMove"
                 >
@@ -111,8 +124,8 @@
       <div
         v-if="canContinueControl"
         :class="[
-          'fixed transition-all duration-300 ease-linear',
-          canContinue ? 'opacity-100 bottom-48' : 'opacity-0 bottom-44'
+          'flex w-full justify-center pt-4 transition-all duration-300 ease-linear',
+          canContinue ? 'opacity-100' : 'opacity-0'
         ]"
       >
         <div
@@ -147,7 +160,7 @@
           >
             <div class="flex items-center">
               <img v-if="item.imgUrl" :src="item.imgUrl" class="w-10 h-10 rounded-full object-cover flex-shrink-0" />
-              <div v-else class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+              <div v-else class="w-10 h-10 rounded-full bg-gradient-to-br from-[#ffa08e] to-[#ff6e65] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                 AI
               </div>
               <div class="flex flex-col ml-2">
@@ -180,11 +193,10 @@
       </div>
     </van-floating-panel>
 
-    <!--  底部发送信息栏目  -->
+    <!--  底部发送信息栏目（位于底部导航栏上方） -->
     <div
-      ref="bottomFunctionRef"
       style="border-top: 1px solid #f4f5f7"
-      class="bg-white p-3 fixed right-0 left-0 bottom-0 mx-auto box-border max-w-[var(--app-content-width)]"
+      class="shrink-0 bg-white p-3"
     >
       <!--  选择LLM  -->
       <div
@@ -214,13 +226,14 @@
             ref="messageRef"
             @input="checkMessageHeight"
             rows="1"
-            class="leading-8 py-0 w-full border-0 bg-gray-50 rounded-lg pl-3 resize-none h-8"
+            class="h-8 max-h-32 w-full resize-none overflow-y-auto rounded-lg border-0 bg-gray-50 py-0 pl-3 leading-8"
             type="text"
             placeholder="请输入内容"
             :disabled="store.replying"
           ></textarea>
         </div>
         <van-button
+          ref="sendMsgButtonRef"
           id="sendMsgButton"
           v-show="message.length > 0"
           class="self-start mr-2"
@@ -236,8 +249,6 @@
         </van-button>
       </div>
 
-      <!--  最底部导航栏区域空缺出来  -->
-      <div class="h-[50px]"></div>
     </div>
 
     <!-- 长按/右键 Popover -->
@@ -303,7 +314,6 @@ import {
   Star24Regular as Star,
   Star24Filled as StarFilled,
 } from '@vicons/fluent'
-import { isWeixinBrowser, isAppleDevice } from '@/utils/operationEnv'
 import { useChatFirstLoadedStore } from '@/stores/chat-first-loaded.js'
 
 import { showFailToast } from 'vant'
@@ -318,18 +328,18 @@ const route = useRoute()
 // ----------顶部栏-----------
 const goToPay = () => {
   historyStore.lastPagePath.push(route.fullPath)
-  router.push('/service/pay')
+  router.push('/s/pay')
 }
 // ----------顶部栏-----------
 
 // -----文本区域高度自适应------
 const messageRef = ref(null)
+const sendMsgButtonRef = ref(null)
 const message = ref('')
 const checkMessageHeight = () => {
   const obj = messageRef.value
   obj.style.height = '32px'
   obj.style.height = obj.scrollHeight + 'px'
-  calculateContentMarginBottom()
 }
 // -----文本区域高度自适应------
 
@@ -368,51 +378,17 @@ watch(height, async (newHeight) => {
 })
 // ------选择大语言模型--------
 
-// --------Content顶部，底部外边距自动计算-----------
 const contentRef = ref()
 const contentCanShow = ref(false)
-const contentTopWarning = ref()
-const bottomFunctionRef = ref()
-const calculateContentMarginBottom = () => {
-  // 当前环境：微信+IOS+第一次打开(微信很奇怪。。。)
-  let buffer = 0
-  if (isWeixinBrowser() && isAppleDevice() && window.history.length === 1) {
-    buffer = 30
-  }
-
-  const content = contentRef.value
-  const marginBottom = bottomFunctionRef.value.offsetHeight + buffer + 1
-  content.style.marginBottom = `${marginBottom}px`
-}
-const calculateFunctionMarginBottom = () => {
-  // 当前环境：微信+IOS+第一次打开（这里是因为ios用户底部有个条条占了高度，所以要多出）
-  let buffer = 0
-  if (isWeixinBrowser() && isAppleDevice() && window.history.length === 1) {
-    buffer = 30
-  }
-  const marginBottom = buffer
-  bottomFunctionRef.value.style.marginBottom = `${marginBottom}px`
-}
-const calculateContentMarginTop = () => {
-  const content = contentRef.value
-  const marginTop = contentTopWarning.value.offsetHeight
-  content.style.marginTop = `${marginTop + 48}px`
-}
-
-const calcMParginOther = () => {
-  calculateContentMarginTop()
+const revealContent = () => {
   checkMessageHeight()
-  calculateFunctionMarginBottom()
 
   const timer = setTimeout(() => {
-    // 这一步是一定要在计算好FunctionMargin之后进行的
-    calculateContentMarginBottom()
     contentRef.value.scrollTop = 0
     contentCanShow.value = true
     clearTimeout(timer)
   }, 100)
 }
-// --------Content顶部，底部外边距自动计算-----------
 
 // ---------内容区域热门问题--------
 const hotIssues = ref([])
@@ -478,7 +454,7 @@ const insuficientBalance = (error = '') => {
     .then(() => {
       // on confirm
       const timer = setTimeout(() => {
-        router.push('/service/pay')
+        router.push('/s/pay')
         clearTimeout(timer)
       }, 300)
     })
@@ -503,7 +479,7 @@ const changeDialogContent = () => {
     if (hasMsg.value) setDialogContent()
 
     const timer2 = setTimeout(() => {
-      calcMParginOther()
+      revealContent()
       clearTimeout(timer2)
     }, 50)
     clearTimeout(timer)
@@ -533,9 +509,6 @@ const sendMessage = async (prompt, ownNotSendMsg = false) => {
   setDialogContent()
   const timer2 = setTimeout(() => {
     hasMsg.value = true
-
-    // 内容区域顶部外边距计算，当有消息时上面警告隐藏
-    requestAnimationFrame(calculateContentMarginTop)
 
     // 滚动条自动滚动到底部
     requestAnimationFrame(autoScroll2Bottom)
@@ -770,7 +743,7 @@ const deleteMsg = async (i) => {
     hasMsg.value = hasDialogContent()
     const timer = setTimeout(() => {
       if (hasMsg.value) setDialogContent()
-      else calcMParginOther()
+      else revealContent()
       clearTimeout(timer)
     }, 200)
     clearTimeout(timer2)
@@ -821,10 +794,8 @@ const continueSendMsg = () => {
   canContinue.value = false
   canContinueControl.value = false
   message.value = '继续'
-  const sendMsgButton = document.querySelector('#sendMsgButton')
-  // (sendMsgButton.value as ButtonHTMLAttributes).click()
   const timer = setTimeout(() => {
-    sendMsgButton.click()
+    sendMsgButtonRef.value?.$el?.click?.()
     clearTimeout(timer)
   }, 500)
 }
@@ -843,14 +814,12 @@ const loadLLMDataAndOther = () => {
     hasMsg.value = hasDialogContent()
     const timer = setTimeout(() => {
       if (hasMsg.value) setDialogContent()
-      calcMParginOther()
+      revealContent()
       clearTimeout(timer)
     }, 200)
   })
 }
 onMounted(async () => {
-  const prefix = import.meta.env.VITE_TITLE_PREFIX
-  document.title = `${prefix}首页`
 
   WhetherToDisableTheEffect(contentRef.value.children[0])
 

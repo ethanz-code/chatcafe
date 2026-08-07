@@ -14,6 +14,7 @@ export default async function ({ body, adminJWT, cookie: { adminAuth } }: any) {
   const option = {
     value: await adminJWT.sign(body),
     httpOnly: true,
+    maxAge: 60 * 60 * 24 * 7,
     path: "/admin",
   };
   adminAuth.set(option);
