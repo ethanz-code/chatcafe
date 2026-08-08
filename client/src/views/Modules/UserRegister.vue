@@ -104,8 +104,7 @@ const userStore = useUserCenterStore()
 const content = ref('')
 
 const onClickLeft = () => {
-  historyStore.lastPagePath = []
-  router.push('/pages/user-center')
+  window.history.back()
 }
 const username = ref('')
 const password = ref('')

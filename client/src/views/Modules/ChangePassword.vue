@@ -97,8 +97,8 @@ const onSubmit = () => {
           showSuccessToast('修改成功')
           const timer = setTimeout(() => {
             clearTimeout(timer)
-            historyStore.lastPagePath = ['/modules/login']
-            router.push('/modules/login')
+            historyStore.lastPagePath = ['/login']
+            router.push('/login')
             userStore.isLogin = false
           }, 1500)
         } else if (parsedData.status === -1) {

@@ -209,8 +209,8 @@ const getProfile = () => {
   // 未登录成功时将跳转到登录界面，这里在切换页面时将记录当前页面路径，以便于返回时能够返回到该页面
   historyStore.lastPagePath.push(route.fullPath)
 
-  if (!store.isLogin) router.push('/modules/login')
-  else router.push('/modules/user-profile')
+  if (!store.isLogin) router.push('/login')
+  else router.push('/profile')
 }
 
 // 点击进入用户中心“我的服务”某一功能页面
@@ -218,7 +218,7 @@ const clickServiceFunc = (item) => {
   // console.log(item)
   historyStore.lastPagePath.push(route.fullPath)
 
-  if (!store.isLogin) router.push('/modules/login')
+  if (!store.isLogin) router.push('/login')
   else {
     if (item.to) router.push(item.to)
     else if (item.exist) router.push('/s/' + item.path)

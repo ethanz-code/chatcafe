@@ -7,6 +7,7 @@ export const useFloatingFunction = defineStore(
   'floating-function',
   () => {
     const lastPagePath = ref([])
+    const pendingBackNavigation = ref(false)
     const router = useRouter()
 
     const backHome = () => {
@@ -17,15 +18,26 @@ export const useFloatingFunction = defineStore(
       // 执行回到用户页面的操作
       router.push('/pages/user-center')
     }
+    const navigateBack = (path) => {
+      pendingBackNavigation.value = true
+      return router.push(path)
+    }
+
     const backLastPage = () => {
       // 执行回到上一页的操作
       if (lastPagePath.value.length > 0) {
         const path = lastPagePath.value.pop()
-        router.push(path)
+        return navigateBack(path)
       }
     }
 
-    return { backHome, backUser, backLastPage, lastPagePath }
+    const consumeBackNavigation = () => {
+      const isBackNavigation = pendingBackNavigation.value
+      pendingBackNavigation.value = false
+      return isBackNavigation
+    }
+
+    return { backHome, backUser, navigateBack, backLastPage, consumeBackNavigation, lastPagePath }
   },
   {
     persist: {

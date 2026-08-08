@@ -159,12 +159,12 @@ const login = async () => {
 
 const register = () => {
   historyStore.lastPagePath.push(route.fullPath)
-  router.push('/modules/register')
+  router.push('/register')
 }
 
 const forgetPassword = () => {
   historyStore.lastPagePath.push(route.fullPath)
-  router.push('/modules/forget-password')
+  router.push('/forgot-password')
 }
 
 onMounted(() => {

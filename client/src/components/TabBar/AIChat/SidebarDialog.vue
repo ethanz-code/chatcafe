@@ -2,10 +2,13 @@
   <van-popup
     v-model:show="store.sidebarShowLeft"
     position="left"
+    teleport=".app-shell"
     transition="slider"
-    class="px-3 pt-3 max-w-[300px]"
+    class="chat-sidebar-popup px-3 pt-3"
     :style="{ width: '75%', height: '100%' }"
-  >    <div class="flex flex-col h-full">
+    overlay-class="chat-sidebar-overlay"
+  >
+    <div class="flex flex-col h-full">
       <div class="flex justify-between items-center">
         <span class="text-lg font-medium logo-gradient">ChatCafe</span>
         <HamburgerMenuIcon class="cursor-pointer h-5 w-5" @click="store.sidebarShowLeft = false" />
@@ -58,14 +61,38 @@ const onClearSearch = () => {
   searchVal.value = ''
 }
 </script>
-<style scoped>
+<style>
+.app-shell .chat-sidebar-overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.app-shell .chat-sidebar-popup {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: min(75%, 300px) !important;
+  max-width: 100%;
+  height: 100% !important;
+  transform: translate3d(0, 0, 0);
+  overflow: hidden;
+}
+
 .slider-enter-active,
 .slider-leave-active {
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.slider-enter-from,
-.slider-leave-to {
-  transform: translate3d(-100%, -50%, 0);
+.app-shell .chat-sidebar-popup.slider-enter-from,
+.app-shell .chat-sidebar-popup.slider-leave-to {
+  transform: translate3d(-100%, 0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slider-enter-active,
+  .slider-leave-active {
+    transition-duration: 1ms;
+  }
 }
 </style>

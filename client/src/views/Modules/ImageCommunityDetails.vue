@@ -8,8 +8,5 @@
   </section>
 </template>
 <script setup lang="js">
-import { useFloatingFunction } from '@/stores/floating-function'
-
-const historyStore = useFloatingFunction()
-const onClickLeft = () => historyStore.backLastPage()
+const onClickLeft = () => window.history.back()
 </script>

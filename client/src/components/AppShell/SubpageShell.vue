@@ -19,9 +19,6 @@
 </template>
 
 <script setup>
-import { useRoute, useRouter } from 'vue-router'
-import { useFloatingFunction } from '@/stores/floating-function'
-
 defineProps({
   title: {
     type: String,
@@ -29,17 +26,8 @@ defineProps({
   },
 })
 
-const route = useRoute()
-const router = useRouter()
-const historyStore = useFloatingFunction()
-
 const goBack = () => {
-  if (historyStore.lastPagePath.length > 0) {
-    historyStore.backLastPage()
-    return
-  }
-
-  router.push(route.meta.backTo || '/pages/user-center')
+  window.history.back()
 }
 </script>
 

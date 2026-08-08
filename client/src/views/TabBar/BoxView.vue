@@ -112,7 +112,7 @@ const navigate = (path) => {
 
   pendingTabNavigation.value = navigation
   verify()
-  void router.replace(path).then(
+  void router.push(path).then(
     () => {
       if (pendingTabNavigation.value === navigation) pendingTabNavigation.value = null
     },

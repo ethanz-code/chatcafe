@@ -212,14 +212,14 @@ const changePassword = () => {
   historyStore.lastPagePath.push(route.fullPath)
   const timer = setTimeout(() => {
     clearTimeout(timer)
-    router.push('/modules/change-password')
+    router.push('/password')
   }, 300)
 }
 const forgetPassword = () => {
   historyStore.lastPagePath.push(route.fullPath)
   const timer = setTimeout(() => {
     clearTimeout(timer)
-    router.push('/modules/forget-password')
+    router.push('/forgot-password')
   }, 300)
 }
 const loginPasswordActions = [

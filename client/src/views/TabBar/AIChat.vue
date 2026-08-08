@@ -130,7 +130,7 @@
       >
         <div
           @click="continueSendMsg"
-          class="bg-white border border-solid border-gray-200 shadow-md px-4 py-2 rounded-full flex items-center gap-2"
+          class="flex cursor-pointer items-center gap-2 rounded-full border border-solid border-gray-200 bg-white px-4 py-2 shadow-md"
         >
           <van-icon name="play-circle-o" size="20" />
           播放
@@ -777,7 +777,7 @@ const UserClickTheMessageArea = () => {
   // 用户未登录，并且当前语言模型需要付费的情况下
   if (notLoginAndUsePaidLLM()) {
     historyStore.lastPagePath.push(route.fullPath)
-    router.push('/modules/login')
+    router.push('/login')
   }
 }
 // ---------底部搜索框---------

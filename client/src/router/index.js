@@ -29,6 +29,17 @@ const preloadServicePages = () => {
   return true
 }
 
+const legacyModulePaths = {
+  login: '/login',
+  register: '/register',
+  assistant: '/assistant',
+  'image-gen': '/image-gen',
+  'user-profile': '/profile',
+  'change-password': '/password',
+  'forget-password': '/forgot-password',
+  'image-community-details': '/image-details',
+}
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -75,52 +86,52 @@ const router = createRouter({
       component: () => import('@/views/Modules/ModulesView.vue'),
       children: [
         {
-          path: 'login',
+          path: '/login',
           name: 'Login',
           component: () => import('@/views/Modules/UserLogin.vue'),
           meta: { shell: 'plain', viewport: 'page', transition: 'push', keepAlive: false }
         },
         {
-          path: 'register',
+          path: '/register',
           name: 'Register',
           props: (route) => ({ inviteCode: route.query.inviteCode }),
           component: () => import('@/views/Modules/UserRegister.vue'),
           meta: { shell: 'plain', viewport: 'page', transition: 'push', keepAlive: false }
         },
         {
-          path: 'assistant',
+          path: '/assistant',
           name: 'Assistant',
           props: (route) => ({ id: route.query.id }),
           component: () => import('@/views/Modules/AssistantChat.vue'),
           meta: { shell: 'plain', viewport: 'chat', transition: 'push', keepAlive: false }
         },
         {
-          path: 'image-gen',
+          path: '/image-gen',
           name: 'ImageGeneration',
           props: (route) => ({ type: route.query.type }),
           component: () => import('@/views/Modules/ImageGeneration.vue'),
           meta: { shell: 'plain', viewport: 'page', transition: 'push', keepAlive: false }
         },
         {
-          path: 'user-profile',
+          path: '/profile',
           name: 'UserProfile',
           component: () => import('@/views/Modules/UserProfile.vue'),
           meta: { shell: 'plain', viewport: 'page', transition: 'push', keepAlive: false, subpageShell: true, title: '个人资料', backTo: '/pages/user-center' }
         },
         {
-          path: 'change-password',
+          path: '/password',
           name: 'ChangePassword',
           component: () => import('@/views/Modules/ChangePassword.vue'),
-          meta: { shell: 'plain', viewport: 'page', transition: 'push', keepAlive: false, subpageShell: true, title: '修改密码', backTo: '/modules/user-profile' }
+          meta: { shell: 'plain', viewport: 'page', transition: 'push', keepAlive: false, subpageShell: true, title: '修改密码', backTo: '/profile' }
         },
         {
-          path: 'forget-password',
+          path: '/forgot-password',
           name: 'ForgetPassword',
           component: () => import('@/views/Modules/ForgetPassword.vue'),
-          meta: { shell: 'plain', viewport: 'page', transition: 'push', keepAlive: false, subpageShell: true, title: '找回密码', backTo: '/modules/user-profile' }
+          meta: { shell: 'plain', viewport: 'page', transition: 'push', keepAlive: false, subpageShell: true, title: '找回密码', backTo: '/profile' }
         },
         {
-          path: 'image-community-details',
+          path: '/image-details',
           name: 'ImageCommunityDetails',
           component: () => import('@/views/Modules/ImageCommunityDetails.vue'),
           meta: { shell: 'plain', viewport: 'page', transition: 'push', keepAlive: false }
@@ -195,6 +206,20 @@ const router = createRouter({
       ]
     },
     {
+      path: '/modules/:legacyPath(.*)*',
+      redirect: (to) => {
+        const legacyPath = Array.isArray(to.params.legacyPath)
+          ? to.params.legacyPath.join('/')
+          : to.params.legacyPath
+
+        return {
+          path: legacyModulePaths[legacyPath] || '/login',
+          query: to.query,
+          hash: to.hash,
+        }
+      },
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'NotFound',
       component: () => import('@/views/Service/NotFound.vue'),
@@ -263,8 +288,8 @@ const pageTitleMap = {
 router.beforeEach((to, from, next) => {
   // 如果用户访问的是chat页面则直接跳转到首页，因为实际上/pages/ai-chat/alias让我设置了别名。
   if (isPass(to.path, '/pages/ai-chat') || isPass(to.path, '/pages')) next({ path: '/' })
-  // 如果用户访问的是/modules并没有具体项则直接跳转到/modules/login
-  else if (isPass(to.path, '/modules')) next({ path: '/modules/login' })
+  // 如果用户访问的是/modules并没有具体项则直接跳转到/login
+  else if (isPass(to.path, '/modules')) next({ path: '/login', replace: false })
   else {
     // 需要登录的页面，未登录则重定向到登录页
     if (authRequiredRoutes.includes(to.name)) {
@@ -272,7 +297,7 @@ router.beforeEach((to, from, next) => {
       const token = localStorage.getItem('token')
       if (!userStore.isLogin || !token) {
         showFailToast('请先登录')
-        next({ path: '/modules/login' })
+        next({ path: '/login', replace: false })
         return
       }
     }

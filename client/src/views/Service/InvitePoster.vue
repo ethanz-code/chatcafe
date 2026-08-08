@@ -123,7 +123,7 @@ const onSubmit = () => {
 onMounted(() => {
   canvasWidth.value = window.innerWidth - 24
   canvasHeight.value = (canvasWidth.value / 1620) * 2880
-  qrcodeUrl.value = `${import.meta.env.VITE_WEB_URL}/modules/register?inviteCode=${userStore.inviteCode}`
+  qrcodeUrl.value = `${import.meta.env.VITE_WEB_URL}/register?inviteCode=${userStore.inviteCode}`
   createHDCanvas(canvasRef.value, canvasWidth.value, canvasHeight.value)
   drawWork()
 })

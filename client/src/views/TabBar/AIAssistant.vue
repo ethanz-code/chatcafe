@@ -147,7 +147,7 @@ watch(searchValue, async (newVal) => {
 const enterAssistantChat = (item) => {
   historyStore.lastPagePath.push(route.fullPath)
   router.push({
-    path: '/modules/assistant',
+    path: '/assistant',
     query: {
       id: item.id
     }

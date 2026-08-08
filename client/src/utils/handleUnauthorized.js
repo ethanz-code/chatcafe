@@ -11,7 +11,7 @@ export default function handleUnauthorized() {
   autoClear()
   useUserCenterStore().reset()
   showFailToast('登录已过期，请重新登录')
-  router.push('/modules/login').finally(() => {
+  router.push('/login').finally(() => {
     redirecting = false
   })
 }

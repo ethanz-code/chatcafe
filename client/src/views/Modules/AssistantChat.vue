@@ -550,7 +550,7 @@ const UserClickTheMessageArea = () => {
   // 用户未登录，并且当前语言模型需要付费的情况下
   if (notLoginAndUsePaidLLM()) {
     historyStore.lastPagePath.push(route.fullPath)
-    router.push('/modules/login')
+    router.push('/login')
   }
 }
 // ---------底部搜索框---------
@@ -582,7 +582,7 @@ const assistantInfo = ref({
 })
 
 const backLastPage = () => {
-  historyStore.backLastPage()
+  window.history.back()
 }
 // ---------Assistant区域---------
 

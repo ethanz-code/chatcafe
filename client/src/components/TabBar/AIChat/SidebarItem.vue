@@ -4,7 +4,7 @@
     <!--  分类信息  -->
     <div class="flex pl-1.5 cursor-pointer">
       <div
-        class="flex items-center gap-1 text-gray-500 transition-colors hover:text-gray-900"
+        class="flex cursor-pointer items-center gap-1 text-gray-500 transition-colors hover:text-gray-900"
         @click="hideOrShow"
       >
         <span>{{ dialogLevel }}</span>
@@ -26,7 +26,7 @@
         v-for="(item, index) in [...(sidebarDialogShow ? datas : [])]"
         :key="item.uuid"
         :class="[
-          'py-1.5 px-2 rounded-md flex justify-between group',
+          'group flex cursor-pointer justify-between rounded-md px-2 py-1.5',
           isSelected(item) ? 'bg-gray-200' : 'hover:bg-gray-100'
         ]"
         @click="selectDialog(item)"

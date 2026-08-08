@@ -20,17 +20,20 @@ import { computed, onMounted, onErrorCaptured, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppShell from '@/components/AppShell/AppShell.vue'
 import ErrorPage from '@/views/Modules/ErrorPage.vue'
+import { useFloatingFunction } from '@/stores/floating-function'
 
 const isDebug = ref(false)
 const deleteLS = ref()
 const hasError = ref(false)
 const transitionName = ref('app-shell-push')
+let historyPosition = window.history.state?.position ?? 0
 
 const route = useRoute()
 const router = useRouter()
+const historyStore = useFloatingFunction()
 const hasNavigation = computed(() => route.meta.shell === 'tab')
 
-// 主 tab 页面（/pages 下）为层级 0，其它子页面（/modules、/service）为层级 1
+// 主 tab 页面（/pages 下）为层级 0，其它子页面为层级 1
 const getDepth = (route) => {
   if (route.path === '/' || route.path.startsWith('/pages')) return 0
   return 1
@@ -44,10 +47,15 @@ const getRouteKey = (route) => {
 // 前进 push（从右往左滑入）/ 后退 pop（从左往右滑入）
 router.afterEach((to, from) => {
   const shouldTransition = to.meta.transition === 'push' || from.meta.transition === 'push'
+  const nextHistoryPosition = window.history.state?.position ?? historyPosition
+  const isBrowserBack = nextHistoryPosition < historyPosition
+  historyPosition = nextHistoryPosition
+  const isBackNavigation = historyStore.consumeBackNavigation() || isBrowserBack
+
   transitionName.value = shouldTransition
-    ? getDepth(to) >= getDepth(from)
-      ? 'app-shell-push'
-      : 'app-shell-pop'
+    ? isBackNavigation || getDepth(to) < getDepth(from)
+      ? 'app-shell-pop'
+      : 'app-shell-push'
     : ''
 })
 
